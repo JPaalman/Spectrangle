@@ -36,13 +36,7 @@ public class Server {
             address = InetAddress.getByName(ipv4);
             socket = new ServerSocket(Game.PORT, 50, address);
 //            socket = new ServerSocket(Game.PORT);
-
-            //Allows a client to join
-            //TODO needs to be put in a separate thread where it can loop to allow multiple clients to join
-            Socket clientSocket = socket.accept();
-
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), "UTF-8"));
-            out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "UTF-8"));
+            ConnectionHandler connectionHandler = new ConnectionHandler(socket);
             //TODO create thread to receive messages and send messages
         } catch (IOException e) {
             e.printStackTrace();
