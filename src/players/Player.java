@@ -72,6 +72,7 @@ public abstract class Player {
     //@ requires board != null;
     public abstract int makeMove(Board board);
 
+
     //Returns the inventory
     //@ pure
     public ArrayList<Piece> getInventory() {

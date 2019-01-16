@@ -32,7 +32,7 @@ public class Game {
             server.create();
         } else if(args[0].equals("client")) {
             //TODO
-            Client client = new Client(args[1], "");
+            Client client = new Client(args[1]);
             client.join();
         } else {
             errorMessage("Invalid first argument.");
