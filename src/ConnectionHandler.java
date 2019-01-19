@@ -23,7 +23,7 @@ public class ConnectionHandler implements Runnable {
         while (true) {
             try {
                 clientSocket = socket.accept();
-                System.out.println("client socket: " + clientSocket.toString());
+                System.out.println("client connected: " + clientSocket.toString());
                 server.addClient(clientSocket);
             } catch (IOException e) {
                 e.printStackTrace();

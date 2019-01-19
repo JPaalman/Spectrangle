@@ -35,8 +35,6 @@ public class Client implements Runnable {
         try {
             hostAddress = InetAddress.getByName(ipv4);
             socket = new Socket(hostAddress, Game.PORT);
-//            socket = new Socket("bob", Game.PORT);
-            System.out.println("client socket: " + socket.toString());
             out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
             Thread t = new Thread(this);
@@ -48,10 +46,8 @@ public class Client implements Runnable {
                 if(command.equals("q")) {
                     break;
                 }
-                System.out.println("sending: " + command);
                 out.println(command);
                 out.flush();
-                System.out.println("message send: " + out.toString() + " " + out.checkError());
             }
             out.close();
             in.close();
@@ -63,16 +59,14 @@ public class Client implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("thread started");
         while(socket.isConnected()) {
             String message = "";
             try {
-                System.out.println("waiting for messages" + in.toString() + " " + in.ready());
                 message = in.readLine();
+                System.out.println("received message: " + message);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            System.out.println(message);
             //TODO read message and do the corresponding thing
         }
     }
