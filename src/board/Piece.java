@@ -20,4 +20,21 @@ public class Piece {
         return colors[index];
     }
 
+    public void rotate(int rotation) {
+        Color[] result = new Color[3];
+        for (int i = 0; i < 3; i++) {
+            result[i] = colors[(i + rotation) % 3];
+        }
+        colors = result;
+    }
+
+    public void flip() {
+        Color[] result = new Color[3];
+        for (int i = 0; i < 3; i++) {
+            result[i] = colors[2 - i];
+        }
+        colors = result;
+    }
+
+
 }

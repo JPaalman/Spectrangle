@@ -22,6 +22,8 @@ public class Board {
             this.multiplier = multiplier;
         }
 
+        // TODO check if (multiple) sides align
+        // TODO improve exception handling
         public int place(Piece piece) throws Exception {
             if (this.piece == null) {
                 this.piece = piece;
