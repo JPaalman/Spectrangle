@@ -1,9 +1,9 @@
-package group92.spectrangle;
+package group92.spectrangle.network;
+
+import group92.spectrangle.Game;
 
 import java.io.*;
 import java.net.*;
-
-import static java.lang.Thread.sleep;
 
 public class Client implements Runnable {
     private String name;

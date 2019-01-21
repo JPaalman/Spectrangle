@@ -1,5 +1,9 @@
 package group92.spectrangle;
 
+import group92.spectrangle.exceptions.IllegalNameException;
+import group92.spectrangle.network.Client;
+import group92.spectrangle.network.Server;
+
 public class Game {
 
     private static final String USAGE = "Usage: <server | client> + <name>";
@@ -28,8 +32,13 @@ public class Game {
         }
 
         if(args[0].equals("server")) {
-            Server server = new Server(args[1]);
-            server.create();
+            try {
+                Server server = new Server(args[1]);
+                server.create();
+            } catch (IllegalNameException e) {
+                System.out.println("Illegal server name");
+                return;
+            }
         } else if(args[0].equals("client")) {
             //TODO
             Client client = new Client(args[1]);

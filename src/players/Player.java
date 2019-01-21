@@ -2,6 +2,7 @@ package group92.spectrangle.players;
 
 import group92.spectrangle.board.Board;
 import group92.spectrangle.board.Piece;
+import group92.spectrangle.exceptions.IllegalNameException;
 
 import java.util.ArrayList;
 
@@ -13,11 +14,15 @@ public abstract class Player {
 
 
     //Constructor for creating a new player object
-    //@ requires name != null;
+    //@ requires name != null && !name.contains(";");
     //@ ensures score != null;
     //@ ensures getName() == name;
-    public Player(String name) {
-        this.name = name;
+    public Player(String name) throws IllegalNameException {
+        if(name != null && !name.contains(";")) {
+            this.name = name;
+        } else {
+            throw new IllegalNameException(name + " is an illegal name.");
+        }
         score = 0;
         inventory = new ArrayList<Piece>();
     }

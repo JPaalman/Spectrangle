@@ -1,4 +1,7 @@
-package group92.spectrangle;
+package group92.spectrangle.network;
+
+import group92.spectrangle.Game;
+import group92.spectrangle.exceptions.IllegalNameException;
 
 import java.io.*;
 import java.net.*;
@@ -12,13 +15,21 @@ public class Server {
     private ArrayList<ConnectedClient> connectedClients;
 
     public static void main(String[] args) {
-        Server server = new Server("bob");
-        server.create();
+        try {
+            Server server = new Server("bob");
+            server.create();
+        } catch (IllegalNameException e) {
+            System.out.println("Illegal server name");
+        }
     }
 
     //Constructor, initializes name and gets the ipv4 address
-    public Server(String name) {
-        this.name = name;
+    public Server(String name) throws IllegalNameException {
+        if(!name.contains(";")) {
+            this.name = name;
+        } else {
+            throw new IllegalNameException(name + " illegal name");
+        }
         connectedClients = new ArrayList<>();
     }
 

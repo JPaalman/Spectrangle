@@ -1,10 +1,8 @@
-package group92.spectrangle;
+package group92.spectrangle.network;
 
 import java.io.*;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketAddress;
 
 public class ConnectionHandler implements Runnable {
     private ServerSocket socket;

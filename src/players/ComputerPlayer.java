@@ -1,6 +1,7 @@
 package group92.spectrangle.players;
 
 import group92.spectrangle.board.Board;
+import group92.spectrangle.exceptions.IllegalNameException;
 import group92.spectrangle.strategies.SimpleStrategy;
 
 public class ComputerPlayer extends Player {
@@ -9,7 +10,7 @@ public class ComputerPlayer extends Player {
     //Constructs a computer player with a strategy
     //@ requires name != null && strategy != null;
     //@ ensures getName() == name;
-    public ComputerPlayer(String name, SimpleStrategy strategy) {
+    public ComputerPlayer(String name, SimpleStrategy strategy) throws IllegalNameException {
         super(name + " [bot]");
         this.strategy = strategy;
     }
