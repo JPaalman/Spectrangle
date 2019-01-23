@@ -11,7 +11,5 @@ public class Bag {
 
     }
 
-    private enum Pieces
-
 }
 
