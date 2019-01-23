@@ -20,6 +20,10 @@ public class Piece {
         return colors[index];
     }
 
+    public Color[] getColors() {
+        return colors.clone();
+    }
+
     public void rotate(int rotation) {
         Color[] result = new Color[3];
         for (int i = 0; i < 3; i++) {

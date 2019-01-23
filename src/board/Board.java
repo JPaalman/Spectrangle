@@ -2,12 +2,18 @@ package group92.spectrangle.board;
 
 public class Board {
 
-    private class Bag {
+    private Tile[] tiles;
 
-        public final Piece[] pieces = new Piece[]{};
-
-        public Bag() {
-
+    public Board() {
+        tiles = new Tile[36];
+        for (int i = 0; i < 36; i++) {
+            if (i == 0) {
+                // TODO multiplicity 4
+            } else if (i == 1) {
+                // TODO multiplicity 2
+            } else {
+                tiles[i] = new Tile(1);
+            }
         }
 
     }
@@ -33,6 +39,5 @@ public class Board {
         }
 
     }
-
 
 }
