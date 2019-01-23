@@ -1,5 +1,6 @@
 package group92.spectrangle.view;
 
+import group92.spectrangle.Game;
 import javafx.stage.Stage;
 
 public interface View {
