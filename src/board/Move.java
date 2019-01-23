@@ -3,9 +3,7 @@ package group92.spectrangle.board;
 public class Move {
 
     private int index;
-
     private Piece piece;
-
 
     public Move(int index, Piece piece) {
         this.index = index;
@@ -19,4 +17,5 @@ public class Move {
     public Piece getPiece() {
         return piece;
     }
+
 }

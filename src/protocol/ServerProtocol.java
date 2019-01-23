@@ -4,33 +4,7 @@ import group92.spectrangle.Game;
 import group92.spectrangle.board.Piece;
 import group92.spectrangle.players.Player;
 
-import java.awt.*;
-import java.util.HashMap;
-import java.util.Map;
-
-public interface ServerProtocol {
-
-    Map<Color, String> COLORS = new HashMap<Color, String>() {
-        {
-            put(Color.BLUE, "b");
-            put(Color.GREEN, "g");
-            put(Color.PINK, "p");
-            put(Color.RED, "r");
-            put(Color.WHITE, "w");
-            put(Color.YELLOW, "y");
-        }
-    };
-
-    String ANNOUNCE = "announce;";
-    String RESPOND = "respond;";
-    String GIVE = "give;";
-    String TURN = "turn;";
-    String MOVE = "move;";
-    String SWAP = "swap;";
-    String SKIP = "skip;";
-    String END = "end;";
-    String EXCEPTION = "exception;";
-    String MESSAGE = "message;";
+public interface ServerProtocol extends Protocol {
 
     String announce(String serverName);
 
