@@ -1,6 +1,6 @@
 package group92.spectrangle.board;
 
-import group92.spectrangle.protocol.ClientProtocol;
+import group92.spectrangle.protocol.Protocol;
 
 import java.awt.*;
 
@@ -45,7 +45,7 @@ public class Piece {
     public String toString() {
         String result = multiplier + ";";
         for (Color color : colors) {
-            result += ClientProtocol.COLORS.get(color);
+            result += Protocol.COLOR_STRING_MAP.get(color) + ";";
         }
         return result;
     }
