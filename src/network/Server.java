@@ -104,6 +104,7 @@ public class Server implements ServerProtocol {
             client.setName(username);
 
         } else if(first.equals("join")) {
+            client.setPlayer();
             //add the client to a game if possible, if given add him to a game with a specific max player count or specific name
             if(splitMessage.length == 2) {
                 String arg = splitMessage[1];
@@ -112,7 +113,7 @@ public class Server implements ServerProtocol {
                     char argChar = arg.charAt(0);
                     for(Game g : games) {
                         if(g.getMaxPlayers() == (int) argChar && g.hasSpace()) {
-                            g.createServerClient(client.getName());
+                            g.addPlayer(client.getPlayer());
                             client.setGame(g);
                             break;
                         }
@@ -122,7 +123,7 @@ public class Server implements ServerProtocol {
                     //if a game name is given
                     for(Game g : games) {
                         if(g.getName().equals(arg) && g.hasSpace()) {
-                            g.createServerClient(client.getName());
+                            g.addPlayer(client.getPlayer());
                             client.setGame(g);
                             break;
                         }
@@ -133,7 +134,7 @@ public class Server implements ServerProtocol {
                 //If the client wants to join any game
                 for(Game g : games) {
                     if(g.hasSpace()) {
-                        g.createServerClient(client.getName());
+                        g.addPlayer(client.getPlayer());
                         client.setGame(g);
                         break;
                     }
@@ -148,7 +149,7 @@ public class Server implements ServerProtocol {
                 Game game = new Game(maxPlayers);
                 games.add(game);
                 client.setGame(game);
-                game.createServerClient(client.getName());
+                game.addPlayer(client.getPlayer());
             }
 
         } else if(first.equals("start")) {

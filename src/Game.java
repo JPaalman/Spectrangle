@@ -50,9 +50,8 @@ public class Game {
         GUI.launch(GUI.class);
     }
 
-    //creates a NetworkPlayer and adds it to this game
-    public void createServerClient(String name) {
-        Player player = new NetworkPlayer(name);
+    //adds a player to a game
+    public void addPlayer(Player player) {
         players.add(player);
     }
 
