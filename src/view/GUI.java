@@ -64,7 +64,7 @@ public class GUI extends Application implements Observer, View {
         grid.add(confirmUsername, 0, 2);
         confirmUsername.setOnAction(event -> {
             username = userTextField.getText();
-            game.createClient(username);
+//            game.createClient(username);
             serverList();
         });
     }
