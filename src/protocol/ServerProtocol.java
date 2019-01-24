@@ -16,7 +16,7 @@ public interface ServerProtocol extends Protocol {
 
     String move(Player player, Piece piece, int index);
 
-    String swap(Player player, Piece piece);
+    String swap(Player player, Piece piece, Piece returnedPiece);
 
     String skip(Player player);
 
