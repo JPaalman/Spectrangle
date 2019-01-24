@@ -1,11 +1,14 @@
 package group92.spectrangle.network;
 
 import group92.spectrangle.Game;
+import group92.spectrangle.board.Piece;
+import group92.spectrangle.players.Player;
+import group92.spectrangle.protocol.ClientProtocol;
 
 import java.io.*;
 import java.net.*;
 
-public class Client implements Runnable {
+public class Client implements Runnable, ClientProtocol {
     private String name;
     private Socket socket;
     private PrintWriter out;
@@ -15,7 +18,7 @@ public class Client implements Runnable {
 
     public static void main(String[] args) {
         Client client = new Client("Alice");
-        client.join();
+        client.joinServer();
     }
 
     public Client(String name) {
@@ -31,7 +34,7 @@ public class Client implements Runnable {
         }
     }
 
-    public void join() {
+    public void joinServer() {
         try {
             hostAddress = InetAddress.getByName(ipv4);
             socket = new Socket(hostAddress, Game.PORT);
@@ -64,10 +67,123 @@ public class Client implements Runnable {
             try {
                 message = in.readLine();
                 System.out.println("received message: " + message);
+                String[] splitMessage = message.split(";");
+                readMessage(splitMessage);
             } catch (IOException e) {
                 e.printStackTrace();
             }
             //TODO read message and do the corresponding thing
         }
+    }
+
+    private void readMessage(String[] splitMessage) {
+        if(splitMessage == null) {
+            return;
+        }
+
+        String first = splitMessage[0];
+        if(first.equals("announce")) {
+            //give this server a name
+            String serverName = splitMessage[1];
+            //TODO give this server a name
+
+        } else if(first.equals("respond")) {
+            //TODO
+
+        } else if(first.equals("give")) {
+            //TODO
+
+        } else if(first.equals("turn")) {
+            //TODO
+
+        } else if(first.equals("move")) {
+            //TODO
+
+        } else if(first.equals("swap")) {
+            //TODO
+
+        }  else if(first.equals("skip")) {
+            //TODO
+
+        } else if(first.equals("end")) {
+            //TODO
+
+        } else if(first.equals("exception")) {
+            //TODO
+
+        } else if(first.equals("message")) {
+            //TODO
+
+        }
+    }
+
+    @Override
+    public String scan() {
+        return ClientProtocol.SCAN;
+    }
+
+    @Override
+    public String connect(Player player) {
+        return ClientProtocol.CONNECT + ";" + player.getName();
+    }
+
+    @Override
+    public String join() {
+        return ClientProtocol.JOIN;
+    }
+
+    @Override
+    public String join(String username) {
+        return ClientProtocol.JOIN + ";" + username;
+    }
+
+    @Override
+    public String join(int maxPlayers) {
+        return ClientProtocol.JOIN + ";" + maxPlayers;
+    }
+
+    @Override
+    public String create() {
+        return ClientProtocol.CREATE;
+    }
+
+    @Override
+    public String create(int maxPlayers) {
+        return ClientProtocol.CREATE + ";" + maxPlayers;
+    }
+
+    @Override
+    public String start() {
+        return ClientProtocol.START;
+    }
+
+    @Override
+    public String move(Piece piece, int index) {
+        return ClientProtocol.MOVE + ";" + piece.toString() + index;
+    }
+
+    @Override
+    public String swap(Piece piece) {
+        return ClientProtocol.SWAP + ";" + piece.toString();
+    }
+
+    @Override
+    public String skip() {
+        return ClientProtocol.SKIP;
+    }
+
+    @Override
+    public String leave() {
+        return ClientProtocol.LEAVE;
+    }
+
+    @Override
+    public String disconnect() {
+        return ClientProtocol.DISCONNECT;
+    }
+
+    @Override
+    public String message(String message) {
+        return ClientProtocol.MESSAGE + ";" + message;
     }
 }

@@ -1,57 +1,73 @@
 package group92.spectrangle;
 
 import group92.spectrangle.exceptions.IllegalNameException;
-import group92.spectrangle.network.Client;
-import group92.spectrangle.network.Server;
+import group92.spectrangle.players.HumanPlayer;
+import group92.spectrangle.players.NetworkPlayer;
+import group92.spectrangle.players.Player;
+import group92.spectrangle.view.GUI;
+
+import java.util.ArrayList;
+
+//the controller of our Spectrangle application
 
 public class Game {
 
-    private static final String USAGE = "Usage: <server | client> + <name>";
-    public static final int PORT = 2626;
-    private static String name;
-    private static final int MAXNAMESIZE = 10;
+    private final String USAGE = "Usage: <server | client> + <name>";
+    public final static int PORT = 2626;
+    private GUI gui;
+    private ArrayList<Player> players;
+    private int maxPlayers;
 
     public static void main(String[] args) {
-        System.out.println("test");
-        if(args.length < 2) {
-            errorMessage("Too few arguments.");
-            return;
-        } else if(args.length > 2) {
-            errorMessage("Too many arguments.");
-            return;
-        }
-
-        name = args[1];
-
-        if(name.contains(";")) {
-            errorMessage("You are not allowed to use ';' in your name.");
-            return;
-        } else if (name.length() > MAXNAMESIZE) {
-            errorMessage("Your name exceeds the maximum size of " + MAXNAMESIZE + " characters.");
-            return;
-        }
-
-        if(args[0].equals("server")) {
-            try {
-                Server server = new Server(args[1]);
-                server.create();
-            } catch (IllegalNameException e) {
-                System.out.println("Illegal server name");
-                return;
-            }
-        } else if(args[0].equals("client")) {
-            //TODO
-            Client client = new Client(args[1]);
-            client.join();
-        } else {
-            errorMessage("Invalid first argument.");
-            return;
-        }
-
+        Game game = new Game();
+        game.start();
     }
 
-    public static void errorMessage(String error) {
+    public Game() {
+        maxPlayers = 4;
+    }
+
+    public Game(int maxPlayers) {
+        this.maxPlayers = maxPlayers;
+    }
+
+    //return the max player count
+    public int getMaxPlayers() {
+        return maxPlayers;
+    }
+
+    //return the players list
+    public ArrayList<Player> getPlayers() {
+        return players;
+    }
+
+    //checks whether there is space for another player
+    public boolean hasSpace() {
+        return players.size() < maxPlayers;
+    }
+
+    public void start() {
+        GUI.launch(GUI.class);
+    }
+
+    //adds a player to a game
+    public void addPlayer(Player player) {
+        players.add(player);
+    }
+
+
+    public void createClient(String name) throws IllegalNameException {
+        Player player = new HumanPlayer(name);
+        players.add(player);
+    }
+
+    public void errorMessage(String error) {
         System.out.println(error + "\n" + USAGE);
+    }
+
+    //returns the name of the first player that is in this game
+    public String getName() {
+        return players.get(0).getName();
     }
 
 }

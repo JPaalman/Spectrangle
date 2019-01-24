@@ -1,7 +1,11 @@
 package group92.spectrangle.network;
 
 import group92.spectrangle.Game;
+import group92.spectrangle.board.Piece;
 import group92.spectrangle.exceptions.IllegalNameException;
+import group92.spectrangle.players.NetworkPlayer;
+import group92.spectrangle.players.Player;
+import group92.spectrangle.protocol.ServerProtocol;
 
 import java.io.*;
 import java.net.*;
@@ -9,10 +13,11 @@ import java.util.ArrayList;
 
 import static java.lang.Thread.sleep;
 
-public class Server {
+public class Server implements ServerProtocol {
     private String name;
     private ServerSocket socket;
     private ArrayList<ConnectedClient> connectedClients;
+    private ArrayList<Game> games;
 
     public static void main(String[] args) {
         try {
@@ -31,6 +36,7 @@ public class Server {
             throw new IllegalNameException(name + " illegal name");
         }
         connectedClients = new ArrayList<>();
+        games = new ArrayList<>();
     }
 
     //Sends a message to all connected clients
@@ -83,7 +89,165 @@ public class Server {
     }
 
     public void readMessage(String[] splitMessage, ConnectedClient client) {
-        //TODO
+        if(splitMessage == null || client == null) {
+            return;
+        }
+
+        String first = splitMessage[0];
+        if(first.equals("scan")) {
+            //announce your server name
+            client.writeMessage(announce(name));
+
+        } else if(first.equals("connect")) {
+            //save the name for this client, he is now officially connected
+            String username = splitMessage[1];
+            client.setName(username);
+
+        } else if(first.equals("join")) {
+            client.setPlayer();
+            //add the client to a game if possible, if given add him to a game with a specific max player count or specific name
+            if(splitMessage.length == 2) {
+                String arg = splitMessage[1];
+                if(arg.length() == 1) {
+                    //if a player count is given
+                    char argChar = arg.charAt(0);
+                    for(Game g : games) {
+                        if(g.getMaxPlayers() == (int) argChar && g.hasSpace()) {
+                            g.addPlayer(client.getPlayer());
+                            client.setGame(g);
+                            break;
+                        }
+                    }
+                    client.writeMessage(exception("There is no game with player count: " + arg));
+                } else {
+                    //if a game name is given
+                    for(Game g : games) {
+                        if(g.getName().equals(arg) && g.hasSpace()) {
+                            g.addPlayer(client.getPlayer());
+                            client.setGame(g);
+                            break;
+                        }
+                    }
+                    client.writeMessage(exception("There is no game with username: " + arg));
+                }
+            } else {
+                //If the client wants to join any game
+                for(Game g : games) {
+                    if(g.hasSpace()) {
+                        g.addPlayer(client.getPlayer());
+                        client.setGame(g);
+                        break;
+                    }
+                }
+                client.writeMessage(exception("There is no game available"));
+            }
+
+        } else if(first.equals("create")) {
+            //If this player wants to create a game
+            int maxPlayers = (int) splitMessage[2].charAt(0);
+            if(maxPlayers <= 4 && client.getName() != null) { //TODO make sure this player is not in a different game already
+                Game game = new Game(maxPlayers);
+                games.add(game);
+                client.setGame(game);
+                game.addPlayer(client.getPlayer());
+            }
+
+        } else if(first.equals("start")) {
+            //if a player wants to start the game, must be the player who created it
+            if(client.getGame() != null && client.getName() != null && client.getGame().getName().equals(client.getName())) {
+                //TODO start game
+            } else {
+                client.writeMessage(exception("You have no lobby of yourself"));
+            }
+
+        } else if(first.equals("move")) {
+            //if the client makes a move
+            //TODO make the move
+
+        } else if(first.equals("swap")) {
+            //TODO swap pieces
+
+        } else if(first.equals("skip")) {
+            //TODO skip turn
+
+        } else if(first.equals("leave")) {
+            //TODO leave game
+
+        } else if(first.equals("disconnect")) {
+            //disconnects the client from the server, closes the socket and removes him from
+            //TODO if the client is in a game, quit the game
+            client.disconnect();
+            connectedClients.remove(client);
+
+        } else if(first.equals("message")) {
+            //send this message to all players in the same game
+            for(Player p : client.getGame().getPlayers()) {
+                ((NetworkPlayer) p).getConnectedClient().writeMessage(message(p, splitMessage[2]));
+            }
+        }
+
+    }
+
+    @Override
+    public String announce(String serverName) {
+        return ServerProtocol.ANNOUNCE + ";" + serverName;
+    }
+
+    @Override
+    public String respond(Game game, Game... games) {
+        String result = ServerProtocol.RESPOND + ";" + game.getName();
+        for(Game g : games) {
+            result += ";" + g.getName();
+        }
+        return result;
+    }
+
+    @Override
+    public String give(Player player, Piece piece, Piece... pieces) {
+        String result = ServerProtocol.GIVE + player.getName() + ";" + piece.toString();
+        for(Piece p : pieces) {
+            result += ";" + p.toString();
+        }
+        return result;
+    }
+
+    @Override
+    public String turn(Player player) {
+        return ServerProtocol.TURN + ";" + player.toString();
+    }
+
+    @Override
+    public String move(Player player, Piece piece, int index) {
+        return ServerProtocol.MOVE + ";" + player.getName() + ";" + piece.toString() + ";" + index;
+    }
+
+    @Override
+    public String swap(Player player, Piece piece) {
+        return ServerProtocol.MOVE + ";" + player.getName() + piece.toString();
+    }
+
+    @Override
+    public String skip(Player player) {
+        return ServerProtocol.SKIP + ";" + player.getName();
+    }
+
+    @Override
+    public String end(Player player, Player... players) {
+        String result = ServerProtocol.END + ";" + player.getName();
+        for(Player p : players) {
+            result += ";" + p.getName();
+        }
+        return result;
+    }
+
+    @Override
+    public String exception(String message) {
+        return ServerProtocol.EXCEPTION + ";" + message;
+    }
+
+    @Override
+    public String message(Player player, String message) {
+        return ServerProtocol.MESSAGE + ";" + player.getName() + ";" + message;
     }
 
     //A class that holds information about a connected player
@@ -92,6 +256,9 @@ public class Server {
         private BufferedReader in;
         private PrintWriter out;
         private Server server;
+        private String name;
+        private Game game;
+        private NetworkPlayer player;
 
         public ConnectedClient(Socket socket, Server server) {
             this.socket = socket;
@@ -102,6 +269,43 @@ public class Server {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+
+        public void setPlayer() {
+            player = new NetworkPlayer(name, this);
+        }
+
+        public NetworkPlayer getPlayer() {
+            return player;
+        }
+
+        //Disconnect
+        public void disconnect() {
+            try {
+                in.close();
+                out.close();
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        //assign this client to a game
+        public void setGame(Game game) {
+            this.game = game;
+        }
+
+        //get the game this server is in
+        public Game getGame() {
+            return game;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
         }
 
         public String read() {

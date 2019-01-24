@@ -1,5 +1,6 @@
 package group92.spectrangle.view;
 
+import group92.spectrangle.Game;
 import group92.spectrangle.network.Server;
 import group92.spectrangle.exceptions.IllegalNameException;
 import group92.spectrangle.players.HumanPlayer;
@@ -15,7 +16,10 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-public class GUI extends Application implements View {
+import java.util.Observable;
+import java.util.Observer;
+
+public class GUI extends Application implements Observer, View {
 
     private String username;
     private Player player;
@@ -23,6 +27,7 @@ public class GUI extends Application implements View {
     private StackPane root;
     private GridPane grid;
     private Server server;
+    private static Game game = null;
 
     public static void main(String[] args) {
         launch(args);
@@ -59,13 +64,8 @@ public class GUI extends Application implements View {
         grid.add(confirmUsername, 0, 2);
         confirmUsername.setOnAction(event -> {
             username = userTextField.getText();
-            try {
-                player = new HumanPlayer(username);
-                System.out.println(player.toString());
-                serverList();
-            } catch (IllegalNameException e) {
-                System.out.println("Please enter a different name.");
-            }
+//            game.createClient(username);
+            serverList();
         });
     }
 
@@ -115,5 +115,10 @@ public class GUI extends Application implements View {
         serverNameGrid.add(addServer, 1, 1);
 
         root.getChildren().add(serverNameGrid);
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+
     }
 }
