@@ -25,10 +25,12 @@ public class Game {
 
     public Game() {
         maxPlayers = 4;
+        players = new ArrayList<>();
     }
 
     public Game(int maxPlayers) {
         this.maxPlayers = maxPlayers;
+        players = new ArrayList<>();
     }
 
     //return the max player count

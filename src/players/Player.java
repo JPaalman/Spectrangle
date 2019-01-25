@@ -17,9 +17,11 @@ public abstract class Player {
     //@ requires name != null && !name.contains(";");
     //@ ensures score != null;
     //@ ensures getName() == name;
-    public Player(String name) {
+    public Player(String name) throws IllegalNameException {
         if(name != null && !name.contains(";")) {
             this.name = name;
+        } else {
+            throw new IllegalNameException("Illegal name");
         }
         score = 0;
         inventory = new ArrayList<Piece>();

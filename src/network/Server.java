@@ -101,10 +101,18 @@ public class Server implements ServerProtocol {
         } else if(first.equals("connect")) {
             //save the name for this client, he is now officially connected
             String username = splitMessage[1];
-            client.setName(username);
+            try {
+                client.setName(username);
+            } catch (IllegalNameException e) {
+                //TODO return exception telling client his name is invalid
+            }
 
         } else if(first.equals("join")) {
-            client.setPlayer();
+            try {
+                client.setPlayer();
+            } catch (IllegalNameException e) {
+                e.printStackTrace();
+            }
             //add the client to a game if possible, if given add him to a game with a specific max player count or specific name
             if(splitMessage.length == 2) {
                 String arg = splitMessage[1];
@@ -222,8 +230,8 @@ public class Server implements ServerProtocol {
     }
 
     @Override
-    public String swap(Player player, Piece piece) {
-        return ServerProtocol.MOVE + ";" + player.getName() + piece.toString();
+    public String swap(Player player, Piece piece, Piece returnedPiece) {
+        return ServerProtocol.MOVE + ";" + player.getName() + ";" + piece.toString() + ";" + returnedPiece.toString();
     }
 
     @Override
@@ -271,7 +279,7 @@ public class Server implements ServerProtocol {
             }
         }
 
-        public void setPlayer() {
+        public void setPlayer() throws IllegalNameException {
             player = new NetworkPlayer(name, this);
         }
 
@@ -304,8 +312,12 @@ public class Server implements ServerProtocol {
             return name;
         }
 
-        public void setName(String name) {
-            this.name = name;
+        public void setName(String name) throws IllegalNameException {
+            if(!name.contains(";") && name != null) {
+                this.name = name;
+            } else {
+                throw new IllegalNameException("Illegal name");
+            }
         }
 
         public String read() {

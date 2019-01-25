@@ -8,7 +8,7 @@ public class NetworkPlayer extends Player {
 
     private Server.ConnectedClient connectedClient;
 
-    public NetworkPlayer(String name, Server.ConnectedClient connectedClient) {
+    public NetworkPlayer(String name, Server.ConnectedClient connectedClient) throws IllegalNameException {
         super(name);
         this.connectedClient = connectedClient;
     }
