@@ -29,6 +29,9 @@ public class Server implements ServerProtocol {
     }
 
     //Constructor, initializes name and gets the ipv4 address
+    //@ requires name != null;
+    //@ ensures !name.contains(";") => name != null;
+    //@ ensures connectedClients != null && games != null;
     public Server(String name) throws IllegalNameException {
         if(!name.contains(";")) {
             this.name = name;

@@ -45,7 +45,6 @@ public class Client implements Runnable, ClientProtocol {
             in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
             Thread t = new Thread(this);
             t.start();
-            //TODO create thread to receive messages and send messages
             BufferedReader terminalInput = new BufferedReader(new InputStreamReader(System.in));
             while(true) {
                 String command = terminalInput.readLine().toLowerCase();

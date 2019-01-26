@@ -1,6 +1,8 @@
 package group92.spectrangle.view;
 
 import group92.spectrangle.exceptions.IllegalNameException;
+import group92.spectrangle.network.Client;
+import group92.spectrangle.network.Server;
 import group92.spectrangle.players.HumanPlayer;
 
 import javax.swing.*;
@@ -12,6 +14,8 @@ public class GUI implements View {
     private Container logIn;
     private Container serverBrowser;
     private String username;
+    private Server server;
+    private Client client;
 
     public static void main(String[] args) {
         GUI gui = new GUI();
@@ -104,14 +108,26 @@ public class GUI implements View {
         //TODO
     }
 
+    //creates a server
     @Override
     public void createServer() {
-        //TODO
+        String result = JOptionPane.showInputDialog("Please enter a server name");
+        try {
+            server = new Server(result);
+            server.create();
+        } catch (IllegalNameException e) {
+            e.printStackTrace();
+        }
     }
 
+    //refreshes the server list
+    //@ ensures client != null;
     @Override
     public void refresh() {
-        //TODO
+        if(client == null) {
+            client = new Client(username);
+        }
+        client.joinServer();
     }
 
     //shows the login screen GUI

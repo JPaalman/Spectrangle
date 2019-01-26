@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class Game {
 
     private final String USAGE = "Usage: <server | client> + <name>";
-    public final static int PORT = 2626;
+    public final static int PORT = 2019;
 //    private GUIServerBrowser gui;
     private ArrayList<Player> players;
     private int maxPlayers;
