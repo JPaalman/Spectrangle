@@ -8,7 +8,7 @@ public class ComputerPlayer extends Player {
     private SimpleStrategy strategy;
 
     //Constructs a computer player with a strategy
-    //@ requires name != null && strategy != null;
+    //@ requires name != null && strategy != null && !name.contains(";");
     //@ ensures getName() == name;
     public ComputerPlayer(String name, SimpleStrategy strategy) throws IllegalNameException {
         super(name + " [bot]");

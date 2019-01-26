@@ -15,7 +15,7 @@ public abstract class Player {
 
     //Constructor for creating a new player object
     //@ requires name != null && !name.contains(";");
-    //@ ensures score != null;
+    //@ ensures score != null && inventory != null;
     //@ ensures getName() == name;
     public Player(String name) throws IllegalNameException {
         if(name != null && !name.contains(";")) {
@@ -28,12 +28,14 @@ public abstract class Player {
     }
 
     //Returns the name of this player
+    //@ requires name != null;
     //@ pure
     public String getName() {
         return name;
     }
 
     //Returns the score of this player
+    //@ requires score != null;
     //@ pure
     public int getScore() {
         return score;

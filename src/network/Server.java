@@ -268,6 +268,9 @@ public class Server implements ServerProtocol {
         private Game game;
         private NetworkPlayer player;
 
+        //creates a connectedClient with a socket and a server
+        //@ requires socket != null && server != null;
+        //@ ensures socket != null && server != null;
         public ConnectedClient(Socket socket, Server server) {
             this.socket = socket;
             this.server = server;
@@ -279,15 +282,21 @@ public class Server implements ServerProtocol {
             }
         }
 
+        //assigns this client to a player
+        //@ ensures !getName().contains(";") => player != null;
         public void setPlayer() throws IllegalNameException {
             player = new NetworkPlayer(name, this);
         }
 
+        //gets the player object this client is assigned to
+        //@ requires player != null;
+        //@ pure
         public NetworkPlayer getPlayer() {
             return player;
         }
 
-        //Disconnect
+        //disconnects from the bufferedreader, the printwriter, and the socket
+        //@ requires in != null && out != null && socket != null;
         public void disconnect() {
             try {
                 in.close();
@@ -299,19 +308,29 @@ public class Server implements ServerProtocol {
         }
 
         //assign this client to a game
+        //@ requires game != null;
+        //@ ensures game != null;
         public void setGame(Game game) {
             this.game = game;
         }
 
-        //get the game this server is in
+        //gets the game this client is in
+        //@ requires game != null;
+        //@ pure
         public Game getGame() {
             return game;
         }
 
+        //gets the name of this client
+        //@ requires name != null;
+        //@ pure
         public String getName() {
             return name;
         }
 
+        //set the name of this client
+        //@ requires name != null;
+        //@ ensures name.contains(";") => name != null;
         public void setName(String name) throws IllegalNameException {
             if(!name.contains(";") && name != null) {
                 this.name = name;
@@ -320,6 +339,8 @@ public class Server implements ServerProtocol {
             }
         }
 
+        //read the bufferedreader
+        //@ requires in != null;
         public String read() {
             try {
                 String message = in.readLine();
@@ -331,6 +352,8 @@ public class Server implements ServerProtocol {
             return"error";
         }
 
+        //writes a split message
+        //@ requires splitMessage != null && out != null;
         public void writeSplitMessage(String[] splitMessage) {
             String message = "";
             for(int i = 0; i < splitMessage.length; i++) {
@@ -344,24 +367,38 @@ public class Server implements ServerProtocol {
             out.flush();
         }
 
+        //writes a message
+        //@ requires message != null && out != null;
+        //@ pure
         public void writeMessage(String message) {
             out.println(message);
-            out.flush();;
+            out.flush();
 
         }
 
+        //returns the reader
+        //@ requires in != null;
+        //@ pure
         public BufferedReader getReader() {
             return in;
         }
 
+        //returns the writer
+        //@ requires out != null;
+        //@ pure
         public PrintWriter getWriter() {
             return out;
         }
 
+        //returns the socket
+        //@ requires socket != null;
+        //@ pure
         public Socket getSocket() {
             return socket;
         }
 
+        //handles a thread that is responsible for reading the reader this client is connected to
+        //@ requires socket != null && server != null;
         @Override
         public void run() {
             while(socket.isConnected()) {
@@ -369,6 +406,7 @@ public class Server implements ServerProtocol {
                 String[] splitMessage = message.split(";");
                 server.readMessage(splitMessage, this);
             }
+            disconnect();
             server.removeClient(this);
         }
     }

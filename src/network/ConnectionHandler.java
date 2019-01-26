@@ -10,6 +10,8 @@ public class ConnectionHandler implements Runnable {
     private Server server;
 
     //Initializes the ConnectionHandler with a server socket and a server object
+    //@ requires socket != null && server != null;
+    //@ ensures socket != null && server != null;
     public ConnectionHandler(ServerSocket socket, Server server) {
         this.socket = socket;
         this.server = server;

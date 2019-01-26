@@ -8,11 +8,15 @@ public class NetworkPlayer extends Player {
 
     private Server.ConnectedClient connectedClient;
 
+    //creates a network player with a connectedClient and a name
+    //@ requires name != null && !name.contains(";") && connectedClient != null;
+    //@ ensures getName() == name && connectedClient != null;
     public NetworkPlayer(String name, Server.ConnectedClient connectedClient) throws IllegalNameException {
         super(name);
         this.connectedClient = connectedClient;
     }
 
+    //@ requires connectedClient != null;
     public Server.ConnectedClient getConnectedClient() {
         return connectedClient;
     }

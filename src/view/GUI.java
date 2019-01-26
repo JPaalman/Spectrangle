@@ -18,6 +18,8 @@ public class GUI implements View {
         gui.start();
     }
 
+    //initializes the frame and draws the login screen
+    //@ ensures frame != null && frame.isVisible() == true;
     @Override
     public void start() {
         frame = new JFrame("Spectrangle");
@@ -29,6 +31,9 @@ public class GUI implements View {
     }
 
     @Override
+    //shows the server list GUI
+    //@ requires frame != null;
+    //@ ensures serverBrowser != null;
     public void serverList() {
         serverBrowser = new GUIServerBrowser().getMainPanel();
         frame.setContentPane(serverBrowser);
@@ -51,6 +56,8 @@ public class GUI implements View {
         });
     }
 
+    //Adds a server manually to the server list
+    //@ requires frame != null;
     @Override
     public void addServer() {
         JTextField address = new JTextField();
@@ -73,6 +80,9 @@ public class GUI implements View {
         }
     }
 
+    //Sets the username if it is valid
+    //@ requires frame != null && logIn != null;
+    //@ ensures ((JTextField) !logIn.getComponent(3)).getText().contains(";") => username != null && player != null && serverBrowser.getComponent(0)).getComponent(0)).getText().equals(username);
     @Override
     public void setUsername() {
         try {
@@ -104,6 +114,9 @@ public class GUI implements View {
         //TODO
     }
 
+    //shows the login screen GUI
+    //@ requires frame != null;
+    //@ ensures logIn != null;
     @Override
     public void loginScreen() {
         logIn = new GUILogInScreen().getPanel();

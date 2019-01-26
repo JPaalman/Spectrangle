@@ -21,6 +21,8 @@ public class Client implements Runnable, ClientProtocol {
         client.joinServer();
     }
 
+    //creates a client with a name
+    //@ requires name!= null;
     public Client(String name) {
         this.name = name;
         //This entire try catch block is to get the ipv4 address
@@ -34,6 +36,7 @@ public class Client implements Runnable, ClientProtocol {
         }
     }
 
+    //creates a socket and connects to a server socket if one exists on the specified port
     public void joinServer() {
         try {
             hostAddress = InetAddress.getByName(ipv4);
@@ -60,6 +63,8 @@ public class Client implements Runnable, ClientProtocol {
         }
     }
 
+    //reads the bufferedreader of the serverSocket this client is connected to
+    //@requires socket != null;
     @Override
     public void run() {
         while(socket.isConnected()) {
@@ -72,10 +77,11 @@ public class Client implements Runnable, ClientProtocol {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            //TODO read message and do the corresponding thing
         }
     }
 
+    //reads a message and executes the corresponding action
+    //@ requires splitMessage != null;
     private void readMessage(String[] splitMessage) {
         if(splitMessage == null) {
             return;
