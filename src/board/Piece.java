@@ -3,6 +3,7 @@ package group92.spectrangle.board;
 import group92.spectrangle.protocol.Protocol;
 
 import java.awt.*;
+import java.util.Arrays;
 
 public class Piece {
 
@@ -50,6 +51,10 @@ public class Piece {
         return colors.clone();
     }
 
+    public boolean equals(Object obj) {
+        return obj instanceof Piece && ((Piece) obj).multiplier == multiplier && Arrays.asList(((Piece) obj).colors).containsAll(Arrays.asList(colors));
+    }
+
     public String toString() {
         String result = multiplier + ";";
         for (Color color : colors) {
@@ -57,6 +62,5 @@ public class Piece {
         }
         return result;
     }
-
 
 }
