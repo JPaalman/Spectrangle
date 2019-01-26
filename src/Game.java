@@ -2,9 +2,7 @@ package group92.spectrangle;
 
 import group92.spectrangle.exceptions.IllegalNameException;
 import group92.spectrangle.players.HumanPlayer;
-import group92.spectrangle.players.NetworkPlayer;
 import group92.spectrangle.players.Player;
-import group92.spectrangle.view.GUI;
 
 import java.util.ArrayList;
 
@@ -14,13 +12,13 @@ public class Game {
 
     private final String USAGE = "Usage: <server | client> + <name>";
     public final static int PORT = 2626;
-    private GUI gui;
+//    private GUIServerBrowser gui;
     private ArrayList<Player> players;
     private int maxPlayers;
 
     public static void main(String[] args) {
         Game game = new Game();
-        game.start();
+//        game.start();
     }
 
     public Game() {
@@ -48,9 +46,9 @@ public class Game {
         return players.size() < maxPlayers;
     }
 
-    public void start() {
-        GUI.launch(GUI.class);
-    }
+//    public void start() {
+//        GUIServerBrowser.launch(GUIServerBrowser.class);
+//    }
 
     //adds a player to a game
     public void addPlayer(Player player) {

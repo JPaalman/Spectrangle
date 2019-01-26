@@ -1,124 +1,115 @@
 package group92.spectrangle.view;
 
-import group92.spectrangle.Game;
-import group92.spectrangle.network.Server;
 import group92.spectrangle.exceptions.IllegalNameException;
 import group92.spectrangle.players.HumanPlayer;
-import group92.spectrangle.players.Player;
-import javafx.application.Application;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
-import javafx.stage.Stage;
 
-import java.util.Observable;
-import java.util.Observer;
+import javax.swing.*;
+import java.awt.*;
 
-public class GUI extends Application implements Observer, View {
-
+public class GUI implements View {
+    private JFrame frame;
+    private HumanPlayer player;
+    private Container logIn;
+    private Container serverBrowser;
     private String username;
-    private Player player;
-    private Stage primaryStage;
-    private StackPane root;
-    private GridPane grid;
-    private Server server;
-    private static Game game = null;
 
     public static void main(String[] args) {
-        launch(args);
+        GUI gui = new GUI();
+        gui.start();
     }
 
     @Override
-    public void start(Stage primaryStage) {
-        this.primaryStage = primaryStage;
-        primaryStage.setTitle("Spectrangle");
-        root = new StackPane();
-
+    public void start() {
+        frame = new JFrame("Spectrangle");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setSize(frame.getMaximumSize());
         loginScreen();
-
-        primaryStage.setScene(new Scene(root, 300, 250));
-        primaryStage.show();
-    }
-
-    public void loginScreen() {
-        grid = new GridPane();
-        grid.setAlignment(Pos.CENTER);
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(25, 25, 25, 25));
-
-        root.getChildren().add(grid);
-
-        Label usernameLabel = new Label("Username:");
-        grid.add(usernameLabel, 0, 1);
-
-        TextField userTextField = new TextField();
-        grid.add(userTextField, 1, 1);
-
-        Button confirmUsername = new Button("Confirm");
-        grid.add(confirmUsername, 0, 2);
-        confirmUsername.setOnAction(event -> {
-            username = userTextField.getText();
-//            game.createClient(username);
-            serverList();
-        });
-    }
-
-    public void serverList() {
-        grid.getChildren().clear();
-
-        Label serverTitle = new Label("Servers:");
-        grid.add(serverTitle, 0, 0);
-
-        if(server == null) {
-            Button addServerButton = new Button("Create server");
-            addServerButton.setOnAction(event -> {
-                addServer();
-            });
-
-            grid.add(addServerButton, 1, 0);
-        }
-
-        //TODO list all servers
-        //TODO option to manually insert port and address
-    }
-
-    public void addServer() {
-        GridPane serverNameGrid = new GridPane();
-        System.out.println("Creating server");
-        root.getChildren().clear();
-
-        Label serverName = new Label("Server name:");
-        serverNameGrid.add(serverName, 0, 0);
-
-        TextField serverNameField = new TextField();
-        serverNameGrid.add(serverNameField, 1, 0);
-
-        Button addServer = new Button("Add");
-        addServer.setOnAction(event -> {
-            try {
-                server = new Server(serverNameField.getText());
-                System.out.println(server.toString());
-                root.getChildren().clear();
-                root.getChildren().add(grid);
-                serverList();
-
-            } catch (IllegalNameException e) {
-                System.out.println("Please enter a different server name");
-            }
-        });
-        serverNameGrid.add(addServer, 1, 1);
-
-        root.getChildren().add(serverNameGrid);
+        frame.setVisible(true);
     }
 
     @Override
-    public void update(Observable o, Object arg) {
+    public void serverList() {
+        serverBrowser = new GUIServerBrowser().getMainPanel();
+        frame.setContentPane(serverBrowser);
+        frame.revalidate();
+        ((JLabel)((JPanel) serverBrowser.getComponent(0)).getComponent(0)).setText(username);
+        ((JButton)((JPanel) serverBrowser.getComponent(0)).getComponent(1)).addActionListener(e -> {
+            frame.setContentPane(logIn);
+        });
 
+        ((JButton)((JPanel) serverBrowser.getComponent(0)).getComponent(2)).addActionListener(e -> {
+            addServer();
+        });
+
+        ((JButton)((JPanel) serverBrowser.getComponent(0)).getComponent(3)).addActionListener(e -> {
+            createServer();
+        });
+
+        ((JButton)((JPanel) serverBrowser.getComponent(0)).getComponent(4)).addActionListener(e -> {
+            refresh();
+        });
+    }
+
+    @Override
+    public void addServer() {
+        JTextField address = new JTextField();
+        address.setText("255.255.255.255");
+        JTextField port = new JTextField();
+        port.setText("2019");
+
+        JPanel serverPanel = new JPanel();
+        serverPanel.add(new JLabel("Address:"));
+        serverPanel.add(address);
+        serverPanel.add(Box.createHorizontalStrut(15));
+        serverPanel.add(new JLabel("Port:"));
+        serverPanel.add(port);
+        int result = JOptionPane.showConfirmDialog(frame, serverPanel, "Please enter the address and the port", JOptionPane.OK_CANCEL_OPTION);
+        if (result == JOptionPane.OK_OPTION) {
+            System.out.println("test");
+            //TODO add the server
+        } else if (result == JOptionPane.CANCEL_OPTION) {
+
+        }
+    }
+
+    @Override
+    public void setUsername() {
+        try {
+            username = ((JTextField) logIn.getComponent(3)).getText();
+            player = new HumanPlayer(username);
+            if(serverBrowser == null) {
+                serverList();
+            } else {
+                frame.setContentPane(serverBrowser);
+                ((JLabel)((JPanel) serverBrowser.getComponent(0)).getComponent(0)).setText(username);
+            }
+        } catch (IllegalNameException e) {
+            JOptionPane.showMessageDialog(frame, "Invalid name, please do not use ';' in your name.", "Ilegal username", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    @Override
+    public void gameWindow() {
+        //TODO
+    }
+
+    @Override
+    public void createServer() {
+        //TODO
+    }
+
+    @Override
+    public void refresh() {
+        //TODO
+    }
+
+    @Override
+    public void loginScreen() {
+        logIn = new GUILogInScreen().getPanel();
+        frame.setContentPane(logIn);
+        ((JButton) logIn.getComponent(4)).addActionListener(e -> {
+            setUsername();
+        });
     }
 }

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-public class TUI {
+public class TUI implements View {
     private static List<Integer> bonuses = Arrays.asList(1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 2, 4, 1, 4, 2, 1, 1, 1, 1, 1, 4, 1, 1, 1, 1, 1, 3, 1, 1, 1, 2, 1, 1, 1, 3, 1);
     private static List<Integer> values = Arrays.asList(5, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
     private static List<Character> vertical = Arrays.asList('R', null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
@@ -86,5 +86,45 @@ public class TUI {
             indexed_values.put(i, inputList.get(i));
         }
         return indexed_values;
+    }
+
+    @Override
+    public void start() {
+
+    }
+
+    @Override
+    public void serverList() {
+
+    }
+
+    @Override
+    public void addServer() {
+
+    }
+
+    @Override
+    public void setUsername() {
+
+    }
+
+    @Override
+    public void gameWindow() {
+
+    }
+
+    @Override
+    public void createServer() {
+
+    }
+
+    @Override
+    public void refresh() {
+
+    }
+
+    @Override
+    public void loginScreen() {
+
     }
 }
