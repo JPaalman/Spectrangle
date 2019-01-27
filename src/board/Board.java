@@ -3,6 +3,7 @@ package group92.spectrangle.board;
 import group92.spectrangle.exceptions.MoveException;
 import group92.spectrangle.view.GUI;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Observable;
@@ -53,6 +54,26 @@ public class Board {
     // returns 0 for upwards, 1 for downwards
     public static int rotation(int row, int column) {
         return (row + column) % 2;
+    }
+
+    public static List<Integer> getNeighbours(int row, int column) {
+        ArrayList<Integer> neighbours = new ArrayList<>();
+        try {
+            // left
+            neighbours.add(getIndexFromCoordinates(row, column - 1));
+            // right
+            neighbours.add(getIndexFromCoordinates(row, column + 1));
+            if (rotation(row, column) == 0) {
+                // bottom
+                neighbours.add(getIndexFromCoordinates(row + 1, column));
+            } else {
+                // top
+                neighbours.add(getIndexFromCoordinates(row - 1, column));
+            }
+        } catch (IndexOutOfBoundsException e) {
+            // do nothing
+        }
+        return neighbours;
     }
 
     public int place(Piece piece, int row, int column) throws MoveException {
