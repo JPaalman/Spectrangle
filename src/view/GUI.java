@@ -3,15 +3,23 @@ package group92.spectrangle.view;
 import group92.spectrangle.exceptions.IllegalNameException;
 import group92.spectrangle.network.Client;
 import group92.spectrangle.network.Server;
-import group92.spectrangle.players.ClientPlayer;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.Observable;
 
 public class GUI implements View {
+
+    private static GUI GUI;
+
+    public GUI(Client client) {
+        this.client = client;
+        GUI = this;
+    }
+
     private JFrame frame;
     private Container logIn;
     private Container serverBrowser;
@@ -27,8 +35,8 @@ public class GUI implements View {
         gui.start();
     }
 
-    public GUI(Client client) {
-        this.client = client;
+    public static GUI get() {
+        return GUI;
     }
 
     //initializes the frame and draws the login screen
@@ -176,5 +184,10 @@ public class GUI implements View {
         ((JButton) logIn.getComponent(4)).addActionListener(e -> {
             setUsername();
         });
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        // TODO implement Observer here
     }
 }

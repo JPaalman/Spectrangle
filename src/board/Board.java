@@ -1,9 +1,11 @@
 package group92.spectrangle.board;
 
 import group92.spectrangle.exceptions.MoveException;
+import group92.spectrangle.view.GUI;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Observable;
 
 public class Board {
 
@@ -12,6 +14,7 @@ public class Board {
     public static final List<Integer> MULTIPLICITY_4 = Arrays.asList(11, 13, 20);
     public static final List<Integer> MULTIPLICITY_3 = Arrays.asList(2, 26, 35);
     public static final List<Integer> MULTIPLICITY_2 = Arrays.asList(10, 14, 30);
+
     private Field[] fields;
 
     public Board() {
@@ -67,7 +70,7 @@ public class Board {
         return 1;
     }
 
-    private class Field {
+    private class Field extends Observable {
 
         private int multiplier;
 
@@ -75,11 +78,14 @@ public class Board {
 
         public Field(int multiplier) {
             this.multiplier = multiplier;
+            addObserver(GUI.get());
         }
 
         public int place(Piece piece) throws MoveException {
             if (this.piece == null) {
                 this.piece = piece;
+                setChanged();
+                notifyObservers();
                 return piece.getMultiplier() * multiplier;
             } else {
                 throw new MoveException("field not empty");

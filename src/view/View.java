@@ -1,24 +1,23 @@
 package group92.spectrangle.view;
 
-import group92.spectrangle.Game;
-import javafx.stage.Stage;
+import java.util.Observer;
 
-public interface View {
+public interface View extends Observer {
 
-    public void start();
+    void start();
 
-    public void serverList();
+    void serverList();
 
-    public void addServer(String address, String port, String name);
+    void addServer(String address, String port, String name);
 
-    public void setUsername();
+    void setUsername();
 
-    public void gameWindow();
+    void gameWindow();
 
-    public void createServer();
+    void createServer();
 
-    public void refresh();
+    void refresh();
 
-    public void loginScreen();
+    void loginScreen();
 
 }
