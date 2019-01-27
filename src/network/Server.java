@@ -347,7 +347,7 @@ public class Server implements ServerProtocol {
         public String read() {
             try {
                 String message = in.readLine();
-                System.out.println("received message: " + message);
+                System.out.println("[Server] received message: " + message);
                 return message;
             } catch (IOException e) {
                 e.printStackTrace();

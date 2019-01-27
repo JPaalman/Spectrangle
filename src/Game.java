@@ -1,7 +1,7 @@
 package group92.spectrangle;
 
 import group92.spectrangle.exceptions.IllegalNameException;
-import group92.spectrangle.players.HumanPlayer;
+import group92.spectrangle.players.ClientPlayer;
 import group92.spectrangle.players.Player;
 
 import java.util.ArrayList;
@@ -57,7 +57,7 @@ public class Game {
 
 
     public void createClient(String name) throws IllegalNameException {
-        Player player = new HumanPlayer(name);
+        Player player = new ClientPlayer(name);
         players.add(player);
     }
 

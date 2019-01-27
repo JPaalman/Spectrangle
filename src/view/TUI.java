@@ -99,7 +99,7 @@ public class TUI implements View {
     }
 
     @Override
-    public void addServer() {
+    public void addServer(String address, String port, String name) {
 
     }
 

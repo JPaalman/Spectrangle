@@ -61,6 +61,8 @@ public class GUIServerBrowser {
         refreshButton.setText("Refresh");
         optionPanel.add(refreshButton);
         serverList = new JList();
+        final DefaultListModel defaultListModel1 = new DefaultListModel();
+        serverList.setModel(defaultListModel1);
         mainPanel.add(serverList, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
     }
 

@@ -3,23 +3,31 @@ package group92.spectrangle.view;
 import group92.spectrangle.exceptions.IllegalNameException;
 import group92.spectrangle.network.Client;
 import group92.spectrangle.network.Server;
-import group92.spectrangle.players.HumanPlayer;
+import group92.spectrangle.players.ClientPlayer;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 public class GUI implements View {
     private JFrame frame;
-    private HumanPlayer player;
     private Container logIn;
     private Container serverBrowser;
     private String username;
     private Server server;
     private Client client;
+    private JList serverJList;
+    private DefaultListModel<String> model;
 
     public static void main(String[] args) {
-        GUI gui = new GUI();
+        GUI gui = new GUI(new Client());
         gui.start();
+    }
+
+    public GUI(Client client) {
+        this.client = client;
     }
 
     //initializes the frame and draws the login screen
@@ -42,13 +50,17 @@ public class GUI implements View {
         serverBrowser = new GUIServerBrowser().getMainPanel();
         frame.setContentPane(serverBrowser);
         frame.revalidate();
+
+        serverJList = ((JList) serverBrowser.getComponent(1));
+        model = (DefaultListModel) serverJList.getModel();
+
         ((JLabel)((JPanel) serverBrowser.getComponent(0)).getComponent(0)).setText(username);
         ((JButton)((JPanel) serverBrowser.getComponent(0)).getComponent(1)).addActionListener(e -> {
             frame.setContentPane(logIn);
         });
 
         ((JButton)((JPanel) serverBrowser.getComponent(0)).getComponent(2)).addActionListener(e -> {
-            addServer();
+            addServerManually();
         });
 
         ((JButton)((JPanel) serverBrowser.getComponent(0)).getComponent(3)).addActionListener(e -> {
@@ -62,8 +74,7 @@ public class GUI implements View {
 
     //Adds a server manually to the server list
     //@ requires frame != null;
-    @Override
-    public void addServer() {
+    public void addServerManually() {
         JTextField address = new JTextField();
         address.setText("255.255.255.255");
         JTextField port = new JTextField();
@@ -84,6 +95,24 @@ public class GUI implements View {
         }
     }
 
+    //adds a server to the list of servers on the server browser and adds a mouselistener to this server
+    @Override
+    public void addServer(String address, String port, String name) {
+        model.addElement("Server name: #" + name + "# - Server address: #" + address + "# - Server port: #" + port + "#");
+        MouseListener mouseListener = new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if(e.getClickCount() == 2) {
+                    String selectedValue = (String) serverJList.getSelectedValue();
+                    System.out.println(selectedValue);
+                    String[] splitValues = selectedValue.split("#");
+                    client.joinServer(splitValues[1], splitValues[3], splitValues[5]);
+                }
+            }
+        };
+        serverJList.addMouseListener(mouseListener);
+    }
+
     //Sets the username if it is valid
     //@ requires frame != null && logIn != null;
     //@ ensures ((JTextField) !logIn.getComponent(3)).getText().contains(";") => username != null && player != null && serverBrowser.getComponent(0)).getComponent(0)).getText().equals(username);
@@ -91,7 +120,7 @@ public class GUI implements View {
     public void setUsername() {
         try {
             username = ((JTextField) logIn.getComponent(3)).getText();
-            player = new HumanPlayer(username);
+            client.setName(username);
             if(serverBrowser == null) {
                 serverList();
             } else {
@@ -124,10 +153,7 @@ public class GUI implements View {
     //@ ensures client != null;
     @Override
     public void refresh() {
-        if(client == null) {
-            client = new Client(username);
-        }
-        client.joinServer();
+        client.searchForServer();
     }
 
     //shows the login screen GUI

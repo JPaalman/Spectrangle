@@ -2,29 +2,35 @@ package group92.spectrangle.network;
 
 import group92.spectrangle.Game;
 import group92.spectrangle.board.Piece;
+import group92.spectrangle.exceptions.IllegalNameException;
+import group92.spectrangle.players.ClientPlayer;
 import group92.spectrangle.players.Player;
 import group92.spectrangle.protocol.ClientProtocol;
+import group92.spectrangle.view.GUI;
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 
-public class Client implements Runnable, ClientProtocol {
+public class Client implements ClientProtocol {
     private String name;
-    private Socket socket;
-    private PrintWriter out;
-    private BufferedReader in;
-    private InetAddress hostAddress;
+    private GUI gui;
+    private ClientPlayer player;
+    private Game game;
     private String ipv4 = "";
+    private ArrayList<ConnectedServer> connectedServers;
+    private ConnectedServer joinedServer;
 
     public static void main(String[] args) {
-        Client client = new Client("Alice");
-        client.joinServer();
+        Client client = new Client();
+//        client.joinServer();
     }
 
     //creates a client with a name
-    //@ requires name!= null;
-    public Client(String name) {
-        this.name = name;
+    public Client() {
+        gui = new GUI(this);
+
+        connectedServers = new ArrayList<>();
         //This entire try catch block is to get the ipv4 address
         try {
             DatagramSocket socket2;
@@ -34,54 +40,33 @@ public class Client implements Runnable, ClientProtocol {
         } catch (SocketException | UnknownHostException e) {
             e.printStackTrace();
         }
+
+        gui.start();
     }
 
-    //creates a socket and connects to a server socket if one exists on the specified port
-    public void joinServer() {
-        try {
-            hostAddress = InetAddress.getByName(ipv4);
-            socket = new Socket(hostAddress, Game.PORT);
-            out = new PrintWriter(socket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
-            Thread t = new Thread(this);
-            t.start();
-            BufferedReader terminalInput = new BufferedReader(new InputStreamReader(System.in));
-            while(true) {
-                String command = terminalInput.readLine().toLowerCase();
-                if(command.equals("q")) {
-                    break;
-                }
-                out.println(command);
-                out.flush();
-            }
-            out.close();
-            in.close();
-            socket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    //sets the name of this client and initializes a player object with this name
+    public void setName(String name) throws IllegalNameException {
+        this.name = name;
+        player = new ClientPlayer(name);
     }
 
-    //reads the bufferedreader of the serverSocket this client is connected to
-    //@requires socket != null;
-    @Override
-    public void run() {
-        while(socket.isConnected()) {
-            String message = "";
-            try {
-                message = in.readLine();
-                System.out.println("received message: " + message);
-                String[] splitMessage = message.split(";");
-                readMessage(splitMessage);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+    //returns the name of this client
+    public String getName() {
+        return name;
+    }
+
+    //tries to search for a server, if a connection gets made it gets added to the connectedServers list
+    public void searchForServer() {
+        ConnectedServer connectedServer = new ConnectedServer(this);
+        if(connectedServer.joinServer()) {
+            connectedServers.add(connectedServer);
         }
+
     }
 
     //reads a message and executes the corresponding action
     //@ requires splitMessage != null;
-    private void readMessage(String[] splitMessage) {
+    private void readMessage(String[] splitMessage, ConnectedServer connectedServer) {
         if(splitMessage == null) {
             return;
         }
@@ -90,7 +75,8 @@ public class Client implements Runnable, ClientProtocol {
         if(first.equals("announce")) {
             //give this server a name
             String serverName = splitMessage[1];
-            //TODO give this server a name
+            connectedServer.setName(serverName);
+            gui.addServer(connectedServer.getIP(), connectedServer.getSock(), serverName);
 
         } else if(first.equals("respond")) {
             //TODO
@@ -191,4 +177,106 @@ public class Client implements Runnable, ClientProtocol {
     public String message(String message) {
         return ClientProtocol.MESSAGE + ";" + message;
     }
+
+    //join a specific server
+    public void joinServer(String name, String address, String port) {
+        for(ConnectedServer cs : connectedServers) {
+            if(cs.getName().equals(name) && cs.getIP().equals(address) && cs.getSock().equals(port)) {
+                joinedServer = cs;
+                joinedServer.writeMessage(connect(player));
+            }
+        }
+    }
+
+    //a server that this client is connected to, having this in a separate class allows for the client to connect to multiple servers
+    public class ConnectedServer implements Runnable {
+        private Socket socket;
+        private PrintWriter out;
+        private BufferedReader in;
+        private InetAddress hostAddress;
+        private Client client;
+        private String ip;
+        private String sock;
+        private String name;
+
+        public ConnectedServer(Client client) {
+            this.client = client;
+        }
+
+        //returns the socket of the server
+        public String getSock() {
+            return sock;
+        }
+
+        //returns the ip of the server
+        public String getIP() {
+            return ip;
+        }
+
+        //returns the name of the server
+        public String getName() {
+            return name;
+        }
+
+        //sets the name of this server
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        //creates a socket and connects to a server socket if one exists on the specified port
+        public boolean joinServer() {
+            try {
+                hostAddress = InetAddress.getByName(ipv4);
+                socket = new Socket(hostAddress, Game.PORT);
+                ip = socket.getInetAddress().toString();
+                sock = String.valueOf(Game.PORT);
+                out = new PrintWriter(socket.getOutputStream(), true);
+                in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
+                Thread t = new Thread(this);
+                t.start();
+                BufferedReader terminalInput = new BufferedReader(new InputStreamReader(System.in));
+                System.out.println("[Client] Connected to a server: " + socket.toString());
+                writeMessage(scan());
+                return true;
+                //TODO read terminal input
+//                while(true) {
+//                    String command = terminalInput.readLine().toLowerCase();
+//                    if(command.equals("q")) {
+//                        break;
+//                    }
+//                    out.println(command);
+//                    out.flush();
+//                }
+//                out.close();
+//                in.close();
+//                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+
+        //reads the bufferedreader of the serverSocket this client is connected to
+        //@requires socket != null;
+        @Override
+        public void run() {
+            while(socket.isConnected()) {
+                String message = "";
+                try {
+                    message = in.readLine();
+                    System.out.println("[Client] received message: " + message);
+                    String[] splitMessage = message.split(";");
+                    client.readMessage(splitMessage, this);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        public void writeMessage(String message) {
+            out.println(message);
+            out.flush();
+        }
+    }
+
 }

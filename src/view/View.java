@@ -9,7 +9,7 @@ public interface View {
 
     public void serverList();
 
-    public void addServer();
+    public void addServer(String address, String port, String name);
 
     public void setUsername();
 
