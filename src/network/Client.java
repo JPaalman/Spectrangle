@@ -179,6 +179,7 @@ public class Client implements ClientProtocol {
     }
 
     //join a specific server
+    //@ requires name != null && address != null && port != null;
     public void joinServer(String name, String address, String port) {
         for(ConnectedServer cs : connectedServers) {
             if(cs.getName().equals(name) && cs.getIP().equals(address) && cs.getSock().equals(port)) {
@@ -199,26 +200,34 @@ public class Client implements ClientProtocol {
         private String sock;
         private String name;
 
+        //creates a ConnectedServer object
+        //@ requires client != null;
+        //@ ensures client == client;
         public ConnectedServer(Client client) {
             this.client = client;
         }
 
         //returns the socket of the server
+        //@ pure
         public String getSock() {
             return sock;
         }
 
         //returns the ip of the server
+        //@ pure
         public String getIP() {
             return ip;
         }
 
         //returns the name of the server
+        //@ pure
         public String getName() {
             return name;
         }
 
         //sets the name of this server
+        //@ requires name != null;
+        //@ ensures name == name;
         public void setName(String name) {
             this.name = name;
         }
@@ -238,7 +247,7 @@ public class Client implements ClientProtocol {
                 System.out.println("[Client] Connected to a server: " + socket.toString());
                 writeMessage(scan());
                 return true;
-                //TODO read terminal input
+                //TODO read terminal input if GUI doesn't work out
 //                while(true) {
 //                    String command = terminalInput.readLine().toLowerCase();
 //                    if(command.equals("q")) {
@@ -261,9 +270,8 @@ public class Client implements ClientProtocol {
         @Override
         public void run() {
             while(socket.isConnected()) {
-                String message = "";
                 try {
-                    message = in.readLine();
+                    String message = in.readLine();
                     System.out.println("[Client] received message: " + message);
                     String[] splitMessage = message.split(";");
                     client.readMessage(splitMessage, this);
@@ -273,6 +281,8 @@ public class Client implements ClientProtocol {
             }
         }
 
+        //writes a message to the server
+        //@ requires message != null && out != null;
         public void writeMessage(String message) {
             out.println(message);
             out.flush();
