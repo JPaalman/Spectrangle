@@ -79,22 +79,56 @@ public class Client implements ClientProtocol {
             gui.addServer(connectedServer.getIP(), connectedServer.getSock(), serverName);
 
         } else if(first.equals("respond")) {
-            //TODO
+            for(int i = 1; (i + 3) < splitMessage.length; i = i + 3) {
+                String gameName = splitMessage[i];
+                String maxPlayers = splitMessage[i + 1];
+                String joinedPlayers = splitMessage[i + 2];
+                //TODO show this in a game list
+            }
 
         } else if(first.equals("give")) {
-            //TODO
+            String username = splitMessage[1];
+            for(int i = 2; (i + 4) < splitMessage.length; i = i + 4) {
+                String multiplier = splitMessage[i];
+                String color1 = splitMessage[i + 1];
+                String color2 = splitMessage[i + 2];
+                String color3 = splitMessage[i + 3];
+                //TODO give this piece to the player
+            }
 
-        } else if(first.equals("turn")) {
-            //TODO
+
+            } else if(first.equals("turn")) {
+            String username = splitMessage[1];
+            if(username.equals(player.getName())) {
+                //TODO it is your turn, notify client
+            } else {
+                //TODO possibly notify client whose turn it is
+            }
 
         } else if(first.equals("move")) {
-            //TODO
+            String username = splitMessage[1];
+            String multiplier = splitMessage[2];
+            String color1 = splitMessage[3];
+            String color2 = splitMessage[4];
+            String color3 = splitMessage[5];
+            String index = splitMessage[6];
+            //TODO make this move on the board and draw it on the GUI
 
         } else if(first.equals("swap")) {
-            //TODO
+            String username = splitMessage[1];
+            String color1 = splitMessage[2];
+            String color2 = splitMessage[3];
+            String color3 = splitMessage[4];
+            String index = splitMessage[5];
+            String secondColor1 = splitMessage[6];
+            String secondColor2 = splitMessage[7];
+            String secondColor3 = splitMessage[8];
+            String secondIndex = splitMessage[9];
+            //TODO swap pieces in inventory of this player
 
         }  else if(first.equals("skip")) {
-            //TODO
+            String username = splitMessage[1];
+            //TODO skip this player's turn
 
         } else if(first.equals("end")) {
             //TODO

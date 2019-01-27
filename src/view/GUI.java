@@ -15,6 +15,7 @@ public class GUI implements View {
     private JFrame frame;
     private Container logIn;
     private Container serverBrowser;
+    private Container gameBoard;
     private String username;
     private Server server;
     private Client client;
@@ -107,6 +108,7 @@ public class GUI implements View {
                     System.out.println(selectedValue);
                     String[] splitValues = selectedValue.split("#");
                     client.joinServer(splitValues[1], splitValues[3], splitValues[5]);
+                    gameWindow();
                 }
             }
         };
@@ -132,9 +134,17 @@ public class GUI implements View {
         }
     }
 
+    //shows the game GUI
     @Override
     public void gameWindow() {
         //TODO
+        gameBoard = new Container();
+        JPanel test = new JPanel();
+//        GUIBoard guiBoard = new GUIBoard(test);
+        gameBoard.add(new GUIBoard());
+        frame.setContentPane(gameBoard);
+        frame.revalidate();
+        frame.pack();
     }
 
     //creates a server
