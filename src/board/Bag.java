@@ -32,10 +32,8 @@ public class Bag {
         return out;
     }
 
-    public Piece swap(Piece in) {
-        Piece out = take();
-        pieces.add(in);
-        return out;
+    public void put(Piece piece) {
+        pieces.add(piece);
     }
 
 }
