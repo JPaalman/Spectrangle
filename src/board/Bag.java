@@ -26,6 +26,12 @@ public class Bag {
         tiles.addAll(Arrays.asList(TILES));
     }
 
+    //removes a tile from the bag
+    //@ requires tile != null;
+    public void remove(Tile tile) {
+        tiles.remove(tile);
+    }
+
     public Tile take() {
         Tile out = tiles.get((int) (Math.random() * tiles.size()));
         tiles.remove(out);

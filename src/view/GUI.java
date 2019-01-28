@@ -107,6 +107,15 @@ public class GUI implements View {
         serverJList.addMouseListener(mouseListener);
     }
 
+    //notify the client whose turn it is
+    public void notifyTurn(String name) {
+        if(name.equals(username)) {
+            JOptionPane.showMessageDialog(frame, "It's your turn!");
+        } else {
+            JOptionPane.showMessageDialog(frame, "It's " + name + "'s turn!");
+        }
+    }
+
     //opens the GUI for the game list screen
     @Override
     public void gameList() {

@@ -1,13 +1,18 @@
 package group92.spectrangle.network;
 
 import group92.spectrangle.Game;
+import group92.spectrangle.board.Board;
 import group92.spectrangle.board.Tile;
 import group92.spectrangle.exceptions.IllegalNameException;
+import group92.spectrangle.exceptions.MoveException;
 import group92.spectrangle.players.ClientPlayer;
+import group92.spectrangle.players.NetworkPlayer;
 import group92.spectrangle.players.Player;
 import group92.spectrangle.protocol.ClientProtocol;
+import group92.spectrangle.protocol.Protocol;
 import group92.spectrangle.view.GUI;
 
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -111,31 +116,31 @@ public class Client implements ClientProtocol {
         } else if(first.equals("give")) {
             String username = splitMessage[1];
             for(int i = 2; (i + 4) < splitMessage.length; i = i + 4) {
-                String multiplier = splitMessage[i];
-                String color1 = splitMessage[i + 1];
-                String color2 = splitMessage[i + 2];
-                String color3 = splitMessage[i + 3];
-                //TODO give this piece to the player
-//                game.getPlayer(username).addPiece();
+                int multiplier = Integer.parseInt(splitMessage[i]);
+                Color c1 = Protocol.STRING_COLOR_MAP.get(splitMessage[i + 1]);
+                Color c2 = Protocol.STRING_COLOR_MAP.get(splitMessage[i + 2]);
+                Color c3 = Protocol.STRING_COLOR_MAP.get(splitMessage[i + 3]);
+                Tile tile = new Tile(multiplier, c1, c2, c3);
+                game.getPlayer(username).addPiece(tile);
+                game.getBag().remove(tile);
             }
 
 
             } else if(first.equals("turn")) {
             String username = splitMessage[1];
-            if(username.equals(player.getName())) {
-                //TODO it is your turn, notify client
-            } else {
-                //TODO possibly notify client whose turn it is
-            }
+            gui.notifyTurn(username);
 
         } else if(first.equals("move")) {
             String username = splitMessage[1];
-            String multiplier = splitMessage[2];
-            String color1 = splitMessage[3];
-            String color2 = splitMessage[4];
-            String color3 = splitMessage[5];
-            String index = splitMessage[6];
-            //TODO make this move on the board and draw it on the GUI
+            int multiplier = Integer.parseInt(splitMessage[2]);
+            Color c1 = Protocol.STRING_COLOR_MAP.get(splitMessage[3]);
+            Color c2 = Protocol.STRING_COLOR_MAP.get(splitMessage[4]);
+            Color c3 = Protocol.STRING_COLOR_MAP.get(splitMessage[5]);
+            int index = Integer.parseInt(splitMessage[6]);
+
+            Tile tile = new Tile(multiplier, c1, c2, c3);
+            ((NetworkPlayer) game.getPlayer(username)).makeMove(game.getBoard(), tile, index);
+            //TODO draw this move on the GUI
 
         } else if(first.equals("swap")) {
             String username = splitMessage[1];
