@@ -87,7 +87,7 @@ public class Client implements ClientProtocol {
                 String gameName = splitMessage[i];
                 String maxPlayers = splitMessage[i + 1];
                 String joinedPlayers = splitMessage[i + 2];
-                //TODO show this in a game list
+                gui.addGameToList(gameName, maxPlayers, joinedPlayers);
             }
 
         } else if(first.equals("give")) {

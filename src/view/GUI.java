@@ -4,11 +4,19 @@ import group92.spectrangle.exceptions.IllegalNameException;
 import group92.spectrangle.network.Client;
 import group92.spectrangle.network.Server;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Observable;
 
 public class GUI implements View {
@@ -31,6 +39,9 @@ public class GUI implements View {
     private JList serverJList;
     private JList gameJList;
     private DefaultListModel<String> model;
+    private String connectedServerIP;
+    private String connectedServerPort;
+    private String connectedServerName;
 
     public static void main(String[] args) {
         GUI gui = new GUI(new Client());
@@ -89,7 +100,10 @@ public class GUI implements View {
                     String selectedValue = (String) serverJList.getSelectedValue();
                     System.out.println(selectedValue);
                     String[] splitValues = selectedValue.split("#");
-                    client.joinServer(splitValues[1], splitValues[3], splitValues[5]);
+                    connectedServerName = splitValues[1];
+                    connectedServerIP = splitValues[3];
+                    connectedServerPort = splitValues[5];
+                    client.joinServer(connectedServerName, connectedServerIP, connectedServerPort);
                     gameList();
                 }
             }
@@ -118,15 +132,49 @@ public class GUI implements View {
             }
         };
         gameJList.addMouseListener(mouseListener);
+
+        ((JButton)((JPanel) gameList.getComponent(0)).getComponent(0)).addActionListener(e -> {
+            leave();
+        });
+
+        ((JButton)((JPanel) gameList.getComponent(0)).getComponent(1)).addActionListener(e -> {
+            refreshGameList();
+        });
+
+        ((JButton)((JPanel) gameList.getComponent(0)).getComponent(2)).addActionListener(e -> {
+            createGame();
+        });
+    }
+
+    //creates a game on the connected server
+    private void createGame() {
+        String[] options = { "2", "3", "4" };
+        String result = (String) JOptionPane.showInputDialog(frame, "Please enter the max player amount (must be between 2-4", "Create game", JOptionPane.QUESTION_MESSAGE, null, options, options[2]);
+        if (result == null) {
+            System.out.println("Cancelled game creation");
+        } else {
+            client.create(Integer.parseInt(result));
+            gameWindow();
+        }
+    }
+
+    //refreshes the game list by removing all games and then sending a new connect
+    //@ requires client != null && connectedServerName != null && connectedServerIP != null && connectedServerPort != null;
+    private void refreshGameList() {
+        ((DefaultListModel) gameJList.getModel()).removeAllElements();
+        client.joinServer(connectedServerName, connectedServerIP, connectedServerPort);
+    }
+
+    //leaves a server
+    private void leave() {
+        client.leave();
+        serverList();
     }
 
     //adds a game to the game list
     //@ requires name != null && maxPlayers != null && gameJList != null;
-    public void addGameToList(String name, String maxPlayers, String... players) {
-        String gameInformation = "Game name: #" + name + "# max players: #" + maxPlayers + "# current players:";
-        for(String p : players) {
-            gameInformation += " #" + p;
-        }
+    public void addGameToList(String name, String maxPlayers, String playeramount) {
+        String gameInformation = "Game name: #" + name + "# max players: #" + maxPlayers + "# current amount of players: #" + playeramount;
         ((DefaultListModel) gameJList.getModel()).addElement(gameInformation);
     }
 
@@ -181,14 +229,22 @@ public class GUI implements View {
     //shows the game GUI
     @Override
     public void gameWindow() {
-        //TODO
-        gameBoard = new Container();
-        JPanel test = new JPanel();
-//        GUIBoard guiBoard = new GUIBoard(test);
-        gameBoard.add(new GUIBoard());
+        gameBoard = new GUIGame().getPanel();
+        JTextArea consoleArea = (JTextArea) gameBoard.getComponent(1);
+
+        PrintStream ps = new PrintStream(new OutputStream() {
+            @Override
+            public void write(int b) throws IOException {
+                consoleArea.append(String.valueOf((char)b));
+                consoleArea.setCaretPosition(consoleArea.getDocument().getLength());
+            }
+        });
+        System.setOut(ps);
+        System.setErr(ps);
+
         frame.setContentPane(gameBoard);
         frame.revalidate();
-        frame.pack();
+        System.out.println("Opened the console on the GUI");
     }
 
     //creates a server
@@ -196,11 +252,16 @@ public class GUI implements View {
     @Override
     public void createServer() {
         String result = JOptionPane.showInputDialog("Please enter a server name");
-        try {
-            server = new Server(result);
-            server.create();
-        } catch (IllegalNameException e) {
-            JOptionPane.showMessageDialog(frame, "Invalid server name, please do not use ';' in the server name.", "Ilegal server name", JOptionPane.ERROR_MESSAGE);
+        if(server == null) {
+            try {
+                server = new Server(result);
+                server.create();
+            } catch (IllegalNameException e) {
+                JOptionPane.showMessageDialog(frame, "Invalid server name, please do not use ';' in the server name.", "Ilegal server name", JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(frame, "You already have a server open", "Server already open", JOptionPane.ERROR_MESSAGE);
+
         }
     }
 
@@ -226,5 +287,36 @@ public class GUI implements View {
     @Override
     public void update(Observable o, Object arg) {
         // TODO implement Observer here
+    }
+
+    public static class GUIBoard extends JPanel {
+
+        private BufferedImage background;
+        Path GUIPath = Paths.get("/GUI");
+
+    //    public GUIBoard(Graphics g) {
+    //        getImage();
+    //        paintComponent(g);
+    //    }
+
+        public void getImage() {
+            try {
+                background = ImageIO.read(new File("/GUI/SpectrangleBoard"));
+            } catch (IOException e) {
+                System.out.println("Can't find file");
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            System.out.println("test1");
+            super.paintComponent(g);
+            getImage();
+            g.drawImage(background, 0, 0, this);
+            System.out.print("test2");
+        }
+
+
     }
 }
