@@ -1,9 +1,6 @@
 package group92.spectrangle.view;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 
 public class TUI implements View {
@@ -99,6 +96,11 @@ public class TUI implements View {
     }
 
     @Override
+    public void gameList() {
+
+    }
+
+    @Override
     public void addServer(String address, String port, String name) {
 
     }
@@ -125,6 +127,11 @@ public class TUI implements View {
 
     @Override
     public void loginScreen() {
+
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
 
     }
 }

@@ -8,6 +8,8 @@ public interface View extends Observer {
 
     void serverList();
 
+    void gameList();
+
     void addServer(String address, String port, String name);
 
     void setUsername();

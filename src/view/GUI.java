@@ -23,11 +23,13 @@ public class GUI implements View {
     private JFrame frame;
     private Container logIn;
     private Container serverBrowser;
+    private Container gameList;
     private Container gameBoard;
     private String username;
     private Server server;
     private Client client;
     private JList serverJList;
+    private JList gameJList;
     private DefaultListModel<String> model;
 
     public static void main(String[] args) {
@@ -79,6 +81,53 @@ public class GUI implements View {
         ((JButton)((JPanel) serverBrowser.getComponent(0)).getComponent(4)).addActionListener(e -> {
             refresh();
         });
+
+        MouseListener mouseListener = new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if(e.getClickCount() == 2) {
+                    String selectedValue = (String) serverJList.getSelectedValue();
+                    System.out.println(selectedValue);
+                    String[] splitValues = selectedValue.split("#");
+                    client.joinServer(splitValues[1], splitValues[3], splitValues[5]);
+                    gameList();
+                }
+            }
+        };
+        serverJList.addMouseListener(mouseListener);
+    }
+
+    //opens the GUI for the game list screen
+    @Override
+    public void gameList() {
+        gameList = new GUIGameList().getPanel();
+        frame.setContentPane(gameList);
+        frame.revalidate();
+        gameJList = (JList) gameList.getComponent(1);
+
+        MouseListener mouseListener = new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if(e.getClickCount() == 2) {
+                    String selectedValue = (String) gameJList.getSelectedValue();
+                    System.out.println(selectedValue);
+                    String[] splitValues = selectedValue.split("#");
+                    client.join(splitValues[1]);
+                    gameWindow();
+                }
+            }
+        };
+        gameJList.addMouseListener(mouseListener);
+    }
+
+    //adds a game to the game list
+    //@ requires name != null && maxPlayers != null && gameJList != null;
+    public void addGameToList(String name, String maxPlayers, String... players) {
+        String gameInformation = "Game name: #" + name + "# max players: #" + maxPlayers + "# current players:";
+        for(String p : players) {
+            gameInformation += " #" + p;
+        }
+        ((DefaultListModel) gameJList.getModel()).addElement(gameInformation);
     }
 
     //Adds a server manually to the server list
@@ -107,20 +156,7 @@ public class GUI implements View {
     //adds a server to the list of servers on the server browser and adds a mouselistener to this server
     @Override
     public void addServer(String address, String port, String name) {
-        model.addElement("Server name: #" + name + "# - Server address: #" + address + "# - Server port: #" + port + "#");
-        MouseListener mouseListener = new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if(e.getClickCount() == 2) {
-                    String selectedValue = (String) serverJList.getSelectedValue();
-                    System.out.println(selectedValue);
-                    String[] splitValues = selectedValue.split("#");
-                    client.joinServer(splitValues[1], splitValues[3], splitValues[5]);
-                    gameWindow();
-                }
-            }
-        };
-        serverJList.addMouseListener(mouseListener);
+        model.addElement("Server name: #" + name + "# Server address: #" + address + "# Server port: #" + port + "#");
     }
 
     //Sets the username if it is valid
@@ -156,6 +192,7 @@ public class GUI implements View {
     }
 
     //creates a server
+    //@ ensures !JOptionPane.showInputDialog("Please enter a server name").contains(";") => server != null;
     @Override
     public void createServer() {
         String result = JOptionPane.showInputDialog("Please enter a server name");
@@ -163,7 +200,7 @@ public class GUI implements View {
             server = new Server(result);
             server.create();
         } catch (IllegalNameException e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(frame, "Invalid server name, please do not use ';' in the server name.", "Ilegal server name", JOptionPane.ERROR_MESSAGE);
         }
     }
 
