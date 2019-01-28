@@ -28,6 +28,10 @@ public class Player extends Observable {
         inventory = new ArrayList<Tile>();
     }
 
+    public Player() {
+
+    }
+
     //Returns the name of this player
     //@ requires name != null;
     //@ pure

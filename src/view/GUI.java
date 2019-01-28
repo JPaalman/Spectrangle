@@ -3,6 +3,7 @@ package group92.spectrangle.view;
 import group92.spectrangle.exceptions.IllegalNameException;
 import group92.spectrangle.network.Client;
 import group92.spectrangle.network.Server;
+import group92.spectrangle.players.NetworkPlayer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -33,6 +34,7 @@ public class GUI implements View {
     private String connectedServerIP;
     private String connectedServerPort;
     private String connectedServerName;
+    private int connectedGamePlayerCount;
     private JTextArea messagesArea;
     private JTextArea inputArea;
     private JTextArea inventoryArea;
@@ -121,6 +123,7 @@ public class GUI implements View {
                     System.out.println(selectedValue);
                     String[] splitValues = selectedValue.split("#");
                     client.join(splitValues[1]);
+                    connectedGamePlayerCount = Integer.valueOf(splitValues[3]);
                     gameWindow();
                 }
             }
@@ -272,6 +275,12 @@ public class GUI implements View {
         forfeitButton.addActionListener(e -> {
             forfeit();
         });
+
+        client.setGame(connectedGamePlayerCount);
+        client.getGame().addPlayer(client.getPlayer());
+        for(int i = 1; i < connectedGamePlayerCount; i++) { //add all networkplayers to the game
+            client.getGame().addPlayer(new NetworkPlayer());
+        }
 
         TUI tui = new TUI();
         System.out.println(tui.getBoard());

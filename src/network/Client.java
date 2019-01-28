@@ -30,6 +30,24 @@ public class Client implements ClientProtocol {
 //        client.joinServer();
     }
 
+    //sets the game with the player count
+    //@ ensures game != null;
+    //@ requires playerCount <= 4 && playerCount >= 2;
+    public void setGame(int playerCount) {
+        game = new Game(playerCount);
+        //TODO throw exception for invalid playercount
+    }
+
+    //returns the game object
+    //@ requires game != null;
+    public Game getGame() {
+        return game;
+    }
+
+    public ClientPlayer getPlayer() {
+        return player;
+    }
+
     //creates a client with a name
     public Client() {
         gui = new GUI(this);
@@ -98,6 +116,7 @@ public class Client implements ClientProtocol {
                 String color2 = splitMessage[i + 2];
                 String color3 = splitMessage[i + 3];
                 //TODO give this piece to the player
+//                game.getPlayer(username).addPiece();
             }
 
 

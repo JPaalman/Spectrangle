@@ -1,5 +1,7 @@
 package group92.spectrangle;
 
+import group92.spectrangle.board.Bag;
+import group92.spectrangle.board.Board;
 import group92.spectrangle.exceptions.IllegalNameException;
 import group92.spectrangle.players.ClientPlayer;
 import group92.spectrangle.players.Player;
@@ -12,31 +14,55 @@ public class Game {
 
     private final String USAGE = "Usage: <server | client> + <name>";
     public final static int PORT = 2019;
-//    private GUIServerBrowser gui;
     private ArrayList<Player> players;
     private int maxPlayers;
+    private Board board;
+    private Bag bag;
 
     public static void main(String[] args) {
-        Game game = new Game();
+        Game game = new Game(4);
 //        game.start();
     }
 
-    public Game() {
-        maxPlayers = 4;
-        players = new ArrayList<>();
-    }
-
+    //initialize a game with a max players count
+    //@ requires maxPlayers <= 4 && maxPlayers >= 2;
+    //@ ensures maxPlayers != null && players != null && board != null && bag != null;
     public Game(int maxPlayers) {
         this.maxPlayers = maxPlayers;
         players = new ArrayList<>();
+        board = new Board();
+        bag = new Bag();
+    }
+
+    //@ pure
+    public Board getBoard() {
+        return board;
+    }
+
+    //@ pure
+    public Bag getBag() {
+        return bag;
+    }
+
+    //get a player with a specific name
+    //@ requires name != null;
+    public Player getPlayer(String name) {
+        for(Player p : players) {
+            if(p.getName().equals(name)) {
+                return p;
+            }
+        }
+        return null;
     }
 
     //return the max player count
+    //@ pure
     public int getMaxPlayers() {
         return maxPlayers;
     }
 
     //return the players list
+    //@ pure
     public ArrayList<Player> getPlayers() {
         return players;
     }
