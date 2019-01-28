@@ -5,12 +5,12 @@ import group92.spectrangle.protocol.Protocol;
 import java.awt.*;
 import java.util.Arrays;
 
-public class Piece {
+public class Tile {
 
     private int multiplier;
     private Color[] colors;
 
-    public Piece(int multiplier, Color... colors) {
+    public Tile(int multiplier, Color... colors) {
         this.multiplier = multiplier;
 
         this.colors = new Color[3];
@@ -52,7 +52,7 @@ public class Piece {
     }
 
     public boolean equals(Object obj) {
-        return obj instanceof Piece && ((Piece) obj).multiplier == multiplier && Arrays.asList(((Piece) obj).colors).containsAll(Arrays.asList(colors));
+        return obj instanceof Tile && ((Tile) obj).multiplier == multiplier && Arrays.asList(((Tile) obj).colors).containsAll(Arrays.asList(colors));
     }
 
     public String toString() {

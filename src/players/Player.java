@@ -1,14 +1,15 @@
 package group92.spectrangle.players;
 
 import group92.spectrangle.board.Board;
-import group92.spectrangle.board.Piece;
+import group92.spectrangle.board.Tile;
 import group92.spectrangle.exceptions.IllegalNameException;
 
 import java.util.ArrayList;
+import java.util.Observable;
 
-public abstract class Player {
+public class Player extends Observable {
 
-    private ArrayList<Piece> inventory;
+    private ArrayList<Tile> inventory;
     private String name;
     private int score;
 
@@ -24,7 +25,7 @@ public abstract class Player {
             throw new IllegalNameException("Illegal name");
         }
         score = 0;
-        inventory = new ArrayList<Piece>();
+        inventory = new ArrayList<Tile>();
     }
 
     //Returns the name of this player
@@ -49,40 +50,43 @@ public abstract class Player {
         return score;
     }
 
-    //Adds a piece to this player's inventory
-    //@ requires piece != null;
+    //Adds a tile to this player's inventory
+    //@ requires tile != null;
     //@ requires inventory.size() < 4;
-    //@ ensures inventory.contains(piece);
-    public boolean addPiece(Piece piece) {
-        if(piece != null && inventory.size() < 4) {
-            inventory.add(piece);
+    //@ ensures inventory.contains(tile);
+    public boolean addPiece(Tile tile) {
+        if (tile != null && inventory.size() < 4) {
+            inventory.add(tile);
             return true;
         } else {
             return false;
         }
     }
 
-    //Removes a piece from this player's inventory
-    //@ requires piece != null;
-    //@ requires inventory.contains(piece);
-    //@ ensures !inventory.contains(piece);
-    public boolean removePiece(Piece piece) {
-        if(piece != null && inventory.contains(piece)) {
-            inventory.remove(piece);
+    //Removes a tile from this player's inventory
+    //@ requires tile != null;
+    //@ requires inventory.contains(tile);
+    //@ ensures !inventory.contains(tile);
+    public boolean removePiece(Tile tile) {
+        if (tile != null && inventory.contains(tile)) {
+            inventory.remove(tile);
             return true;
         } else {
             return false;
         }
     }
 
-    //Makes a move for this player
+    // TODO implement
+    // Makes a move for this player
     //@ requires board != null;
-    public abstract int makeMove(Board board);
+    public int makeMove(Board board) {
+        return 0;
+    }
 
 
     //Returns the inventory
     //@ pure
-    public ArrayList<Piece> getInventory() {
+    public ArrayList<Tile> getInventory() {
         return inventory;
     }
 
@@ -90,8 +94,8 @@ public abstract class Player {
     //@ pure
     public String inventoryToString() {
         String result = "";
-        for(Piece piece : inventory) {
-            result += "\n" + piece.toString();
+        for (Tile tile : inventory) {
+            result += "\n" + tile.toString();
         }
         return result;
     }

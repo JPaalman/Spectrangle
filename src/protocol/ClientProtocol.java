@@ -1,6 +1,6 @@
 package group92.spectrangle.protocol;
 
-import group92.spectrangle.board.Piece;
+import group92.spectrangle.board.Tile;
 import group92.spectrangle.players.Player;
 
 public interface ClientProtocol extends Protocol {
@@ -21,9 +21,9 @@ public interface ClientProtocol extends Protocol {
 
     String start();
 
-    String move(Piece piece, int index);
+    String move(Tile tile, int index);
 
-    String swap(Piece piece);
+    String swap(Tile tile);
 
     String skip();
 

@@ -1,15 +1,19 @@
 package group92.spectrangle.network;
 
 import group92.spectrangle.Game;
-import group92.spectrangle.board.Piece;
+import group92.spectrangle.board.Tile;
 import group92.spectrangle.exceptions.IllegalNameException;
 import group92.spectrangle.players.ClientPlayer;
 import group92.spectrangle.players.Player;
 import group92.spectrangle.protocol.ClientProtocol;
 import group92.spectrangle.view.GUI;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class Client implements ClientProtocol {
@@ -183,13 +187,13 @@ public class Client implements ClientProtocol {
     }
 
     @Override
-    public String move(Piece piece, int index) {
-        return ClientProtocol.MOVE + ";" + piece.toString() + index;
+    public String move(Tile tile, int index) {
+        return ClientProtocol.MOVE + ";" + tile.toString() + index;
     }
 
     @Override
-    public String swap(Piece piece) {
-        return ClientProtocol.SWAP + ";" + piece.toString();
+    public String swap(Tile tile) {
+        return ClientProtocol.SWAP + ";" + tile.toString();
     }
 
     @Override
@@ -274,7 +278,7 @@ public class Client implements ClientProtocol {
                 ip = socket.getInetAddress().toString();
                 sock = String.valueOf(Game.PORT);
                 out = new PrintWriter(socket.getOutputStream(), true);
-                in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
+                in = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
                 Thread t = new Thread(this);
                 t.start();
                 BufferedReader terminalInput = new BufferedReader(new InputStreamReader(System.in));

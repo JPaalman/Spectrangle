@@ -1,14 +1,18 @@
 package group92.spectrangle.network;
 
 import group92.spectrangle.Game;
-import group92.spectrangle.board.Piece;
+import group92.spectrangle.board.Tile;
 import group92.spectrangle.exceptions.IllegalNameException;
 import group92.spectrangle.players.NetworkPlayer;
 import group92.spectrangle.players.Player;
 import group92.spectrangle.protocol.ServerProtocol;
 
-import java.io.*;
-import java.net.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 
 import static java.lang.Thread.sleep;
@@ -214,9 +218,9 @@ public class Server implements ServerProtocol {
     }
 
     @Override
-    public String give(Player player, Piece piece, Piece... pieces) {
-        String result = ServerProtocol.GIVE + player.getName() + ";" + piece.toString();
-        for(Piece p : pieces) {
+    public String give(Player player, Tile tile, Tile... tiles) {
+        String result = ServerProtocol.GIVE + player.getName() + ";" + tile.toString();
+        for (Tile p : tiles) {
             result += ";" + p.toString();
         }
         return result;
@@ -228,13 +232,13 @@ public class Server implements ServerProtocol {
     }
 
     @Override
-    public String move(Player player, Piece piece, int index) {
-        return ServerProtocol.MOVE + ";" + player.getName() + ";" + piece.toString() + ";" + index;
+    public String move(Player player, Tile tile, int index) {
+        return ServerProtocol.MOVE + ";" + player.getName() + ";" + tile.toString() + ";" + index;
     }
 
     @Override
-    public String swap(Player player, Piece piece, Piece returnedPiece) {
-        return ServerProtocol.MOVE + ";" + player.getName() + ";" + piece.toString() + ";" + returnedPiece.toString();
+    public String swap(Player player, Tile tile, Tile returnedTile) {
+        return ServerProtocol.MOVE + ";" + player.getName() + ";" + tile.toString() + ";" + returnedTile.toString();
     }
 
     @Override

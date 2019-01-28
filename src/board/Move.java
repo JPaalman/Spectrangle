@@ -3,19 +3,19 @@ package group92.spectrangle.board;
 public class Move {
 
     private int index;
-    private Piece piece;
+    private Tile tile;
 
-    public Move(int index, Piece piece) {
+    public Move(int index, Tile tile) {
         this.index = index;
-        this.piece = piece;
+        this.tile = tile;
     }
 
     public int getIndex() {
         return index;
     }
 
-    public Piece getPiece() {
-        return piece;
+    public Tile getTile() {
+        return tile;
     }
 
 }
