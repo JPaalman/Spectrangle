@@ -4,19 +4,10 @@ import group92.spectrangle.exceptions.IllegalNameException;
 import group92.spectrangle.network.Client;
 import group92.spectrangle.network.Server;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.awt.event.*;
+import java.io.*;
 import java.util.Observable;
 
 public class GUI implements View {
@@ -42,6 +33,9 @@ public class GUI implements View {
     private String connectedServerIP;
     private String connectedServerPort;
     private String connectedServerName;
+    private JTextArea messagesArea;
+    private JTextArea inputArea;
+    private JTextArea inventoryArea;
 
     public static void main(String[] args) {
         GUI gui = new GUI(new Client());
@@ -151,7 +145,7 @@ public class GUI implements View {
         String[] options = { "2", "3", "4" };
         String result = (String) JOptionPane.showInputDialog(frame, "Please enter the max player amount (must be between 2-4", "Create game", JOptionPane.QUESTION_MESSAGE, null, options, options[2]);
         if (result == null) {
-            System.out.println("Cancelled game creation");
+            System.out.println("[Client] Cancelled game creation");
         } else {
             client.create(Integer.parseInt(result));
             gameWindow();
@@ -168,7 +162,7 @@ public class GUI implements View {
     //leaves a server
     private void leave() {
         client.leave();
-        serverList();
+        frame.setContentPane(serverBrowser);
     }
 
     //adds a game to the game list
@@ -202,6 +196,7 @@ public class GUI implements View {
     }
 
     //adds a server to the list of servers on the server browser and adds a mouselistener to this server
+    //@ requires address != null && port != null && name != null;
     @Override
     public void addServer(String address, String port, String name) {
         model.addElement("Server name: #" + name + "# Server address: #" + address + "# Server port: #" + port + "#");
@@ -227,16 +222,44 @@ public class GUI implements View {
     }
 
     //shows the game GUI
+    //@ requires frame != null;
+    //@ ensures gameBoard != null && messagesArea != null;
     @Override
     public void gameWindow() {
-        gameBoard = new GUIGame().getPanel();
-        JTextArea consoleArea = (JTextArea) gameBoard.getComponent(1);
+        GUIGame guiGame = new GUIGame();
+        gameBoard = guiGame.getPanel();
+        JTextArea boardArea = guiGame.getBoardArea();
+        inputArea = guiGame.getInputArea();
+        JButton sendMessageButton = guiGame.getSendButton();
+        inventoryArea = guiGame.getInventoryArea();
+        messagesArea = guiGame.getMessagesArea();
+        JButton forfeitButton = guiGame.getForfeitButton();
+
+        boardArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 20));
+        boardArea.setEditable(false);
+
+        messagesArea.setEditable(false);
+        inventoryArea.setEditable(false);
+
+        sendMessageButton.addActionListener(e -> {
+            executeCommand();
+        });
+
+        //an action for when someone presses enter in the inputArea
+        Action pressedEnter = new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                executeCommand();
+            }
+        };
+
+        inputArea.getInputMap().put(KeyStroke.getKeyStroke("ENTER"),
+                pressedEnter);
 
         PrintStream ps = new PrintStream(new OutputStream() {
             @Override
             public void write(int b) throws IOException {
-                consoleArea.append(String.valueOf((char)b));
-                consoleArea.setCaretPosition(consoleArea.getDocument().getLength());
+                boardArea.append(String.valueOf((char)b));
+                boardArea.setCaretPosition(boardArea.getDocument().getLength());
             }
         });
         System.setOut(ps);
@@ -245,6 +268,54 @@ public class GUI implements View {
         frame.setContentPane(gameBoard);
         frame.revalidate();
         System.out.println("Opened the console on the GUI");
+
+        forfeitButton.addActionListener(e -> {
+            forfeit();
+        });
+
+        TUI tui = new TUI();
+        System.out.println(tui.getBoard());
+    }
+
+    //adds the information to the inventory text area
+    //@ requires information != null && inventoryArea != null;
+    public void addInventory(String information) {
+        inventoryArea.append("\n" + information);
+    }
+
+    //executes a command
+    //@ requires command != null;
+    public void executeCommand() {
+        String command = inputArea.getText();
+        inputArea.selectAll();
+        inputArea.replaceSelection("");
+        System.out.println("test");
+        String[] splitCommand = command.split(" ");
+        String firstArg = splitCommand[0];
+        switch(firstArg) {
+            case "help" :
+                messagesArea.append("\n" + TUI.HELP);
+                break;
+                //TODO add more commands
+        }
+
+    }
+
+    //adds a message to the message area
+    //@ requires message != null && messageArea != null;
+    public void addMessage(String username, String message) {
+        messagesArea.append("[" + username + "] " + message);
+        messagesArea.setCaretPosition(messagesArea.getDocument().getLength());
+    }
+
+    //Forfeit a game
+    private void forfeit() {
+        client.leave();
+        PrintStream ps = new PrintStream(new FileOutputStream(FileDescriptor.out));
+        System.setOut(ps);
+        System.setOut(ps);
+        System.out.println("[Client] Back to the old console");
+        frame.setContentPane(gameList);
     }
 
     //creates a server
@@ -289,34 +360,25 @@ public class GUI implements View {
         // TODO implement Observer here
     }
 
-    public static class GUIBoard extends JPanel {
+    public class systemOut extends PrintStream {
+        private OutputStream out;
+        private JTextArea textArea;
 
-        private BufferedImage background;
-        Path GUIPath = Paths.get("/GUI");
-
-    //    public GUIBoard(Graphics g) {
-    //        getImage();
-    //        paintComponent(g);
-    //    }
-
-        public void getImage() {
-            try {
-                background = ImageIO.read(new File("/GUI/SpectrangleBoard"));
-            } catch (IOException e) {
-                System.out.println("Can't find file");
-                e.printStackTrace();
-            }
+        public systemOut(OutputStream out, JTextArea textArea) {
+            super(out);
+            this.out = out;
+            this.textArea = textArea;
         }
 
         @Override
-        protected void paintComponent(Graphics g) {
-            System.out.println("test1");
-            super.paintComponent(g);
-            getImage();
-            g.drawImage(background, 0, 0, this);
-            System.out.print("test2");
+        public void write(int b) {
+            textArea.append(String.valueOf((char)b));
+            textArea.setCaretPosition(textArea.getDocument().getLength());
+            try {
+                out.write(b);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-
-
     }
 }

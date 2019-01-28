@@ -141,8 +141,9 @@ public class Client implements ClientProtocol {
             //TODO
 
         } else if(first.equals("message")) {
-            //TODO
-
+            String username = splitMessage[1];
+            String message = splitMessage[2];
+            gui.addMessage(username, message);
         }
     }
 
