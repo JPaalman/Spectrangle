@@ -225,30 +225,34 @@ public class Server implements ServerProtocol {
                 }
 
         } else if(first.equals("start")) {
-            //if a player wants to start the game, must be the player who created it
-            if(clientGame != null && client.getName() != null && clientGame.getName().equals(client.getName())) {
-                clientGame.start();
-                int i = 0;
-                while(i != 4) {//notify the players of their pieces in order that they have been drawn
-                    for (Player p : clientGame.getPlayers()) {
-                        forwardToGame(give(p, p.getInventory().get(i)), client);
-                    }
-                    i++;
-                }
-                forwardToGame(turn(clientGame.turn()), client);
+            if(clientGame.getStarted()) {
+                client.writeMessage(exception("This game has already started"));
             } else {
-                client.writeMessage(exception("You have no lobby of yourself"));
+                //if a player wants to start the game, must be the player who created it
+                if (clientGame != null && client.getName() != null && clientGame.getName().equals(client.getName())) {
+                    clientGame.start();
+                    int i = 0;
+                    while (i != 4) {//notify the players of their pieces in order that they have been drawn
+                        for (Player p : clientGame.getPlayers()) {
+                            forwardToGame(give(p, p.getInventory().get(i)), client);
+                        }
+                        i++;
+                    }
+                    forwardToGame(turn(clientGame.turn()), client);
+                } else {
+                    client.writeMessage(exception("You have no lobby of yourself"));
+                }
             }
 
         } else if(first.equals("move")) {
             //if the client makes a move
             if(clientGame.turn() == clientPlayer) {
-                int multiplier = Integer.parseInt(splitMessage[2]);
-                Color c1 = Protocol.STRING_COLOR_MAP.get(splitMessage[3]);
-                Color c2 = Protocol.STRING_COLOR_MAP.get(splitMessage[4]);
-                Color c3 = Protocol.STRING_COLOR_MAP.get(splitMessage[5]);
+                int multiplier = Integer.parseInt(splitMessage[1]);
+                Color c1 = Protocol.STRING_COLOR_MAP.get(splitMessage[2]);
+                Color c2 = Protocol.STRING_COLOR_MAP.get(splitMessage[3]);
+                Color c3 = Protocol.STRING_COLOR_MAP.get(splitMessage[4]);
                 Tile tile = new Tile(multiplier, c1, c2, c3);
-                int index = Integer.parseInt(splitMessage[6]);
+                int index = Integer.parseInt(splitMessage[5]);
 
                 try {
                     clientPlayer.makeMove(clientGame.getBoard(), tile, index);
@@ -275,10 +279,10 @@ public class Server implements ServerProtocol {
                 }
 
                 if (swap) {
-                    int multiplier = Integer.parseInt(splitMessage[2]);
-                    Color c1 = Protocol.STRING_COLOR_MAP.get(splitMessage[3]);
-                    Color c2 = Protocol.STRING_COLOR_MAP.get(splitMessage[4]);
-                    Color c3 = Protocol.STRING_COLOR_MAP.get(splitMessage[5]);
+                    int multiplier = Integer.parseInt(splitMessage[1]);
+                    Color c1 = Protocol.STRING_COLOR_MAP.get(splitMessage[2]);
+                    Color c2 = Protocol.STRING_COLOR_MAP.get(splitMessage[3]);
+                    Color c3 = Protocol.STRING_COLOR_MAP.get(splitMessage[4]);
                     Tile oldTile = new Tile(multiplier, c1, c2, c3);
 
                     Tile newTile = clientGame.getBag().take();

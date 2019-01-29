@@ -33,6 +33,10 @@ public class Player extends Observable {
         inventory = new ArrayList<Tile>();
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     //Returns the name of this player
     //@ requires name != null;
     //@ pure
@@ -99,8 +103,10 @@ public class Player extends Observable {
     //@ pure
     public String inventoryToString() {
         String result = "";
+        int i = 1;
         for (Tile tile : inventory) {
-            result += "\n" + tile.toString();
+            result += "\n" +"Piece " + i + ": " + tile.toString();
+            i++;
         }
         return result;
     }

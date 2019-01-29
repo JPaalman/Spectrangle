@@ -21,6 +21,12 @@ public class Game {
     private Board board;
     private Bag bag;
     private int turnNumber;
+    private boolean started = false;
+
+
+    public boolean getStarted() {
+        return started;
+    }
 
     public static void main(String[] args) {
         Game game = new Game(4);
@@ -51,7 +57,9 @@ public class Game {
     //@ requires name != null;
     public Player getPlayer(String name) {
         for(Player p : players) {
-            if(p.getName().equals(name)) {
+            if(p.getName() == null) {
+                break;
+            } else if(p.getName().equals(name)) {
                 return p;
             }
         }
@@ -62,6 +70,7 @@ public class Game {
     public void start() {
         turnNumber = 0;
         distributeFirstTiles();
+        started = true;
     }
 
     //distribute the first tiles, use this to determine who moves first based on the highest multiplier piece
