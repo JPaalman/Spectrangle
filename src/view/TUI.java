@@ -1,6 +1,11 @@
 package group92.spectrangle.view;
 
+import group92.spectrangle.board.Tile;
+import group92.spectrangle.protocol.Protocol;
+
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Stream;
 
 public class TUI implements View {
@@ -9,7 +14,7 @@ public class TUI implements View {
     private static List<Character> vertical = Arrays.asList('R', null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
     private static List<Character> left = Arrays.asList('G', null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
     private static List<Character> right = Arrays.asList('B', null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
-    public static final String HELP = "help - for help\nstart - to start the game, needs at least 2 players\nmove <piece> <index> - to move a piece\nswap <piece> - to swap a piece\nskip - to skip\nleave - to leave\nmessage <message> - to send a message";
+    public static final String HELP = "use ';' between commands\nhelp - for help\nstart - to start the game, needs at least 2 players\nmove <piece> <index> - to move a piece\nswap <piece> - to swap a piece\nskip - to skip\nleave - to leave\nmessage <message> - to send a message";
 
     public static void main(String[] args) {
         // This is an example of how to use the function below.
@@ -119,6 +124,14 @@ public class TUI implements View {
 
     @Override
     public void start() {
+    }
+
+    public void makeMove(Tile tile, int index) {
+        values.add(index, tile.getMultiplier());
+        Color[] colors = tile.getColors();
+        left.add(index, Protocol.COLOR_STRING_MAP.get(colors[0]).charAt(0));
+        vertical.add(index, Protocol.COLOR_STRING_MAP.get(colors[1]).charAt(0));
+        right.add(index, Protocol.COLOR_STRING_MAP.get(colors[2]).charAt(0));
     }
 
     public String getBoard() {

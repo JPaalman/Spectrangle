@@ -1,14 +1,17 @@
 package group92.spectrangle.view;
 
+import group92.spectrangle.board.Tile;
 import group92.spectrangle.exceptions.IllegalNameException;
 import group92.spectrangle.network.Client;
 import group92.spectrangle.network.Server;
 import group92.spectrangle.players.NetworkPlayer;
+import group92.spectrangle.players.Player;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Observable;
 
 public class GUI implements View {
@@ -34,10 +37,12 @@ public class GUI implements View {
     private String connectedServerIP;
     private String connectedServerPort;
     private String connectedServerName;
+    private Client.ConnectedServer connectedServer;
     private int connectedGamePlayerCount;
     private JTextArea messagesArea;
     private JTextArea inputArea;
     private JTextArea inventoryArea;
+    private TUI tui;
 
     public static void main(String[] args) {
         GUI gui = new GUI(new Client());
@@ -99,6 +104,7 @@ public class GUI implements View {
                     connectedServerName = splitValues[1];
                     connectedServerIP = splitValues[3];
                     connectedServerPort = splitValues[5];
+                    connectedServer = client.getConnectedServer(connectedServerName, connectedServerIP, connectedServerPort);
                     client.joinServer(connectedServerName, connectedServerIP, connectedServerPort);
                     gameList();
                 }
@@ -131,7 +137,7 @@ public class GUI implements View {
                     String selectedValue = (String) gameJList.getSelectedValue();
                     System.out.println(selectedValue);
                     String[] splitValues = selectedValue.split("#");
-                    client.join(splitValues[1]);
+                    connectedServer.writeMessage(client.join(splitValues[1]));
                     connectedGamePlayerCount = Integer.valueOf(splitValues[3]);
                     gameWindow();
                 }
@@ -159,9 +165,41 @@ public class GUI implements View {
         if (result == null) {
             System.out.println("[Client] Cancelled game creation");
         } else {
-            client.create(Integer.parseInt(result));
+            connectedServer.writeMessage(client.create(Integer.parseInt(result)));
             gameWindow();
         }
+    }
+
+    //updates the inventory area to display the toString() of all players
+    //@ requires players != null;
+    public void updateInventory(ArrayList<Player> players) {
+        inventoryArea.selectAll();
+        inventoryArea.replaceSelection("");
+        for(Player p : players) {
+            inventoryArea.append("\n" + p.toString());
+        }
+    }
+
+    //updates the board to include the move
+    //@ requires tile != null && index != null;
+    public void drawMove(Tile tile, int index) {
+        tui.makeMove(tile, index);
+    }
+
+    //announces the winner(s) of the game
+    //@ requires winners != null;
+    public void announceWinners(String winners) {
+        JOptionPane.showMessageDialog(frame, winners + " won the game!");
+    }
+
+    //notifies the user of an exception
+    //@ requires message != null;
+    public void exception(String message) {
+        JOptionPane.showMessageDialog(frame, message, "exception", JOptionPane.ERROR_MESSAGE);
+    }
+
+    public void skipTurn(String username) {
+        JOptionPane.showMessageDialog(frame, username + " skipped his turn");
     }
 
     //refreshes the game list by removing all games and then sending a new connect
@@ -173,7 +211,7 @@ public class GUI implements View {
 
     //leaves a server
     private void leave() {
-        client.leave();
+        connectedServer.writeMessage(client.leave());
         frame.setContentPane(serverBrowser);
     }
 
@@ -267,15 +305,15 @@ public class GUI implements View {
         inputArea.getInputMap().put(KeyStroke.getKeyStroke("ENTER"),
                 pressedEnter);
 
-        PrintStream ps = new PrintStream(new OutputStream() {
-            @Override
-            public void write(int b) throws IOException {
-                boardArea.append(String.valueOf((char)b));
-                boardArea.setCaretPosition(boardArea.getDocument().getLength());
-            }
-        });
-        System.setOut(ps);
-        System.setErr(ps);
+//        PrintStream ps = new PrintStream(new OutputStream() {
+//            @Override
+//            public void write(int b) throws IOException {
+//                boardArea.append(String.valueOf((char)b));
+//                boardArea.setCaretPosition(boardArea.getDocument().getLength());
+//            }
+//        });
+//        System.setOut(ps);
+//        System.setErr(ps);
 
         frame.setContentPane(gameBoard);
         frame.revalidate();
@@ -291,14 +329,10 @@ public class GUI implements View {
             client.getGame().addPlayer(new NetworkPlayer());
         }
 
-        TUI tui = new TUI();
-        System.out.println(tui.getBoard());
-    }
+        tui = new TUI();
+        messagesArea.append(tui.HELP);
 
-    //adds the information to the inventory text area
-    //@ requires information != null && inventoryArea != null;
-    public void addInventory(String information) {
-        inventoryArea.append("\n" + information);
+        boardArea.append(tui.getBoard());
     }
 
     //executes a command
@@ -308,12 +342,14 @@ public class GUI implements View {
         inputArea.selectAll();
         inputArea.replaceSelection("");
         System.out.println("test");
-        String[] splitCommand = command.split(" ");
+        String[] splitCommand = command.split(";");
         String firstArg = splitCommand[0];
         switch(firstArg) {
             case "help" :
                 messagesArea.append("\n" + TUI.HELP);
                 break;
+            case "message" :
+                connectedServer.writeMessage(client.message(splitCommand[1]));
                 //TODO add more commands
         }
 
@@ -322,13 +358,13 @@ public class GUI implements View {
     //adds a message to the message area
     //@ requires message != null && messageArea != null;
     public void addMessage(String username, String message) {
-        messagesArea.append("[" + username + "] " + message);
+        messagesArea.append("\n" + "[" + username + "] " + message);
         messagesArea.setCaretPosition(messagesArea.getDocument().getLength());
     }
 
     //Forfeit a game
     private void forfeit() {
-        client.leave();
+        connectedServer.writeMessage(client.leave());
         PrintStream ps = new PrintStream(new FileOutputStream(FileDescriptor.out));
         System.setOut(ps);
         System.setOut(ps);

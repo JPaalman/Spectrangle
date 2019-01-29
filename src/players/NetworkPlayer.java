@@ -28,13 +28,8 @@ public class NetworkPlayer extends Player {
     }
 
     //make a move for this networkPlayer
-    public void makeMove(Board board, Tile tile, int index) {
+    public void makeMove(Board board, Tile tile, int index) throws MoveException {
         int[] coords = Board.getCoordinatesFromIndex(index);
-        try {
-            super.addScore(board.place(tile, coords[0], coords[1]));
-        } catch (MoveException e) {
-            System.out.println("NetworkPlayer made illegal move!");
-            e.printStackTrace(); //should not happen
-        }
+        super.addScore(board.place(tile, coords[0], coords[1]));
     }
 }
