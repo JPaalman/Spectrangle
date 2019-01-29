@@ -15,6 +15,12 @@
         <properties/>
         <border type="none"/>
         <children>
+          <component id="c9cad" class="javax.swing.JLabel" binding="usernameLabel">
+            <constraints/>
+            <properties>
+              <text value="Label"/>
+            </properties>
+          </component>
           <component id="c5bdc" class="javax.swing.JButton" binding="leaveButton">
             <constraints/>
             <properties>

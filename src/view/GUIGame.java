@@ -17,10 +17,6 @@ public class GUIGame {
         return forfeitButton;
     }
 
-    public JPanel getMainPanel() {
-        return mainPanel;
-    }
-
     public JTextArea getBoardArea() {
         return boardArea;
     }
@@ -53,6 +49,10 @@ public class GUIGame {
         return inputPanel;
     }
 
+    public JLabel getUsernameLabel() {
+        return usernameLabel;
+    }
+
     private JTextArea inputArea;
     private JTextArea inventoryArea;
     private JTextArea messagesArea;
@@ -60,6 +60,7 @@ public class GUIGame {
     private JButton skipTurnButton;
     private JButton swapPieceButton;
     private JPanel inputPanel;
+    private JLabel usernameLabel;
 
     public JPanel getPanel() {
         return mainPanel;
@@ -85,6 +86,9 @@ public class GUIGame {
         options = new JPanel();
         options.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
         mainPanel.add(options, new com.intellij.uiDesigner.core.GridConstraints(3, 0, 1, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        usernameLabel = new JLabel();
+        usernameLabel.setText("Label");
+        options.add(usernameLabel);
         forfeitButton = new JButton();
         forfeitButton.setText("Forfeit");
         options.add(forfeitButton);

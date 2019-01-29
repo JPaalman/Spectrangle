@@ -147,16 +147,17 @@ public class GUI implements View {
             }
         };
         gameJList.addMouseListener(mouseListener);
+        ((JLabel) ((JPanel) gameList.getComponent(0)).getComponent(0)).setText(username);
 
-        ((JButton)((JPanel) gameList.getComponent(0)).getComponent(0)).addActionListener(e -> {
+        ((JButton)((JPanel) gameList.getComponent(0)).getComponent(1)).addActionListener(e -> {
             leave();
         });
 
-        ((JButton)((JPanel) gameList.getComponent(0)).getComponent(1)).addActionListener(e -> {
+        ((JButton)((JPanel) gameList.getComponent(0)).getComponent(2)).addActionListener(e -> {
             refreshGameList();
         });
 
-        ((JButton)((JPanel) gameList.getComponent(0)).getComponent(2)).addActionListener(e -> {
+        ((JButton)((JPanel) gameList.getComponent(0)).getComponent(3)).addActionListener(e -> {
             createGame();
         });
     }
@@ -202,7 +203,12 @@ public class GUI implements View {
     }
 
     public void skipTurn(String username) {
-        JOptionPane.showMessageDialog(frame, username + " skipped his turn");
+        if(username.equals(this.username)) {
+            JOptionPane.showMessageDialog(frame, "You skipped your turn!");
+        } else {
+            JOptionPane.showMessageDialog(frame, username + " skipped his turn");
+
+        }
     }
 
     //refreshes the game list by removing all games and then sending a new connect
@@ -222,8 +228,14 @@ public class GUI implements View {
     //@ requires name != null && maxPlayers != null && gameJList != null;
     public void addGameToList(String name, String maxPlayers, String playeramount) {
         String gameInformation = "Game name: #" + name + "# max players: #" + maxPlayers + "# current amount of players: #" + playeramount;
-        System.out.println("adding game information " + gameInformation);
+        for(int i = 0; i < gamesModel.getSize(); i++) {
+            if(gamesModel.contains(name)) {
+                gamesModel.remove(i);
+                break;
+            }
+        }
         gamesModel.addElement(gameInformation);
+
     }
 
     //Adds a server manually to the server list
@@ -285,15 +297,32 @@ public class GUI implements View {
         JTextArea boardArea = guiGame.getBoardArea();
         inputArea = guiGame.getInputArea();
         JButton sendMessageButton = guiGame.getSendButton();
+        JButton skipTurnButton = guiGame.getSkipTurnButton();
+        JButton swapPiece = guiGame.getSwapPieceButton();
         inventoryArea = guiGame.getInventoryArea();
         messagesArea = guiGame.getMessagesArea();
         JButton forfeitButton = guiGame.getForfeitButton();
+        JLabel usernameLabel = guiGame.getUsernameLabel();
+        usernameLabel.setText(username);
 
         boardArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 20));
         boardArea.setEditable(false);
 
         messagesArea.setEditable(false);
         inventoryArea.setEditable(false);
+
+        forfeitButton.addActionListener(e -> {
+            connectedServer.writeMessage(client.leave());
+            frame.setContentPane(gameList);
+        });
+
+        skipTurnButton.addActionListener(e -> {
+            connectedServer.writeMessage(client.skip());
+        });
+
+        swapPiece.addActionListener(e -> {
+            //TODO
+        });
 
         sendMessageButton.addActionListener(e -> {
             executeCommand();
@@ -378,8 +407,7 @@ public class GUI implements View {
             case Protocol.SKIP :
                 connectedServer.writeMessage(client.skip());
             case Protocol.LEAVE :
-                connectedServer.writeMessage(client.leave());
-                //TODO add more commands
+                leave();
         }
 
     }

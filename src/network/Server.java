@@ -222,7 +222,7 @@ public class Server implements ServerProtocol {
             //if a player wants to start the game, must be the player who created it
             if(client.getGame() != null && client.getName() != null && client.getGame().getName().equals(client.getName())) {
                 client.getGame().start(); //TODO start() does nothing now
-                forwardToGame(turn(client.getPlayer()), client);
+                forwardToGame(turn(client.getPlayer()), client); //TODO the first player needs to be determined based on the pieces they get
             } else {
                 client.writeMessage(exception("You have no lobby of yourself"));
             }
@@ -270,7 +270,7 @@ public class Server implements ServerProtocol {
 
         } else if(first.equals("skip")) {
             boolean skip = true;
-            //TODO skip turn
+            //TODO make sure it is this person's turn
             for(Tile t : client.getPlayer().getInventory()) {
                 if(client.getGame().getBoard().getPossibleFields(t) != null) {
                     client.writeMessage(exception("Cannot skip!"));
@@ -282,7 +282,7 @@ public class Server implements ServerProtocol {
             if(skip) {
                 ArrayList<Player> players = client.getGame().getPlayers();
                 int playerIndex = players.indexOf(client.getPlayer());
-                forwardToGame(turn(players.get(playerIndex + 1 % players.size())), client);
+                forwardToGame(turn(players.get(playerIndex + 1 % players.size() - 1)), client);
             }
 
         } else if(first.equals("leave")) {

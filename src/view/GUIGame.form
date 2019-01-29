@@ -15,6 +15,12 @@
         <properties/>
         <border type="none"/>
         <children>
+          <component id="75efe" class="javax.swing.JLabel" binding="usernameLabel">
+            <constraints/>
+            <properties>
+              <text value="Label"/>
+            </properties>
+          </component>
           <component id="e56db" class="javax.swing.JButton" binding="forfeitButton" default-binding="true">
             <constraints/>
             <properties>

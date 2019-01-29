@@ -10,6 +10,7 @@ public class GUIGameList {
     private JButton refreshButton;
     private JPanel mainPanel;
     private JButton createGameButton;
+    private JLabel usernameLabel;
 
     public JPanel getPanel() {
         return mainPanel;
@@ -35,6 +36,9 @@ public class GUIGameList {
         optionPanel = new JPanel();
         optionPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
         mainPanel.add(optionPanel, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        usernameLabel = new JLabel();
+        usernameLabel.setText("Label");
+        optionPanel.add(usernameLabel);
         leaveButton = new JButton();
         leaveButton.setText("Leave");
         optionPanel.add(leaveButton);
