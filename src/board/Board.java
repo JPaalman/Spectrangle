@@ -66,19 +66,14 @@ public class Board {
         }
     }
 
-    public int[][] getPossibleFields(Tile tile) {
-        int[][] result = new int[3][];
-        for (int i = 0; i < result.length; i++) {
-            ArrayList<Integer> possibleFields = new ArrayList<>();
-            for (int j = 0; j < fields.length; j++) {
-                if (fields[j].getTile() == null && getMatchingSides(tile, j) > 0) {
-                    possibleFields.add(j);
+    public int[] getPossibleFields(Tile tile) {
+        ArrayList<Integer> possibleFields = new ArrayList<>();
+        for (int i = 0; i < fields.length; i++) {
+            if (fields[i].getTile() == null && getMatchingSides(tile, i) > 0) {
+                possibleFields.add(i);
                 }
-            }
-            result[i] = Utils.IntegerListToArray(possibleFields);
-            tile.rotate(1);
         }
-        return result;
+        return Utils.IntegerListToArray(possibleFields);
     }
 
     public int place(Tile tile, int index) throws MoveException {
