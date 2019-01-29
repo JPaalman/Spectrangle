@@ -176,7 +176,6 @@ public class Client implements ClientProtocol {
             gui.announceWinners(winners);
 
         } else if(first.equals("exception")) {
-            gui.notifyTurn(name);
             gui.exception(splitMessage[1]);
 
         } else if(first.equals("message")) {

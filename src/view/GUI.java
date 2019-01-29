@@ -6,6 +6,7 @@ import group92.spectrangle.network.Client;
 import group92.spectrangle.network.Server;
 import group92.spectrangle.players.NetworkPlayer;
 import group92.spectrangle.players.Player;
+import group92.spectrangle.protocol.Protocol;
 
 import javax.swing.*;
 import java.awt.*;
@@ -348,8 +349,33 @@ public class GUI implements View {
             case "help" :
                 messagesArea.append("\n" + TUI.HELP);
                 break;
-            case "message" :
+            case Protocol.MESSAGE :
                 connectedServer.writeMessage(client.message(splitCommand[1]));
+                break;
+            case Protocol.START :
+                connectedServer.writeMessage(client.start());
+                break;
+            case Protocol.MOVE :
+                int multiplier = Integer.parseInt(splitCommand[1]);
+                Color c1 = Protocol.STRING_COLOR_MAP.get(splitCommand[2]);
+                Color c2 = Protocol.STRING_COLOR_MAP.get(splitCommand[3]);
+                Color c3 = Protocol.STRING_COLOR_MAP.get(splitCommand[4]);
+                int index = Integer.parseInt(splitCommand[5]);
+                Tile tile = new Tile(multiplier, c1, c2, c3);
+                connectedServer.writeMessage(client.move(tile, index));
+                break;
+            case Protocol.SWAP :
+                multiplier = Integer.parseInt(splitCommand[1]);
+                c1 = Protocol.STRING_COLOR_MAP.get(splitCommand[2]);
+                c2 = Protocol.STRING_COLOR_MAP.get(splitCommand[3]);
+                c3 = Protocol.STRING_COLOR_MAP.get(splitCommand[4]);
+                tile = new Tile(multiplier, c1, c2, c3);
+                connectedServer.writeMessage(client.swap(tile));
+                break;
+            case Protocol.SKIP :
+                connectedServer.writeMessage(client.skip());
+            case Protocol.LEAVE :
+                connectedServer.writeMessage(client.leave());
                 //TODO add more commands
         }
 

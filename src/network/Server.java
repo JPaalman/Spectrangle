@@ -129,7 +129,7 @@ public class Server implements ServerProtocol {
                 client.setName(username);
                 client.writeMessage(respond(games.toArray(new Game[games.size()])));
             } catch (IllegalNameException e) {
-                exception("Illegal name");
+                client.writeMessage(exception("Illegal name"));
 
             }
 
@@ -137,7 +137,7 @@ public class Server implements ServerProtocol {
             try {
                 client.setPlayer();
             } catch (IllegalNameException e) {
-                exception("Illegal name");
+                client.writeMessage(exception("Illegal name"));
 
             }
             boolean foundGame = false;
@@ -195,7 +195,7 @@ public class Server implements ServerProtocol {
 
         } else if(first.equals("create")) {
             //If this player wants to create a game
-            int maxPlayers = (int) splitMessage[1].charAt(0);
+            int maxPlayers = Integer.parseInt(splitMessage[1]);
             try {
                 client.setPlayer();
             } catch (IllegalNameException e) {
@@ -204,13 +204,14 @@ public class Server implements ServerProtocol {
             }
 
             if(client.getGame() != null) {
-                    exception("You are already in a game!");
-                } else if(maxPlayers > 4) {
-                    exception("Max player count is invalid, must be between 2 and 4");
+                    client.writeMessage(exception("You are already in a game!"));
+                } else if(maxPlayers > 4 || maxPlayers < 2) {
+                    client.writeMessage(exception("Max player count is invalid, must be between 2 and 4"));
                 } else if(client.getName() == null) {
-                    exception("illegal name.");
+                    client.writeMessage(exception("illegal name."));
                 } else {
                     Game game = new Game(maxPlayers);
+                    System.out.println("added game: " + game);
                     games.add(game);
                     client.setGame(game);
                     game.addPlayer(client.getPlayer());
@@ -241,7 +242,7 @@ public class Server implements ServerProtocol {
                 client.getPlayer().makeMove(client.getGame().getBoard(), tile, index);
                 forwardToGame(move(client.getPlayer(), tile, index), client);
             } catch (MoveException e) {
-                exception("illegal move");
+                client.writeMessage(exception("illegal move"));
             }
 
         } else if(first.equals("swap")) {

@@ -15,7 +15,7 @@ public class Field extends Observable {
 
     public Field(int multiplier) {
         this.multiplier = multiplier;
-        addObserver(GUI.get());
+//        addObserver(GUI.get());
     }
 
     public Tile getTile() {
