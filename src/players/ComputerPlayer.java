@@ -37,12 +37,14 @@ public class ComputerPlayer extends Player {
     public String getMove(Board board) {
         ArrayList<Move> possibleMoves = new ArrayList<>();
         for (Tile tile : getInventory()) {
-            int[][] indices = board.getPossibleFields(tile);
-            for (int i = 0; i < indices.length; i++) {
-                for (int j = 0; j < indices[i].length; i++) {
-                    possibleMoves.add(new Move(tile, indices[i][j]));
+            for (int i = 0; i < 3; i++) {
+                int[] indices = board.getPossibleFields(tile);
+                for (int j = 0; j < indices.length; j++) {
+                    possibleMoves.add(new Move(tile, indices[j], i));
                 }
+                tile.rotate(1);
             }
+
         }
         return strategy.getMove(possibleMoves).toString();
     }

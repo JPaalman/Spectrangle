@@ -8,16 +8,25 @@ public class Move {
         System.out.println(new Move(new Tile(6, Color.BLUE), 35));
     }
 
-    private int index;
+    private int index, rotation;
     private Tile tile;
 
     public Move(Tile tile, int index) {
+        this(tile, index, 0);
+    }
+
+    public Move(Tile tile, int index, int rotation) {
         this.tile = tile;
         this.index = index;
+        this.rotation = rotation;
     }
 
     public int getIndex() {
         return index;
+    }
+
+    public int getRotation() {
+        return rotation;
     }
 
     public Tile getTile() {
@@ -33,7 +42,10 @@ public class Move {
     }
 
     public String toString() {
-        return tile.toString() + index + ";";
+        tile.rotate(rotation);
+        String result = tile.toString() + index + ";";
+        tile.rotate(-rotation);
+        return result;
     }
 
 

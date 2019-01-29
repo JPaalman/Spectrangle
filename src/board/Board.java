@@ -50,8 +50,10 @@ public class Board {
     }
 
     private Field[] fields;
+    private boolean first;
 
     public Board() {
+        first = false;
         fields = new Field[36];
         for (int i = 0; i < fields.length; i++) {
             if (MULTIPLICITY_4.contains(i)) {
@@ -76,17 +78,17 @@ public class Board {
         return Utils.IntegerListToArray(possibleFields);
     }
 
+    public boolean isValidMove(Tile tile, int index) {
+        return !first || getMatchingSides(tile, index) > 0 && fields[index].getTile() == null;
+    }
+
     public int place(Tile tile, int index) throws MoveException {
         int matchingSides = getMatchingSides(tile, index);
-        if (matchingSides > 0) {
+        if (first || matchingSides > 0) {
             return matchingSides * fields[index].place(tile);
         } else {
             throw new MoveException("no matching sides");
         }
-    }
-
-    public boolean isValidMove(Tile tile, int index) {
-        return getMatchingSides(tile, index) > 0 && fields[index].getTile() == null;
     }
 
     // returns an int with the amount of matching sides
