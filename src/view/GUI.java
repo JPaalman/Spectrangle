@@ -336,7 +336,7 @@ public class GUI implements View {
             int result = JOptionPane.showConfirmDialog(frame, piecePanel, "Move piece", JOptionPane.OK_CANCEL_OPTION);
             if(result == JOptionPane.OK_OPTION) {
                 int pieceNum = Integer.parseInt(pieceNumber.getText());
-                int i = Integer.getInteger(indexOnBoard.getText());
+                int i = Integer.parseInt(indexOnBoard.getText());
                 if(!Board.isLegal(i)) {
                     JOptionPane.showMessageDialog(frame, "Invalid board index", "Ilegal board index", JOptionPane.ERROR_MESSAGE);
                 } else if(pieceNum > client.getGame().getPlayer(username).getInventory().size()) {
