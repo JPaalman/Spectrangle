@@ -7,7 +7,7 @@ import group92.spectrangle.exceptions.IllegalNameException;
 import java.util.ArrayList;
 import java.util.Observable;
 
-public class Player extends Observable {
+public abstract class Player extends Observable {
 
     private ArrayList<Tile> inventory;
     private String name;
