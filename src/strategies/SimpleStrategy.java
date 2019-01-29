@@ -1,12 +1,46 @@
 package group92.spectrangle.strategies;
 
 import group92.spectrangle.board.Board;
+import group92.spectrangle.board.Move;
 
-public class SimpleStrategy {
+import java.util.ArrayList;
 
-    public int makeMove(Board board) {
-        //TODO waiting for board to be implemented to do this..
-        return 0;
+public class SimpleStrategy extends RandomStrategy {
+
+    public Move getMove(ArrayList<Move> moves) {
+        ArrayList<Move> temp = new ArrayList<>();
+        for (Move move : moves) {
+            if (Board.MULTIPLICITY_4.contains(move.getIndex())) {
+                temp.add(move);
+            }
+        }
+        if (temp.isEmpty()) {
+            for (Move move : moves) {
+                if (Board.MULTIPLICITY_3.contains(move.getIndex())) {
+                    temp.add(move);
+                }
+            }
+            if (temp.isEmpty()) {
+                for (Move move : moves) {
+                    if (Board.MULTIPLICITY_2.contains(move.getIndex())) {
+                        temp.add(move);
+                    }
+                }
+                if (temp.isEmpty()) {
+                    for (Move move : moves) {
+                        temp.add(move);
+                    }
+                }
+            }
+        }
+
+        Move result = null;
+        for (Move move : temp) {
+            if (move == null || move.getTile().getMultiplier() > result.getTile().getMultiplier()) {
+                result = move;
+            }
+        }
+        return result;
     }
 
 }
