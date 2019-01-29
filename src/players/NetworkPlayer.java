@@ -29,7 +29,6 @@ public class NetworkPlayer extends Player {
 
     //make a move for this networkPlayer
     public void makeMove(Board board, Tile tile, int index) throws MoveException {
-        int[] coords = Board.getCoordinatesFromIndex(index);
-        super.addScore(board.place(tile, coords[0], coords[1]));
+        super.addScore(board.place(tile, index));
     }
 }

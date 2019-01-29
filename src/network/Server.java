@@ -248,7 +248,7 @@ public class Server implements ServerProtocol {
             boolean swap = true;
 
             for(Tile t : client.getPlayer().getInventory()) {
-                if(client.getGame().getBoard().getPossibleMoves(t) != null) {
+                if(client.getGame().getBoard().getPossibleFields(t) != null) {
                     client.writeMessage(exception("Cannot swap!"));
                     swap = false;
                     break;
@@ -272,7 +272,7 @@ public class Server implements ServerProtocol {
             boolean skip = true;
             //TODO skip turn
             for(Tile t : client.getPlayer().getInventory()) {
-                if(client.getGame().getBoard().getPossibleMoves(t) != null) {
+                if(client.getGame().getBoard().getPossibleFields(t) != null) {
                     client.writeMessage(exception("Cannot skip!"));
                     skip = false;
                     break;
