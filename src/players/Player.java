@@ -85,6 +85,15 @@ public class Player extends Observable {
         }
     }
 
+    public Tile swap(Tile in, Tile out) {
+        if (inventory.contains(out)) {
+            inventory.remove(out);
+            inventory.add(in);
+            return out;
+        }
+        return null;
+    }
+
     // TODO implement
     // Makes a move for this player
     //@ requires board != null;

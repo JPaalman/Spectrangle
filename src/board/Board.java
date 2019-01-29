@@ -66,20 +66,16 @@ public class Board {
         }
     }
 
-    public int[] getPossibleFields(Tile tile) {
-        ArrayList<Integer> possibleFields = new ArrayList<>();
-        for (int i = 0; i < fields.length; i++) {
-            if (fields[i].getTile() == null && getMatchingSides(tile, i) > 0) {
-                possibleFields.add(i);
-            }
-        }
-        return Utils.IntegerListToArray(possibleFields);
-    }
-
-    public int[][] getPossibleFieldsPerRotation(Tile tile) {
+    public int[][] getPossibleFields(Tile tile) {
         int[][] result = new int[3][];
         for (int i = 0; i < result.length; i++) {
-            result[i] = getPossibleFields(tile);
+            ArrayList<Integer> possibleFields = new ArrayList<>();
+            for (int j = 0; j < fields.length; j++) {
+                if (fields[j].getTile() == null && getMatchingSides(tile, j) > 0) {
+                    possibleFields.add(j);
+                }
+            }
+            result[i] = Utils.IntegerListToArray(possibleFields);
             tile.rotate(1);
         }
         return result;
@@ -92,6 +88,10 @@ public class Board {
         } else {
             throw new MoveException("no matching sides");
         }
+    }
+
+    public boolean isValidMove(Tile tile, int index) {
+        return getMatchingSides(tile, index) > 0 && fields[index].getTile() == null;
     }
 
     // returns an int with the amount of matching sides
@@ -130,7 +130,7 @@ public class Board {
             }
 
             // top neighbour
-            if (rotation(row, column) == 1) {
+            if (getRotation(row, column) == 1) {
                 index = getIndexFromCoordinates(row - 1, column);
                 if (index >= 0) {
                     neighbours[1] = index;
@@ -138,7 +138,7 @@ public class Board {
             }
 
             // bottom neighbour
-            if (rotation(row, column) == 0) {
+            if (getRotation(row, column) == 0) {
                 index = getIndexFromCoordinates(row + 1, column);
                 if (index >= 0) {
                     neighbours[1] = index;
@@ -156,6 +156,20 @@ public class Board {
         throw new IndexOutOfBoundsException();
     }
 
+    // returns 0 for upwards, 1 for downwards
+    private int getRotation(int row, int column) {
+        if (isLegal(row, column)) {
+            return (row + column) % 2;
+        }
+        throw new IndexOutOfBoundsException();
+    }
+
+    private int getRotation(int[] coordinates) {
+        int row = coordinates[0];
+        int column = coordinates[1];
+        return getRotation(row, column);
+    }
+
     // returned Field[] might have empty fields on illegal indices
     private Field[] indicesToFields(int[] indices) {
         Field[] fields = new Field[indices.length];
@@ -165,20 +179,6 @@ public class Board {
             }
         }
         return fields;
-    }
-
-    // returns 0 for upwards, 1 for downwards
-    private int rotation(int row, int column) {
-        if (isLegal(row, column)) {
-            return (row + column) % 2;
-        }
-        throw new IndexOutOfBoundsException();
-    }
-
-    private int rotation(int[] coordinates) {
-        int row = coordinates[0];
-        int column = coordinates[1];
-        return rotation(row, column);
     }
 
 }
