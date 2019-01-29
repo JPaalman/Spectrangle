@@ -105,7 +105,7 @@ public class Client implements ClientProtocol {
             gui.addServer(connectedServer.getIP(), connectedServer.getSock(), serverName);
 
         } else if(first.equals("respond")) {
-            for(int i = 1; (i + 3) < splitMessage.length; i = i + 3) {
+            for(int i = 1; (i + 2) < splitMessage.length; i = i + 3) {
                 String gameName = splitMessage[i];
                 String maxPlayers = splitMessage[i + 1];
                 String joinedPlayers = splitMessage[i + 2];

@@ -215,7 +215,6 @@ public class Server implements ServerProtocol {
                     games.add(game);
                     client.setGame(game);
                     game.addPlayer(client.getPlayer());
-                    System.out.println("error1 game name not showing in respond: " + game.getName());
                     forward(respond(games.toArray(new Game[games.size()])));
                 }
 
@@ -335,7 +334,7 @@ public class Server implements ServerProtocol {
     public String respond(Game... games) {
         String result = ServerProtocol.RESPOND;
         for(Game g : games) {
-            result += ";" + g.getName();
+            result += ";" + g.getName() + ";" + g.getMaxPlayers() + ";" + g.getPlayers().size();
         }
         return result;
     }
@@ -351,7 +350,7 @@ public class Server implements ServerProtocol {
 
     @Override
     public String turn(Player player) {
-        return ServerProtocol.TURN + ";" + player.toString();
+        return ServerProtocol.TURN + ";" + player.getName();
     }
 
     @Override

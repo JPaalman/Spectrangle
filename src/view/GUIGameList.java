@@ -45,6 +45,8 @@ public class GUIGameList {
         createGameButton.setText("Create game");
         optionPanel.add(createGameButton);
         gameList = new JList();
+        final DefaultListModel defaultListModel1 = new DefaultListModel();
+        gameList.setModel(defaultListModel1);
         mainPanel.add(gameList, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
     }
 

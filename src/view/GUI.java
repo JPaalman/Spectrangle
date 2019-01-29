@@ -35,6 +35,7 @@ public class GUI implements View {
     private JList serverJList;
     private JList gameJList;
     private DefaultListModel<String> model;
+    private DefaultListModel<String> gamesModel;
     private String connectedServerIP;
     private String connectedServerPort;
     private String connectedServerName;
@@ -130,6 +131,7 @@ public class GUI implements View {
         frame.setContentPane(gameList);
         frame.revalidate();
         gameJList = (JList) gameList.getComponent(1);
+        gamesModel = (DefaultListModel) gameJList.getModel();
 
         MouseListener mouseListener = new MouseAdapter() {
             @Override
@@ -220,7 +222,8 @@ public class GUI implements View {
     //@ requires name != null && maxPlayers != null && gameJList != null;
     public void addGameToList(String name, String maxPlayers, String playeramount) {
         String gameInformation = "Game name: #" + name + "# max players: #" + maxPlayers + "# current amount of players: #" + playeramount;
-        ((DefaultListModel) gameJList.getModel()).addElement(gameInformation);
+        System.out.println("adding game information " + gameInformation);
+        gamesModel.addElement(gameInformation);
     }
 
     //Adds a server manually to the server list
