@@ -180,7 +180,10 @@ public class GUI implements View {
         inventoryArea.selectAll();
         inventoryArea.replaceSelection("");
         for(Player p : players) {
+            System.out.println("appending inventoryArea");
             inventoryArea.append("\n" + p.toString());
+            inventoryArea.setCaretPosition(inventoryArea.getDocument().getLength());
+
         }
     }
 

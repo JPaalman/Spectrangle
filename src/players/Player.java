@@ -29,7 +29,8 @@ public class Player extends Observable {
     }
 
     public Player() {
-
+        score = 0;
+        inventory = new ArrayList<Tile>();
     }
 
     //Returns the name of this player
@@ -108,6 +109,12 @@ public class Player extends Observable {
     //@ pure
     public String toString() {
         return "Name: " + getName() + " score: " + getScore() + "\n" + "Pieces: " + inventoryToString();
+    }
+
+    //empties the inventory
+    //@ requires inventory != null;
+    public void emptyInventory() {
+        inventory.clear();
     }
 
 

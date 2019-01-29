@@ -96,7 +96,6 @@ public class Client implements ClientProtocol {
         if(splitMessage == null) {
             return;
         }
-
         String first = splitMessage[0];
         if(first.equals("announce")) {
             //give this server a name
@@ -114,7 +113,7 @@ public class Client implements ClientProtocol {
 
         } else if(first.equals("give")) {
             String username = splitMessage[1];
-            for(int i = 2; (i + 4) < splitMessage.length; i = i + 4) {
+            for(int i = 2; i < splitMessage.length; i = i + 4) {
                 int multiplier = Integer.parseInt(splitMessage[i]);
                 Color c1 = Protocol.STRING_COLOR_MAP.get(splitMessage[i + 1]);
                 Color c2 = Protocol.STRING_COLOR_MAP.get(splitMessage[i + 2]);

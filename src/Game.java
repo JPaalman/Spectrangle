@@ -2,11 +2,13 @@ package group92.spectrangle;
 
 import group92.spectrangle.board.Bag;
 import group92.spectrangle.board.Board;
+import group92.spectrangle.board.Tile;
 import group92.spectrangle.exceptions.IllegalNameException;
 import group92.spectrangle.players.ClientPlayer;
 import group92.spectrangle.players.Player;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 //the controller of our Spectrangle application
 
@@ -18,6 +20,7 @@ public class Game {
     private int maxPlayers;
     private Board board;
     private Bag bag;
+    private int turnNumber;
 
     public static void main(String[] args) {
         Game game = new Game(4);
@@ -57,7 +60,58 @@ public class Game {
 
     //starts the game
     public void start() {
-        //TODO
+        turnNumber = 0;
+        distributeFirstTiles();
+    }
+
+    //distribute the first tiles, use this to determine who moves first based on the highest multiplier piece
+    //if there is a draw then the bag resets and the players clear their inventory to redistribute pieces till there is a winner
+    public void distributeFirstTiles() {
+        Tile highestTile = null;
+        boolean draw = false;
+        for(Player p : players) {
+            Tile newTile = bag.take();
+            p.addPiece(newTile);
+            if(highestTile == null || newTile.getMultiplier() > highestTile.getMultiplier()) {
+                highestTile = newTile;
+                draw = false;
+                for(int i = players.indexOf(p); i > 0; i--) { //move the player to the first place
+                    Collections.swap(players, i, i - 1);
+                }
+            } else if(newTile.getMultiplier() == highestTile.getMultiplier()) {
+                draw = true;
+                for(int i = players.indexOf(p); i > 0; i--) { //move the player to the first place
+                    Collections.swap(players, i, i - 1);
+                }
+            }
+        }
+
+        if(draw) {
+            bag = new Bag();
+            for(Player p : players) {
+                p.emptyInventory();
+            }
+            distributeFirstTiles();
+            return;
+        } else {
+            int count = 1;
+            while(count != 4) {//give all players 3 more pieces, totalling 4 pieces per player
+                for (Player p : players) {
+                    p.addPiece(bag.take());
+                }
+                count++;
+            }
+        }
+    }
+
+    //return whose turn it is
+    public Player turn() {//TODO separate method to increment
+        return players.get(turnNumber);
+    }
+
+    //Increment the turn number
+    public void incrementTurn() {
+        turnNumber = (turnNumber + 1) % players.size() - 1;
     }
 
     //return the max player count
@@ -98,6 +152,9 @@ public class Game {
 
     //returns the name of the first player that is in this game
     public String getName() {
+        System.out.println(players);
+        System.out.println(players.get(0));
+        System.out.println(players.get(0).getName());
         return players.get(0).getName();
     }
 
