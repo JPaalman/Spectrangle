@@ -1,5 +1,6 @@
 package group92.spectrangle.view;
 
+import group92.spectrangle.board.Board;
 import group92.spectrangle.board.Tile;
 import group92.spectrangle.exceptions.IllegalNameException;
 import group92.spectrangle.network.Client;
@@ -140,8 +141,9 @@ public class GUI implements View {
                     String selectedValue = (String) gameJList.getSelectedValue();
                     System.out.println(selectedValue);
                     String[] splitValues = selectedValue.split("#");
-                    connectedServer.writeMessage(client.join(splitValues[1]));
                     connectedGamePlayerCount = Integer.valueOf(splitValues[3]);
+                    client.setGame(connectedGamePlayerCount);
+                    connectedServer.writeMessage(client.join(splitValues[1]));
                     gameWindow();
                 }
             }
@@ -307,6 +309,7 @@ public class GUI implements View {
         JButton forfeitButton = guiGame.getForfeitButton();
         JLabel usernameLabel = guiGame.getUsernameLabel();
         usernameLabel.setText(username);
+        JButton movePieceButton = guiGame.getMovePieceButton();
 
         boardArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 20));
         boardArea.setEditable(false);
@@ -319,12 +322,44 @@ public class GUI implements View {
             frame.setContentPane(gameList);
         });
 
+        JPanel piecePanel = new JPanel();
+        piecePanel.add(new JLabel("Piece number:"));
+        JTextField pieceNumber = new JTextField(1);
+        piecePanel.add(pieceNumber);
+        piecePanel.add(Box.createHorizontalStrut(15));
+        piecePanel.add(new JLabel("Index on board:"));
+        JTextField indexOnBoard = new JTextField(2);
+        piecePanel.add(indexOnBoard);
+
+
+        movePieceButton.addActionListener(e -> {
+            int result = JOptionPane.showConfirmDialog(frame, piecePanel, "Move piece", JOptionPane.OK_CANCEL_OPTION);
+            if(result == JOptionPane.OK_OPTION) {
+                int pieceNum = Integer.parseInt(pieceNumber.getText());
+                int i = Integer.getInteger(indexOnBoard.getText());
+                if(!Board.isLegal(i)) {
+                    JOptionPane.showMessageDialog(frame, "Invalid board index", "Ilegal board index", JOptionPane.ERROR_MESSAGE);
+                } else if(pieceNum > client.getGame().getPlayer(username).getInventory().size()) {
+                    JOptionPane.showMessageDialog(frame, "Invalid piece number", "Ilegal piece", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    connectedServer.writeMessage(client.move(client.getGame().getPlayer(username).getInventory().get(pieceNum - 1), i));
+                }
+            }
+        });
+
         skipTurnButton.addActionListener(e -> {
             connectedServer.writeMessage(client.skip());
         });
 
         swapPiece.addActionListener(e -> {
-            //TODO
+            String[] options = {"1", "2", "3", "4", "5", "6"};
+            String result = (String) JOptionPane.showInputDialog(frame, "Piece number:", "Swap piece", JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+            int resultInt = Integer.parseInt(result);
+            if(resultInt > client.getGame().getPlayer(username).getInventory().size()) {
+                JOptionPane.showMessageDialog(frame, "Invalid piece number", "Ilegal piece", JOptionPane.ERROR_MESSAGE);
+            } else {
+                connectedServer.writeMessage(client.swap(client.getGame().getPlayer(username).getInventory().get(resultInt)));
+            }
         });
 
         sendMessageButton.addActionListener(e -> {

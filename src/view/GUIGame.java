@@ -62,6 +62,12 @@ public class GUIGame {
     private JPanel inputPanel;
     private JLabel usernameLabel;
 
+    public JButton getMovePieceButton() {
+        return movePieceButton;
+    }
+
+    private JButton movePieceButton;
+
     public JPanel getPanel() {
         return mainPanel;
     }
@@ -98,6 +104,9 @@ public class GUIGame {
         swapPieceButton = new JButton();
         swapPieceButton.setText("Swap piece");
         options.add(swapPieceButton);
+        movePieceButton = new JButton();
+        movePieceButton.setText("Move piece");
+        options.add(movePieceButton);
         inputPanel = new JPanel();
         inputPanel.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
         mainPanel.add(inputPanel, new com.intellij.uiDesigner.core.GridConstraints(2, 0, 1, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
