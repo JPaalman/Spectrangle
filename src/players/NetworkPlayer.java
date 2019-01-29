@@ -1,7 +1,9 @@
 package group92.spectrangle.players;
 
 import group92.spectrangle.board.Board;
+import group92.spectrangle.board.Tile;
 import group92.spectrangle.exceptions.IllegalNameException;
+import group92.spectrangle.exceptions.MoveException;
 import group92.spectrangle.network.Server;
 
 public class NetworkPlayer extends Player {
@@ -25,9 +27,9 @@ public class NetworkPlayer extends Player {
         return connectedClient;
     }
 
-    @Override
-    public int makeMove(Board board) {
-        return 0;
+    //make a move for this networkPlayer
+    public void makeMove(Board board, Tile tile, int index) throws MoveException {
+        int[] coords = Board.getCoordinatesFromIndex(index);
+        super.addScore(board.place(tile, coords[0], coords[1]));
     }
-
 }

@@ -1,13 +1,18 @@
 package group92.spectrangle.network;
 
 import group92.spectrangle.Game;
+import group92.spectrangle.board.Board;
 import group92.spectrangle.board.Tile;
 import group92.spectrangle.exceptions.IllegalNameException;
+import group92.spectrangle.exceptions.MoveException;
 import group92.spectrangle.players.ClientPlayer;
+import group92.spectrangle.players.NetworkPlayer;
 import group92.spectrangle.players.Player;
 import group92.spectrangle.protocol.ClientProtocol;
+import group92.spectrangle.protocol.Protocol;
 import group92.spectrangle.view.GUI;
 
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -83,7 +88,6 @@ public class Client implements ClientProtocol {
         if(connectedServer.joinServer()) {
             connectedServers.add(connectedServer);
         }
-
     }
 
     //reads a message and executes the corresponding action
@@ -111,53 +115,69 @@ public class Client implements ClientProtocol {
         } else if(first.equals("give")) {
             String username = splitMessage[1];
             for(int i = 2; (i + 4) < splitMessage.length; i = i + 4) {
-                String multiplier = splitMessage[i];
-                String color1 = splitMessage[i + 1];
-                String color2 = splitMessage[i + 2];
-                String color3 = splitMessage[i + 3];
-                //TODO give this piece to the player
-//                game.getPlayer(username).addPiece();
+                int multiplier = Integer.parseInt(splitMessage[i]);
+                Color c1 = Protocol.STRING_COLOR_MAP.get(splitMessage[i + 1]);
+                Color c2 = Protocol.STRING_COLOR_MAP.get(splitMessage[i + 2]);
+                Color c3 = Protocol.STRING_COLOR_MAP.get(splitMessage[i + 3]);
+                Tile tile = new Tile(multiplier, c1, c2, c3);
+                game.getPlayer(username).addPiece(tile);
+                gui.updateInventory(game.getPlayers());
             }
 
 
             } else if(first.equals("turn")) {
             String username = splitMessage[1];
-            if(username.equals(player.getName())) {
-                //TODO it is your turn, notify client
-            } else {
-                //TODO possibly notify client whose turn it is
-            }
+            gui.notifyTurn(username);
 
         } else if(first.equals("move")) {
             String username = splitMessage[1];
-            String multiplier = splitMessage[2];
-            String color1 = splitMessage[3];
-            String color2 = splitMessage[4];
-            String color3 = splitMessage[5];
-            String index = splitMessage[6];
-            //TODO make this move on the board and draw it on the GUI
+            int multiplier = Integer.parseInt(splitMessage[2]);
+            Color c1 = Protocol.STRING_COLOR_MAP.get(splitMessage[3]);
+            Color c2 = Protocol.STRING_COLOR_MAP.get(splitMessage[4]);
+            Color c3 = Protocol.STRING_COLOR_MAP.get(splitMessage[5]);
+            int index = Integer.parseInt(splitMessage[6]);
+
+            Tile tile = new Tile(multiplier, c1, c2, c3);
+            try {
+                ((NetworkPlayer) game.getPlayer(username)).makeMove(game.getBoard(), tile, index);
+            } catch (MoveException e) {
+                System.out.println("[Client] invalid move"); //should not happen
+                e.printStackTrace();
+            }
+            gui.drawMove(tile, index);
 
         } else if(first.equals("swap")) {
             String username = splitMessage[1];
-            String color1 = splitMessage[2];
-            String color2 = splitMessage[3];
-            String color3 = splitMessage[4];
-            String index = splitMessage[5];
-            String secondColor1 = splitMessage[6];
-            String secondColor2 = splitMessage[7];
-            String secondColor3 = splitMessage[8];
-            String secondIndex = splitMessage[9];
-            //TODO swap pieces in inventory of this player
+
+            int multiplier = Integer.parseInt(splitMessage[2]);
+            Color c1 = Protocol.STRING_COLOR_MAP.get(splitMessage[3]);
+            Color c2 = Protocol.STRING_COLOR_MAP.get(splitMessage[4]);
+            Color c3 = Protocol.STRING_COLOR_MAP.get(splitMessage[5]);
+            Tile oldTile = new Tile(multiplier, c1, c2, c3);
+            multiplier = Integer.parseInt(splitMessage[6]);
+            c1 = Protocol.STRING_COLOR_MAP.get(splitMessage[7]);
+            c2 = Protocol.STRING_COLOR_MAP.get(splitMessage[8]);
+            c3 = Protocol.STRING_COLOR_MAP.get(splitMessage[9]);
+            Tile newTile = new Tile(multiplier, c1, c2, c3);
+            Player player = game.getPlayer(username);
+            player.removePiece(oldTile);
+            player.addPiece(newTile);
+            gui.updateInventory(game.getPlayers());
 
         }  else if(first.equals("skip")) {
             String username = splitMessage[1];
-            //TODO skip this player's turn
+            gui.skipTurn(username);
 
         } else if(first.equals("end")) {
-            //TODO
+            String winners = splitMessage[1];
+            for(int i = 2; i < splitMessage.length; i++) {
+                winners+=  " and " + splitMessage[i];
+            }
+            gui.announceWinners(winners);
 
         } else if(first.equals("exception")) {
-            //TODO
+            gui.notifyTurn(name);
+            gui.exception(splitMessage[1]);
 
         } else if(first.equals("message")) {
             String username = splitMessage[1];
@@ -245,6 +265,15 @@ public class Client implements ClientProtocol {
                 joinedServer.writeMessage(connect(player));
             }
         }
+    }
+
+    public ConnectedServer getConnectedServer(String name, String address, String port) {
+        for(ConnectedServer cs : connectedServers) {
+            if(cs.getName().equals(name) && cs.getIP().equals(address) && cs.getSock().equals(port)) {
+                return cs;
+            }
+        }
+        return null;
     }
 
     //a server that this client is connected to, having this in a separate class allows for the client to connect to multiple servers

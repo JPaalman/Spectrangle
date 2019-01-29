@@ -8,7 +8,7 @@ public interface ServerProtocol extends Protocol {
 
     String announce(String serverName);
 
-    String respond(Game game, Game... games);
+    String respond(Game... games);
 
     String give(Player player, Tile tile, Tile... tiles);
 
@@ -20,10 +20,12 @@ public interface ServerProtocol extends Protocol {
 
     String skip(Player player);
 
-    String end(Player player, Player... players);
+    String end(Player... players);
 
     String exception(String message);
 
     String message(Player player, String message);
+
+    String join(Player player);
 
 }

@@ -55,6 +55,11 @@ public class Game {
         return null;
     }
 
+    //starts the game
+    public void start() {
+        //TODO
+    }
+
     //return the max player count
     //@ pure
     public int getMaxPlayers() {
