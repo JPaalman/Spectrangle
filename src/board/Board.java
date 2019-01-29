@@ -9,6 +9,8 @@ import java.util.List;
 
 public class Board {
 
+    // TODO check for field with multiplicity > 1 on first move
+
     public static final List<Integer> MULTIPLICITY_2 = Arrays.asList(10, 14, 30);
     public static final List<Integer> MULTIPLICITY_3 = Arrays.asList(2, 26, 35);
     public static final List<Integer> MULTIPLICITY_4 = Arrays.asList(11, 13, 20);
@@ -53,7 +55,7 @@ public class Board {
     private boolean first;
 
     public Board() {
-        first = false;
+        first = true;
         fields = new Field[36];
         for (int i = 0; i < fields.length; i++) {
             if (MULTIPLICITY_4.contains(i)) {
@@ -73,19 +75,21 @@ public class Board {
         for (int i = 0; i < fields.length; i++) {
             if (fields[i].getTile() == null && getMatchingSides(tile, i) > 0) {
                 possibleFields.add(i);
-                }
+            }
         }
         return Utils.IntegerListToArray(possibleFields);
     }
 
     public boolean isValidMove(Tile tile, int index) {
-        return !first || getMatchingSides(tile, index) > 0 && fields[index].getTile() == null;
+        return first || getMatchingSides(tile, index) > 0 && fields[index].getTile() == null;
     }
 
     public int place(Tile tile, int index) throws MoveException {
         int matchingSides = getMatchingSides(tile, index);
         if (first || matchingSides > 0) {
-            return matchingSides * fields[index].place(tile);
+            int result = matchingSides * fields[index].place(tile);
+            first = false;
+            return result;
         } else {
             throw new MoveException("no matching sides");
         }
