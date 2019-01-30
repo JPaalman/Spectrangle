@@ -5,9 +5,13 @@ import group92.spectrangle.board.Move;
 
 import java.util.ArrayList;
 
-public class SimpleStrategy extends RandomStrategy {
+public class SimpleStrategy {
 
     public Move getMove(ArrayList<Move> moves) {
+        System.out.println("using SimpleStrategy");
+        if (moves.size() == 0) {
+            return null;
+        }
         ArrayList<Move> temp = new ArrayList<>();
         for (Move move : moves) {
             if (Board.MULTIPLICITY_4.contains(move.getIndex())) {

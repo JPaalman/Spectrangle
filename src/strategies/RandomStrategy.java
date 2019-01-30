@@ -8,7 +8,10 @@ public class RandomStrategy implements Strategy {
 
     @Override
     public Move getMove(List<Move> moves) {
-        return moves.get((int) (Math.random() * moves.size()));
+        if (moves.size() > 0) {
+            return moves.get((int) (Math.random() * moves.size()));
+        }
+        return null;
     }
 
 }
