@@ -9,7 +9,6 @@ import java.util.List;
 public class SimpleStrategy implements Strategy {
 
     public Move getMove(List<Move> moves) {
-        System.out.println("using SimpleStrategy");
         if (moves.size() == 0) {
             return null;
         }

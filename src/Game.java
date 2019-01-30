@@ -23,8 +23,9 @@ public class Game {
             } catch (IllegalNameException e) {
                 throw new RuntimeException("YEET");
             }
+        } else {
+            new Client();
         }
-        new Client();
     }
 
     private final String USAGE = "Usage: <server | client> + <name>";
