@@ -261,7 +261,7 @@ public class GUI implements View {
         serverPanel.add(port);
         int result = JOptionPane.showConfirmDialog(frame, serverPanel, "Please enter the address and the port", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
-            //TODO add the server
+            client.searchForServer(address.getText());
         } else if (result == JOptionPane.CANCEL_OPTION) {
 
         }
