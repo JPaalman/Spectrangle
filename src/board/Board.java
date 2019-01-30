@@ -3,6 +3,7 @@ package group92.spectrangle.board;
 import group92.spectrangle.Utils;
 import group92.spectrangle.exceptions.MoveException;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -109,7 +110,7 @@ public class Board {
             int[] coordinates = getCoordinatesFromIndex(index);
             Field[] neighbouringFields = indicesToFields(getNeighbours(coordinates));
             for (int i = 0; i < neighbouringFields.length; i++) {
-                if (neighbouringFields[i] != null && neighbouringFields[i].getTile() != null && tile.getColors()[i] == neighbouringFields[i].getTile().getColors()[2 - i]) {
+                if (neighbouringFields[i] != null && neighbouringFields[i].getTile() != null && (tile.getColors()[0].equals(Color.WHITE) || tile.getColors()[i] == neighbouringFields[i].getTile().getColors()[2 - i])) {
                     result++;
                 }
             }
