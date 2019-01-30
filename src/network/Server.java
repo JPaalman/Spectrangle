@@ -1,7 +1,6 @@
 package group92.spectrangle.network;
 
 import group92.spectrangle.Game;
-import group92.spectrangle.board.Board;
 import group92.spectrangle.board.Tile;
 import group92.spectrangle.exceptions.IllegalNameException;
 import group92.spectrangle.exceptions.MoveException;
@@ -9,7 +8,6 @@ import group92.spectrangle.players.NetworkPlayer;
 import group92.spectrangle.players.Player;
 import group92.spectrangle.protocol.Protocol;
 import group92.spectrangle.protocol.ServerProtocol;
-import sun.nio.ch.Net;
 
 import java.awt.*;
 import java.io.BufferedReader;
@@ -20,7 +18,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
-import static group92.spectrangle.board.Board.getCoordinatesFromIndex;
 import static java.lang.Thread.sleep;
 
 public class Server implements ServerProtocol {
@@ -28,6 +25,8 @@ public class Server implements ServerProtocol {
     private ServerSocket socket;
     private ArrayList<ConnectedClient> connectedClients;
     private ArrayList<Game> games;
+    public final static int PORT = 2019;
+
 
     public static void main(String[] args) {
         try {
@@ -72,7 +71,7 @@ public class Server implements ServerProtocol {
     //Creates the server
     public void create() {
         try {
-            socket = new ServerSocket(Game.PORT);
+            socket = new ServerSocket(PORT);
             ConnectionHandler connectionHandler = new ConnectionHandler(socket, this);
             Thread t = new Thread(connectionHandler);
             t.start();
