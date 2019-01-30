@@ -71,12 +71,9 @@ public class Board {
     }
 
     public int[] getPossibleFields(Tile tile) {
-        if (first) {
-            return new int[]{0};
-        }
         ArrayList<Integer> possibleFields = new ArrayList<>();
         for (int i = 0; i < fields.length; i++) {
-            if (fields[i].getTile() == null && getMatchingSides(tile, i) > 0) {
+            if (isValidMove(tile, i)) {
                 possibleFields.add(i);
             }
         }
@@ -84,7 +81,7 @@ public class Board {
     }
 
     public boolean isValidMove(Tile tile, int index) {
-        return first || getMatchingSides(tile, index) > 0 && fields[index].getTile() == null;
+        return (first && !MULTIPLICITY_4.contains(index) && !MULTIPLICITY_3.contains(index) && !MULTIPLICITY_2.contains(index)) || (getMatchingSides(tile, index) > 0 && fields[index].getTile() == null);
     }
 
     public int place(Tile tile, int index) throws MoveException {
@@ -128,39 +125,27 @@ public class Board {
     }
 
     // returns an int[] of the indices of the surrounding fields, from left to right
-    // result array could contain null, if the field has less than 3 neighbours
+    // resulting array could contain -1, if the field has less than 3 neighbours
     private int[] getNeighbours(int row, int column) {
         if (isLegal(row, column)) {
             int index;
             int[] neighbours = new int[3];
 
             // left neighbour
-            index = getIndexFromCoordinates(row, column - 1);
-            if (index >= 0) {
-                neighbours[0] = index;
-            }
+            neighbours[0] = getIndexFromCoordinates(row, column - 1);
 
             // top neighbour
             if (getRotation(row, column) == 1) {
-                index = getIndexFromCoordinates(row - 1, column);
-                if (index >= 0) {
-                    neighbours[1] = index;
-                }
+                neighbours[1] = getIndexFromCoordinates(row - 1, column);
             }
 
             // bottom neighbour
             if (getRotation(row, column) == 0) {
-                index = getIndexFromCoordinates(row + 1, column);
-                if (index >= 0) {
-                    neighbours[1] = index;
-                }
+                neighbours[1] = getIndexFromCoordinates(row + 1, column);
             }
 
             // right neighbour
-            index = getIndexFromCoordinates(row, column + 1);
-            if (index >= 0) {
-                neighbours[2] = index;
-            }
+            neighbours[2] = getIndexFromCoordinates(row, column + 1);
 
             return neighbours;
         }
