@@ -88,8 +88,8 @@ public class Board {
     public int place(Tile tile, int index) throws MoveException {
         if (first) {
             if (!MULTIPLICITY_4.contains(index) && !MULTIPLICITY_3.contains(index) && !MULTIPLICITY_2.contains(index)) {
-                first = false;
                 fields[index].place(tile);
+                first = false;
                 return tile.getMultiplier();
             } else {
                 throw new MoveException("first move cannot be placed on a field with a multiplier");
@@ -110,11 +110,21 @@ public class Board {
             int[] coordinates = getCoordinatesFromIndex(index);
             Field[] neighbouringFields = indicesToFields(getNeighbours(coordinates));
             for (int i = 0; i < neighbouringFields.length; i++) {
-                if (neighbouringFields[i] != null && neighbouringFields[i].getTile() != null && (tile.getColors()[0].equals(Color.WHITE) || tile.getColors()[i] == neighbouringFields[i].getTile().getColors()[2 - i])) {
+                if (neighbouringFields[i] != null && neighbouringFields[i].getTile() != null && (tile.getColors()[i].equals(Color.WHITE) || tile.getColors()[i] == neighbouringFields[i].getTile().getColors()[2 - i])) {
                     result++;
                 }
             }
-            return result;
+            int counter = 0;
+            for (Field field : fields) {
+                if (field != null && field.getTile() != null) {
+                    counter++;
+                }
+            }
+            if (result == counter) {
+                return result;
+            } else {
+                return 0;
+            }
         }
         throw new IndexOutOfBoundsException();
     }
