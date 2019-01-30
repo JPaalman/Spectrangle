@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 public class SimpleStrategy extends RandomStrategy {
 
+    @Override
     public Move getMove(ArrayList<Move> moves) {
         ArrayList<Move> temp = new ArrayList<>();
         for (Move move : moves) {
