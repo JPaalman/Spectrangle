@@ -71,6 +71,9 @@ public class Board {
     }
 
     public int[] getPossibleFields(Tile tile) {
+        if (first) {
+            return new int[]{0};
+        }
         ArrayList<Integer> possibleFields = new ArrayList<>();
         for (int i = 0; i < fields.length; i++) {
             if (fields[i].getTile() == null && getMatchingSides(tile, i) > 0) {
