@@ -23,6 +23,14 @@ public class Tile {
         }
     }
 
+    public void flip() {
+        Color[] result = new Color[3];
+        for (int i = 0; i < 3; i++) {
+            result[i] = colors[2 - i];
+        }
+        colors = result;
+    }
+
     public Color[] getColors() {
         return colors.clone();
     }
