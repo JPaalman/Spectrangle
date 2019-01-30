@@ -50,9 +50,9 @@ public class Tile {
     }
 
     public String toString() {
-        String result = multiplier + ";";
+        String result = multiplier + "";
         for (Color color : colors) {
-            result += Protocol.COLOR_STRING_MAP.get(color) + ";";
+            result += ";" + Protocol.COLOR_STRING_MAP.get(color);
         }
         return result;
     }

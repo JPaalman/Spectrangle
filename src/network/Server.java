@@ -217,7 +217,6 @@ public class Server implements ServerProtocol {
                     client.writeMessage(exception("illegal name."));
                 } else {
                     Game game = new Game(maxPlayers);
-                    System.out.println("added game: " + game);
                     games.add(game);
                     client.setGame(game);
                     game.addPlayer(clientPlayer);
@@ -253,10 +252,14 @@ public class Server implements ServerProtocol {
                 Color c3 = Protocol.STRING_COLOR_MAP.get(splitMessage[4]);
                 Tile tile = new Tile(multiplier, c1, c2, c3);
                 int index = Integer.parseInt(splitMessage[5]);
-
+                Tile newTile = clientGame.getBag().take();
                 try {
                     clientPlayer.makeMove(clientGame.getBoard(), tile, index);
                     forwardToGame(move(clientPlayer, tile, index), client);
+
+                    if(newTile != null) { //give a new piece if the bag isn't empty
+                        forwardToGame(give(clientPlayer, newTile), client);
+                    }
                     clientGame.incrementTurn();
                     forwardToGame(turn(clientGame.turn()), client);
                 } catch (MoveException e) {
@@ -286,8 +289,8 @@ public class Server implements ServerProtocol {
                     Tile oldTile = new Tile(multiplier, c1, c2, c3);
 
                     Tile newTile = clientGame.getBag().take();
-                    clientPlayer.removePiece(oldTile);
-                    clientPlayer.addPiece(newTile);
+                    clientPlayer.swap(newTile, oldTile);
+                    clientGame.getBag().put(oldTile);
                     forwardToGame(swap(clientPlayer, oldTile, newTile), client);
                     clientGame.incrementTurn();
                     forwardToGame(turn(clientGame.turn()), client);
@@ -299,7 +302,6 @@ public class Server implements ServerProtocol {
         } else if(first.equals("skip")) {
             if(clientGame.turn() == clientPlayer) {
                 boolean skip = true;
-                //TODO make sure it is this person's turn
                 for (Tile t : clientPlayer.getInventory()) {
                     if (clientGame.getBoard().getPossibleFields(t) != null) {
                         client.writeMessage(exception("Cannot skip!"));
@@ -416,9 +418,6 @@ public class Server implements ServerProtocol {
 
     @Override
     public String message(Player player, String message) {
-        System.out.println(player);
-        System.out.println(message);
-        System.out.println(player.toString());
         return ServerProtocol.MESSAGE + ";" + player.getName() + ";" + message;
     }
 

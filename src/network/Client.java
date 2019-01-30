@@ -147,11 +147,16 @@ public class Client implements ClientProtocol {
 
             Tile tile = new Tile(multiplier, c1, c2, c3);
             try {
-                ((NetworkPlayer) game.getPlayer(username)).makeMove(game.getBoard(), tile, index);
+                game.getPlayer(username).makeMove(game.getBoard(), tile, index);
             } catch (MoveException e) {
                 System.out.println("[Client] invalid move"); //should not happen
                 e.printStackTrace();
             }
+//            try {
+//                game.getBoard().place(tile, index);
+//            } catch (MoveException e) {
+//                e.printStackTrace();//should not happen, if it does server is implemented wrong
+//            }
             gui.drawMove(tile, index);
 
         } else if(first.equals("swap")) {
@@ -194,7 +199,7 @@ public class Client implements ClientProtocol {
         } else if(first.equals("join")) {
             String username = splitMessage[1];
             if(username.equals(name)) {
-                //TODO maybe?
+
             } else {
                 Player newPlayer = new NetworkPlayer();
                 newPlayer.setName(username);
@@ -245,7 +250,7 @@ public class Client implements ClientProtocol {
 
     @Override
     public String move(Tile tile, int index) {
-        return ClientProtocol.MOVE + ";" + tile.toString() + index;
+        return ClientProtocol.MOVE + ";" + tile.toString() + ";" + index;
     }
 
     @Override

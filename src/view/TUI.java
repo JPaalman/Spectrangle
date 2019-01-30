@@ -4,21 +4,32 @@ import group92.spectrangle.board.Tile;
 import group92.spectrangle.protocol.Protocol;
 
 import java.awt.*;
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Stream;
 
 public class TUI implements View {
-    private static List<Integer> bonuses = Arrays.asList(1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 2, 4, 1, 4, 2, 1, 1, 1, 1, 1, 4, 1, 1, 1, 1, 1, 3, 1, 1, 1, 2, 1, 1, 1, 3, 1);
-    private static List<Integer> values = Arrays.asList(5, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
-    private static List<Character> vertical = Arrays.asList('R', null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
-    private static List<Character> left = Arrays.asList('G', null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
-    private static List<Character> right = Arrays.asList('B', null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+    private static ArrayList<Integer> bonuses = new ArrayList<>(Arrays.asList(1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 2, 4, 1, 4, 2, 1, 1, 1, 1, 1, 4, 1, 1, 1, 1, 1, 3, 1, 1, 1, 2, 1, 1, 1, 3, 1));
+    private static ArrayList<Integer> values = new ArrayList<>(Arrays.asList(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null));
+    private static ArrayList<Character> vertical = new ArrayList<>(Arrays.asList(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null));
+    private static ArrayList<Character> left = new ArrayList<>(Arrays.asList(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null));
+    private static ArrayList<Character> right = new ArrayList<>(Arrays.asList(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null));
     public static final String HELP = "use ';' between commands\nhelp - for help\nstart - to start the game, needs at least 2 players\nmove <piece> <index> - to move a piece\nswap <piece> - to swap a piece\nskip - to skip\nleave - to leave\nmessage <message> - to send a message";
 
     public static void main(String[] args) {
         // This is an example of how to use the function below.
         System.out.println(getBoardString(values, vertical, left, right));
+    }
+
+    public void TUI() {
+        //TODO
+//        ArrayList<Character> test = new ArrayList<>(bonuses.);
+//        bonuses = new ArrayList<>();
+//        values = new ArrayList<>();
+//        vertical = new ArrayList<>();
+//        left = new ArrayList<>();
+//        right = new ArrayList<>();
     }
 
     /**
@@ -127,10 +138,17 @@ public class TUI implements View {
     }
 
     public void makeMove(Tile tile, int index) {
+        System.out.println("adding piece");
+        values.remove(index);
         values.add(index, tile.getMultiplier());
         Color[] colors = tile.getColors();
+        System.out.println(left.toString());
+        left.remove(index);
         left.add(index, Protocol.COLOR_STRING_MAP.get(colors[0]).charAt(0));
+        System.out.println(left.toString());
+        vertical.remove(index);
         vertical.add(index, Protocol.COLOR_STRING_MAP.get(colors[1]).charAt(0));
+        right.remove(index);
         right.add(index, Protocol.COLOR_STRING_MAP.get(colors[2]).charAt(0));
     }
 

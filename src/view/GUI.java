@@ -46,6 +46,7 @@ public class GUI implements View {
     private JTextArea inputArea;
     private JTextArea inventoryArea;
     private TUI tui;
+    private JTextArea boardArea;
 
     public static void main(String[] args) {
         GUI gui = new GUI(new Client());
@@ -102,7 +103,6 @@ public class GUI implements View {
             public void mouseClicked(MouseEvent e) {
                 if(e.getClickCount() == 2) {
                     String selectedValue = (String) serverJList.getSelectedValue();
-                    System.out.println(selectedValue);
                     String[] splitValues = selectedValue.split("#");
                     connectedServerName = splitValues[1];
                     connectedServerIP = splitValues[3];
@@ -139,7 +139,6 @@ public class GUI implements View {
             public void mouseClicked(MouseEvent e) {
                 if(e.getClickCount() == 2) {
                     String selectedValue = (String) gameJList.getSelectedValue();
-                    System.out.println(selectedValue);
                     String[] splitValues = selectedValue.split("#");
                     connectedGamePlayerCount = Integer.valueOf(splitValues[3]);
                     client.setGame(connectedGamePlayerCount);
@@ -182,7 +181,6 @@ public class GUI implements View {
         inventoryArea.selectAll();
         inventoryArea.replaceSelection("");
         for(Player p : players) {
-            System.out.println("appending inventoryArea");
             inventoryArea.append("\n" + p.toString());
             inventoryArea.setCaretPosition(inventoryArea.getDocument().getLength());
 
@@ -193,6 +191,10 @@ public class GUI implements View {
     //@ requires tile != null && index != null;
     public void drawMove(Tile tile, int index) {
         tui.makeMove(tile, index);
+        boardArea.selectAll();
+        boardArea.replaceSelection("");
+        boardArea.append(tui.getBoard());
+        //TODO
     }
 
     //announces the winner(s) of the game
@@ -259,7 +261,6 @@ public class GUI implements View {
         serverPanel.add(port);
         int result = JOptionPane.showConfirmDialog(frame, serverPanel, "Please enter the address and the port", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
-            System.out.println("test");
             //TODO add the server
         } else if (result == JOptionPane.CANCEL_OPTION) {
 
@@ -299,7 +300,7 @@ public class GUI implements View {
     public void gameWindow() {
         GUIGame guiGame = new GUIGame();
         gameBoard = guiGame.getPanel();
-        JTextArea boardArea = guiGame.getBoardArea();
+        boardArea = guiGame.getBoardArea();
         inputArea = guiGame.getInputArea();
         JButton sendMessageButton = guiGame.getSendButton();
         JButton skipTurnButton = guiGame.getSkipTurnButton();
@@ -388,7 +389,6 @@ public class GUI implements View {
 
         frame.setContentPane(gameBoard);
         frame.revalidate();
-        System.out.println("Opened the console on the GUI");
 
         forfeitButton.addActionListener(e -> {
             forfeit();
@@ -406,13 +406,26 @@ public class GUI implements View {
         boardArea.append(tui.getBoard());
     }
 
+    public void invalidMove() {
+        JOptionPane.showMessageDialog(frame, "Invalid move", "Invalid move", JOptionPane.ERROR_MESSAGE);
+    }
+
+    public void invalidSkip() {
+        JOptionPane.showMessageDialog(frame, "Invalid skip", "Invalid skip", JOptionPane.ERROR_MESSAGE);
+
+    }
+
+    public void invalidSwap() {
+        JOptionPane.showMessageDialog(frame, "Invalid skip", "Invalid skip", JOptionPane.ERROR_MESSAGE);
+
+    }
+
     //executes a command
     //@ requires command != null;
     public void executeCommand() {
         String command = inputArea.getText();
         inputArea.selectAll();
         inputArea.replaceSelection("");
-        System.out.println("test");
         String[] splitCommand = command.split(";");
         String firstArg = splitCommand[0];
         switch(firstArg) {
@@ -432,7 +445,11 @@ public class GUI implements View {
                 Color c3 = Protocol.STRING_COLOR_MAP.get(splitCommand[4]);
                 int index = Integer.parseInt(splitCommand[5]);
                 Tile tile = new Tile(multiplier, c1, c2, c3);
-                connectedServer.writeMessage(client.move(tile, index));
+                if(client.getGame().getBoard().isValidMove(tile, index)) {
+                    connectedServer.writeMessage(client.move(tile, index));
+                } else {
+                    invalidMove();
+                }
                 break;
             case Protocol.SWAP :
                 multiplier = Integer.parseInt(splitCommand[1]);
@@ -440,9 +457,19 @@ public class GUI implements View {
                 c2 = Protocol.STRING_COLOR_MAP.get(splitCommand[3]);
                 c3 = Protocol.STRING_COLOR_MAP.get(splitCommand[4]);
                 tile = new Tile(multiplier, c1, c2, c3);
+                for(Tile t : client.getPlayer().getInventory()) {
+                    if(client.getGame().getBoard().getPossibleFields(t).length != 0) {
+                        invalidSwap();
+                    }
+                }
                 connectedServer.writeMessage(client.swap(tile));
                 break;
             case Protocol.SKIP :
+                for(Tile t : client.getPlayer().getInventory()) {
+                    if(client.getGame().getBoard().getPossibleFields(t).length != 0) {
+                        invalidSkip();
+                    }
+                }
                 connectedServer.writeMessage(client.skip());
             case Protocol.LEAVE :
                 leave();
@@ -460,10 +487,10 @@ public class GUI implements View {
     //Forfeit a game
     private void forfeit() {
         connectedServer.writeMessage(client.leave());
-        PrintStream ps = new PrintStream(new FileOutputStream(FileDescriptor.out));
-        System.setOut(ps);
-        System.setOut(ps);
-        System.out.println("[Client] Back to the old console");
+//        PrintStream ps = new PrintStream(new FileOutputStream(FileDescriptor.out));
+//        System.setOut(ps);
+//        System.setOut(ps);
+//        System.out.println("[Client] Back to the old console");
         frame.setContentPane(gameList);
     }
 

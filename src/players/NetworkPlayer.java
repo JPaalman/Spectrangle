@@ -26,9 +26,4 @@ public class NetworkPlayer extends Player {
     public Server.ConnectedClient getConnectedClient() {
         return connectedClient;
     }
-
-    //make a move for this networkPlayer
-    public void makeMove(Board board, Tile tile, int index) throws MoveException {
-        super.addScore(board.place(tile, index));
-    }
 }

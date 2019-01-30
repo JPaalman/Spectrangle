@@ -120,7 +120,7 @@ public class Game {
 
     //Increment the turn number
     public void incrementTurn() {
-        turnNumber = (turnNumber + 1) % players.size() - 1;
+        turnNumber = (turnNumber + 1) % players.size();
     }
 
     //return the max player count

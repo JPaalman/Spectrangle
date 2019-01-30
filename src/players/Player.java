@@ -3,6 +3,7 @@ package group92.spectrangle.players;
 import group92.spectrangle.board.Board;
 import group92.spectrangle.board.Tile;
 import group92.spectrangle.exceptions.IllegalNameException;
+import group92.spectrangle.exceptions.MoveException;
 
 import java.util.ArrayList;
 import java.util.Observable;
@@ -118,6 +119,11 @@ public abstract class Player extends Observable {
             i++;
         }
         return result;
+    }
+
+    public void makeMove(Board board, Tile tile, int index) throws MoveException {
+        addScore(board.place(tile, index));
+        removePiece(tile);
     }
 
     //Returns a description of this player
