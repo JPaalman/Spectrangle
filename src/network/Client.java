@@ -5,6 +5,7 @@ import group92.spectrangle.board.Tile;
 import group92.spectrangle.exceptions.IllegalNameException;
 import group92.spectrangle.exceptions.MoveException;
 import group92.spectrangle.players.ClientPlayer;
+import group92.spectrangle.players.ComputerPlayer;
 import group92.spectrangle.players.NetworkPlayer;
 import group92.spectrangle.players.Player;
 import group92.spectrangle.protocol.ClientProtocol;
@@ -23,7 +24,7 @@ import java.util.ArrayList;
 public class Client implements ClientProtocol {
     private String name;
     private GUI gui;
-    private ClientPlayer player;
+    private Player player;
     private Game game;
     private String ipv4 = "";
     private ArrayList<ConnectedServer> connectedServers;
@@ -48,7 +49,7 @@ public class Client implements ClientProtocol {
         return game;
     }
 
-    public ClientPlayer getPlayer() {
+    public Player getPlayer() {
         return player;
     }
 
@@ -73,7 +74,11 @@ public class Client implements ClientProtocol {
     //sets the name of this client and initializes a player object with this name
     public void setName(String name) throws IllegalNameException {
         this.name = name;
-        player = new ClientPlayer(name);
+        if(gui.getBot()) {
+            player = new ComputerPlayer(name);
+        } else {
+            player = new ClientPlayer(name);
+        }
     }
 
     //returns the name of this client
@@ -109,6 +114,7 @@ public class Client implements ClientProtocol {
             gui.addServer(connectedServer.getIP(), connectedServer.getSock(), serverName);
 
         } else if(first.equals("respond")) {
+            connectedServer.setBot(gui.getBot()); //set if bot or not
             for(int i = 1; (i + 2) < splitMessage.length; i = i + 3) {
                 String gameName = splitMessage[i];
                 String maxPlayers = splitMessage[i + 1];
@@ -137,9 +143,14 @@ public class Client implements ClientProtocol {
                 gui.updateInventory(game.getPlayers());
             }
 
-
             } else if(first.equals("turn")) {
             String username = splitMessage[1];
+            if(username.equals(name) && player instanceof ComputerPlayer) {
+                System.out.println("bot's turn!");
+                String move = ((ComputerPlayer) player).getMove(game.getBoard());
+                System.out.println("bot made this move: " + move);
+                connectedServer.writeMessage(move);
+            }
             gui.notifyTurn(username);
 
         } else if(first.equals("move")) {
@@ -313,6 +324,16 @@ public class Client implements ClientProtocol {
         private String ip;
         private String sock;
         private String name;
+        private boolean bot;
+
+
+        public void setBot(boolean bot) {
+            this.bot = bot;
+        }
+
+        public Boolean getBot() {
+            return bot;
+        }
 
         //creates a ConnectedServer object
         //@ requires client != null;

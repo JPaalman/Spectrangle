@@ -18,7 +18,7 @@
           <component id="75efe" class="javax.swing.JLabel" binding="usernameLabel">
             <constraints/>
             <properties>
-              <text value="Label"/>
+              <text value="[username]"/>
             </properties>
           </component>
           <component id="e56db" class="javax.swing.JButton" binding="forfeitButton" default-binding="true">
