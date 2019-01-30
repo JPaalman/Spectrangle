@@ -253,7 +253,7 @@ public class Server implements ServerProtocol {
                 int index = Integer.parseInt(splitMessage[5]);
                 Tile newTile = clientGame.getBag().take();
                 try {
-                    clientPlayer.makeMove(clientGame.getBoard(), tile, index);
+                    clientPlayer.makeMove(clientGame.getBoard(), tile, index); //TODO
                     forwardToGame(move(clientPlayer, tile, index), client);
 
                     if(newTile != null) { //give a new piece if the bag isn't empty
@@ -273,7 +273,7 @@ public class Server implements ServerProtocol {
                 boolean swap = true;
 
                 for (Tile t : clientPlayer.getInventory()) {
-                    if (clientGame.getBoard().getPossibleFields(t) != null) {
+                    if (clientGame.getBoard().getPossibleFields(t) != null) { //TODO
                         client.writeMessage(exception("Cannot swap!"));
                         swap = false;
                         break;

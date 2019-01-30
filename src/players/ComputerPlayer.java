@@ -47,7 +47,7 @@ public class ComputerPlayer extends Player {
         }
         Move result = strategy.getMove(possibleMoves);
         if (result != null) {
-            return result.toString();
+            return "move;" + result.toString();
         }
         return "skip";
     }
