@@ -18,10 +18,10 @@ public class Board {
     public static int[] getCoordinatesFromIndex(int index) {
         if (isLegal(index)) {
             int row = (int) Math.sqrt(index);
-            int column = index - (row ^ 2 + row);
+            int column = index - (int) Math.pow(row, 2) - row;
             return new int[]{row, column};
         }
-        return null;
+        throw new RuntimeException("index considered illegal");
     }
 
     public static int getIndexFromCoordinates(int[] coordinates) {
@@ -31,8 +31,8 @@ public class Board {
     }
 
     public static int getIndexFromCoordinates(int row, int column) {
-        if (row >= 0 && row <= 5 && column >= -row && column <= row) {
-            return row ^ 2 + row + column;
+        if (isLegal(row, column)) {
+            return (int) Math.pow(row, 2) + row + column;
         }
         return -1;
     }
@@ -85,11 +85,14 @@ public class Board {
     }
 
     public int place(Tile tile, int index) throws MoveException {
-        int matchingSides = getMatchingSides(tile, index);
-        if (first || matchingSides > 0) {
-            int result = matchingSides * fields[index].place(tile);
+        if (first) {
             first = false;
-            return result;
+            fields[index].place(tile);
+            return tile.getMultiplier();
+        }
+        int matchingSides = getMatchingSides(tile, index);
+        if (matchingSides > 0) {
+            return matchingSides * fields[index].place(tile);
         } else {
             throw new MoveException("no matching sides");
         }
