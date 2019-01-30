@@ -42,7 +42,7 @@ public class Server implements ServerProtocol {
     //@ ensures !name.contains(";") => name != null;
     //@ ensures connectedClients != null && games != null;
     public Server(String name) throws IllegalNameException {
-        if(!name.contains(";")) {
+        if (!name.contains(";")) {
             this.name = name;
         } else {
             throw new IllegalNameException(name + " illegal name");
@@ -54,15 +54,15 @@ public class Server implements ServerProtocol {
     //Sends a message to all connected clients
     //@ requires message != null && connectedClients != null;
     public void forward(String message) {
-        for(ConnectedClient client : connectedClients) {
+        for (ConnectedClient client : connectedClients) {
             client.writeMessage(message);
         }
     }
 
     //sends a message to all connected clients in a game
     public void forwardToGame(String message, ConnectedClient client) {
-        for(ConnectedClient c : connectedClients) {
-            if(client.getGame() == c.getGame()) {
+        for (ConnectedClient c : connectedClients) {
+            if (client.getGame() == c.getGame()) {
                 c.writeMessage(message);
             }
         }
@@ -86,8 +86,8 @@ public class Server implements ServerProtocol {
     //@ ensures connectedClients.contains(clientSocket);
     public void addClient(Socket clientSocket) {
         //Make sure we don't have this client yet
-        for(ConnectedClient client : connectedClients) {
-            if(client.getSocket() == clientSocket) {
+        for (ConnectedClient client : connectedClients) {
+            if (client.getSocket() == clientSocket) {
                 return;
             }
         }
@@ -105,26 +105,26 @@ public class Server implements ServerProtocol {
 
     //Removes a client from the connected clients list
     public void removeClient(ConnectedClient client) {
-        for(ConnectedClient c : connectedClients) {
-            if(client == c) {
+        for (ConnectedClient c : connectedClients) {
+            if (client == c) {
                 connectedClients.remove(client);
             }
         }
     }
 
     public void readMessage(String[] splitMessage, ConnectedClient client) {
-        if(splitMessage == null || client == null) {
+        if (splitMessage == null || client == null) {
             return;
         }
         Game clientGame = client.getGame();
         NetworkPlayer clientPlayer = client.getPlayer();
 
         String first = splitMessage[0];
-        if(first.equals("scan")) {
+        if (first.equals("scan")) {
             //announce your server name
             client.writeMessage(announce(name));
 
-        } else if(first.equals("connect")) {
+        } else if (first.equals("connect")) {
             //save the name for this client, he is now officially connected
             String username = splitMessage[1];
             try {
@@ -135,7 +135,7 @@ public class Server implements ServerProtocol {
 
             }
 
-        } else if(first.equals("join")) {
+        } else if (first.equals("join")) {
             try {
                 client.setPlayer();
                 clientPlayer = client.getPlayer();
@@ -145,19 +145,19 @@ public class Server implements ServerProtocol {
             }
             boolean foundGame = false;
             //add the client to a game if possible, if given add him to a game with a specific max player count or specific name
-            if(splitMessage.length == 2) {
+            if (splitMessage.length == 2) {
                 String arg = splitMessage[1];
-                if(arg.length() == 1) {
+                if (arg.length() == 1) {
                     //if a player count is given
                     char argChar = arg.charAt(0);
-                    for(Game g : games) {
-                        if(g.getMaxPlayers() == (int) argChar && g.hasSpace()) {
+                    for (Game g : games) {
+                        if (g.getMaxPlayers() == (int) argChar && g.hasSpace()) {
                             g.addPlayer(clientPlayer);
                             client.setGame(g);
                             break;
                         }
                     }
-                    if(foundGame) {
+                    if (foundGame) {
                         forwardToGame(join(clientPlayer), client);
                     } else {
                         client.writeMessage(exception("There is no game with player count: " + arg));
@@ -165,15 +165,15 @@ public class Server implements ServerProtocol {
 
                 } else {
                     //if a game name is given
-                    for(Game g : games) {
-                        if(g.getName().equals(arg) && g.hasSpace()) {
+                    for (Game g : games) {
+                        if (g.getName().equals(arg) && g.hasSpace()) {
                             g.addPlayer(clientPlayer);
                             client.setGame(g);
                             foundGame = true;
                             break;
                         }
                     }
-                    if(foundGame) {
+                    if (foundGame) {
                         forwardToGame(join(clientPlayer), client);
                     } else {
                         client.writeMessage(exception("There is no game with username: " + arg));
@@ -182,22 +182,22 @@ public class Server implements ServerProtocol {
 
             } else {
                 //If the client wants to join any game
-                for(Game g : games) {
-                    if(g.hasSpace()) {
+                for (Game g : games) {
+                    if (g.hasSpace()) {
                         g.addPlayer(clientPlayer);
                         client.setGame(g);
                         foundGame = true;
                         break;
                     }
                 }
-                if(foundGame) {
+                if (foundGame) {
                     forwardToGame(join(clientPlayer), client);
                 } else {
                     client.writeMessage(exception("There is no game available"));
                 }
             }
 
-        } else if(first.equals("create")) {
+        } else if (first.equals("create")) {
             //If this player wants to create a game
             int maxPlayers = Integer.parseInt(splitMessage[1]);
             try {
@@ -208,22 +208,22 @@ public class Server implements ServerProtocol {
                 e.printStackTrace();
             }
 
-            if(clientGame != null) {
-                    client.writeMessage(exception("You are already in a game!"));
-                } else if(maxPlayers > 4 || maxPlayers < 2) {
-                    client.writeMessage(exception("Max player count is invalid, must be between 2 and 4"));
-                } else if(client.getName() == null) {
-                    client.writeMessage(exception("illegal name."));
-                } else {
-                    Game game = new Game(maxPlayers);
-                    games.add(game);
-                    client.setGame(game);
-                    game.addPlayer(clientPlayer);
-                    forward(respond(games.toArray(new Game[games.size()])));
-                }
+            if (clientGame != null) {
+                client.writeMessage(exception("You are already in a game!"));
+            } else if (maxPlayers > 4 || maxPlayers < 2) {
+                client.writeMessage(exception("Max player count is invalid, must be between 2 and 4"));
+            } else if (client.getName() == null) {
+                client.writeMessage(exception("illegal name."));
+            } else {
+                Game game = new Game(maxPlayers);
+                games.add(game);
+                client.setGame(game);
+                game.addPlayer(clientPlayer);
+                forward(respond(games.toArray(new Game[games.size()])));
+            }
 
-        } else if(first.equals("start")) {
-            if(clientGame.getStarted()) {
+        } else if (first.equals("start")) {
+            if (clientGame.getStarted()) {
                 client.writeMessage(exception("This game has already started"));
             } else {
                 //if a player wants to start the game, must be the player who created it
@@ -242,9 +242,9 @@ public class Server implements ServerProtocol {
                 }
             }
 
-        } else if(first.equals("move")) {
+        } else if (first.equals("move")) {
             //if the client makes a move
-            if(clientGame.turn() == clientPlayer) {
+            if (clientGame.turn() == clientPlayer) {
                 int multiplier = Integer.parseInt(splitMessage[1]);
                 Color c1 = Protocol.STRING_COLOR_MAP.get(splitMessage[2]);
                 Color c2 = Protocol.STRING_COLOR_MAP.get(splitMessage[3]);
@@ -253,15 +253,16 @@ public class Server implements ServerProtocol {
                 int index = Integer.parseInt(splitMessage[5]);
                 Tile newTile = clientGame.getBag().take();
                 try {
-                    if(clientGame.getBoard().isValidMove(tile, index)) {
+                    if (clientGame.getBoard().isValidMove(tile, index)) {
                         clientPlayer.makeMove(clientGame.getBoard(), tile, index);
                         forwardToGame(move(clientPlayer, tile, index), client);
                     } else {
                         client.writeMessage(exception("Invalid move :("));
                     }
 
-                    if(newTile != null) { //give a new piece if the bag isn't empty
+                    if (newTile != null) { //give a new piece if the bag isn't empty
                         forwardToGame(give(clientPlayer, newTile), client);
+                        clientPlayer.addPiece(newTile);
                     }
                     clientGame.incrementTurn();
                     forwardToGame(turn(clientGame.turn()), client);
@@ -272,12 +273,12 @@ public class Server implements ServerProtocol {
                 client.writeMessage(exception("It is not your turn!"));
             }
 
-        } else if(first.equals("swap")) {
-            if(clientGame.turn() == clientPlayer) {
+        } else if (first.equals("swap")) {
+            if (clientGame.turn() == clientPlayer) {
                 boolean swap = true;
 
                 for (Tile t : clientPlayer.getInventory()) {
-                    if (clientGame.getBoard().getPossibleFields(t) != null) { //TODO
+                    if (clientGame.getBoard().getPossibleFields(t) != null) {
                         client.writeMessage(exception("Cannot swap!"));
                         swap = false;
                         break;
@@ -302,14 +303,17 @@ public class Server implements ServerProtocol {
                 client.writeMessage(exception("It is not your turn!"));
             }
 
-        } else if(first.equals("skip")) {
-            if(clientGame.turn() == clientPlayer) {
+        } else if (first.equals("skip")) {
+            if (clientGame.turn() == clientPlayer) {
                 boolean skip = true;
                 for (Tile t : clientPlayer.getInventory()) {
-                    if (clientGame.getBoard().getPossibleFields(t) != null) {
-                        client.writeMessage(exception("Cannot skip!"));
-                        skip = false;
-                        break;
+                    for (int i = 0; i < 3; i++) {
+                        if (clientGame.getBoard().getPossibleFields(t).length != 0) {
+                            client.writeMessage(exception("Cannot skip!"));
+                            skip = false;
+                            break;
+                        }
+                        t.rotate(1);
                     }
                 }
 
@@ -322,7 +326,7 @@ public class Server implements ServerProtocol {
                 client.writeMessage(exception("It is not your turn!"));
             }
 
-        } else if(first.equals("leave")) {
+        } else if (first.equals("leave")) {
             ArrayList<Player> players = clientGame.getPlayers();
             players.remove(clientPlayer);
 
@@ -330,13 +334,13 @@ public class Server implements ServerProtocol {
 
             Game oldGame = clientGame;
 
-            for(ConnectedClient c : connectedClients) {
-                if(c.getGame() == oldGame) {
+            for (ConnectedClient c : connectedClients) {
+                if (c.getGame() == oldGame) {
                     c.setGame(null);
                 }
             }
 
-        } else if(first.equals("disconnect")) {
+        } else if (first.equals("disconnect")) {
             //disconnects the client from the server, closes the socket and removes him from
 
             ArrayList<Player> players = clientGame.getPlayers();
@@ -346,8 +350,8 @@ public class Server implements ServerProtocol {
 
             Game oldGame = clientGame;
 
-            for(ConnectedClient c : connectedClients) {
-                if(c.getGame() == oldGame) {
+            for (ConnectedClient c : connectedClients) {
+                if (c.getGame() == oldGame) {
                     c.setGame(null);
                 }
             }
@@ -355,7 +359,7 @@ public class Server implements ServerProtocol {
             client.disconnect();
             connectedClients.remove(client);
 
-        } else if(first.equals("message")) {
+        } else if (first.equals("message")) {
             //send this message to all players in the same game
             forwardToGame(message(clientPlayer, splitMessage[1]), client);
         }
@@ -370,7 +374,7 @@ public class Server implements ServerProtocol {
     @Override
     public String respond(Game... games) {
         String result = ServerProtocol.RESPOND;
-        for(Game g : games) {
+        for (Game g : games) {
             result += ";" + g.getName() + ";" + g.getMaxPlayers() + ";" + g.getPlayers().size();
         }
         return result;
@@ -408,7 +412,7 @@ public class Server implements ServerProtocol {
     @Override
     public String end(Player... players) {
         String result = ServerProtocol.END;
-        for(Player p : players) {
+        for (Player p : players) {
             result += ";" + p.getName();
         }
         return result;
@@ -503,7 +507,7 @@ public class Server implements ServerProtocol {
         //@ requires name != null;
         //@ ensures name.contains(";") => name != null;
         public void setName(String name) throws IllegalNameException {
-            if(!name.contains(";") && name != null) {
+            if (!name.contains(";") && name != null) {
                 this.name = name;
             } else {
                 throw new IllegalNameException("Illegal name");
@@ -520,15 +524,15 @@ public class Server implements ServerProtocol {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return"error";
+            return "error";
         }
 
         //writes a split message
         //@ requires splitMessage != null && out != null;
         public void writeSplitMessage(String[] splitMessage) {
             String message = "";
-            for(int i = 0; i < splitMessage.length; i++) {
-                if(i == splitMessage.length - 1) {
+            for (int i = 0; i < splitMessage.length; i++) {
+                if (i == splitMessage.length - 1) {
                     message += splitMessage[i];
                 } else {
                     message += splitMessage[i] + ";";
@@ -572,7 +576,7 @@ public class Server implements ServerProtocol {
         //@ requires socket != null && server != null;
         @Override
         public void run() {
-            while(socket.isConnected()) {
+            while (socket.isConnected()) {
                 String message = read();
                 String[] splitMessage = message.split(";");
                 server.readMessage(splitMessage, this);

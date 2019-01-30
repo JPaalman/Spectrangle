@@ -148,9 +148,18 @@ public class Client implements ClientProtocol {
             if(username.equals(name) && player instanceof ComputerPlayer) {
                 String move = ((ComputerPlayer) player).getMove(game.getBoard());
                 System.out.println("bot made this move: " + move);
-                connectedServer.writeMessage(move);
+                if(move.equals("skip")) {
+                    if(!game.getBag().isEmpty()) {
+                        connectedServer.writeMessage(swap(player.getInventory().get((int) Math.random() * player.getInventory().size())));
+                    } else {
+                        connectedServer.writeMessage(move);
+                    }
+                } else {
+                    connectedServer.writeMessage(move);
+                }
+            } else {
+//                gui.notifyTurn(username);
             }
-            gui.notifyTurn(username);
 
         } else if(first.equals("move")) {
             String username = splitMessage[1];

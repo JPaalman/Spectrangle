@@ -72,5 +72,12 @@ public class Bag {
         return out;
     }
 
+    public boolean isEmpty() {
+        if(tiles.size() == 0) {
+            return true;
+        }
+        return false;
+    }
+
 }
 
