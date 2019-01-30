@@ -1,7 +1,6 @@
 package group92.spectrangle.network;
 
 import group92.spectrangle.Game;
-import group92.spectrangle.board.Board;
 import group92.spectrangle.board.Tile;
 import group92.spectrangle.exceptions.IllegalNameException;
 import group92.spectrangle.exceptions.MoveException;
@@ -372,9 +371,9 @@ public class Client implements ClientProtocol {
         public boolean joinServer(String address) {
             try {
                 hostAddress = InetAddress.getByName(address);
-                socket = new Socket(hostAddress, Game.PORT);
+                socket = new Socket(hostAddress, Server.PORT);
                 ip = socket.getInetAddress().toString();
-                sock = String.valueOf(Game.PORT);
+                sock = String.valueOf(Server.PORT);
                 out = new PrintWriter(socket.getOutputStream(), true);
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
                 Thread t = new Thread(this);

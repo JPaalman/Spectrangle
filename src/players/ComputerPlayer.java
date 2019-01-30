@@ -39,14 +39,17 @@ public class ComputerPlayer extends Player {
         for (Tile tile : getInventory()) {
             for (int i = 0; i < 3; i++) {
                 int[] indices = board.getPossibleFields(tile);
-                for (int j = 0; j < indices.length; j++) {
-                    possibleMoves.add(new Move(tile, indices[j], i));
+                for (int index : indices) {
+                    possibleMoves.add(new Move(tile, index, i));
                 }
                 tile.rotate(1);
             }
-
         }
-        return strategy.getMove(possibleMoves).toString();
+        Move result = strategy.getMove(possibleMoves);
+        if (result != null) {
+            return result.toString();
+        }
+        return "skip";
     }
 
 }

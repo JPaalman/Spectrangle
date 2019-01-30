@@ -1,12 +1,6 @@
 package group92.spectrangle.board;
 
-import java.awt.*;
-
 public class Move {
-
-    public static void main(String[] args) {
-        System.out.println(new Move(new Tile(6, Color.BLUE), 35));
-    }
 
     private int index, rotation;
     private Tile tile;
