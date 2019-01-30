@@ -117,9 +117,6 @@ public class Game {
 
     //returns the name of the first player that is in this game
     public String getName() {
-        System.out.println(players);
-        System.out.println(players.get(0));
-        System.out.println(players.get(0).getName());
         return players.get(0).getName();
     }
 

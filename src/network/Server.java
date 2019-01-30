@@ -572,6 +572,9 @@ public class Server implements ServerProtocol {
                 String message = read();
                 String[] splitMessage = message.split(";");
                 server.readMessage(splitMessage, this);
+                long time = 0;
+                System.out.println("LÖÖP" + (System.currentTimeMillis() - time));
+                time = System.currentTimeMillis();
             }
             disconnect();
             server.removeClient(this);
