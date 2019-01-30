@@ -84,8 +84,14 @@ public class Client implements ClientProtocol {
 
     //tries to search for a server, if a connection gets made it gets added to the connectedServers list
     public void searchForServer() {
+        searchForServer(ipv4);
+    }
+
+    //tries to search for a server, if a connection gets made it gets added to the connectedServers list
+
+    public void searchForServer(String address) {
         ConnectedServer connectedServer = new ConnectedServer(this);
-        if(connectedServer.joinServer()) {
+        if(connectedServer.joinServer(address)) {
             connectedServers.add(connectedServer);
         }
     }
@@ -342,9 +348,9 @@ public class Client implements ClientProtocol {
         }
 
         //creates a socket and connects to a server socket if one exists on the specified port
-        public boolean joinServer() {
+        public boolean joinServer(String address) {
             try {
-                hostAddress = InetAddress.getByName(ipv4);
+                hostAddress = InetAddress.getByName(address);
                 socket = new Socket(hostAddress, Game.PORT);
                 ip = socket.getInetAddress().toString();
                 sock = String.valueOf(Game.PORT);
