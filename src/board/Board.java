@@ -114,7 +114,17 @@ public class Board {
                     result++;
                 }
             }
-            return result;
+            int counter = 0;
+            for (Field field : fields) {
+                if (field != null && field.getTile() != null) {
+                    counter++;
+                }
+            }
+            if (result == counter) {
+                return result;
+            } else {
+                return 0;
+            }
         }
         throw new IndexOutOfBoundsException();
     }
