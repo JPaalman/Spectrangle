@@ -10,8 +10,6 @@ import java.util.Observable;
 
 public abstract class Player extends Observable {
 
-    private int counter;
-
     private ArrayList<Tile> inventory;
     private String name;
     private int score;
@@ -32,7 +30,6 @@ public abstract class Player extends Observable {
     }
 
     public Player() {
-        counter = 0;
         score = 0;
         inventory = new ArrayList<Tile>();
     }
@@ -105,20 +102,12 @@ public abstract class Player extends Observable {
 
     // TODO throw after 3 exceptions
     public void makeMove(Board board, Tile tile, int index) throws MoveException {
-        try {
+        if (inventory.contains(tile)) {
             addScore(board.place(tile, index));
             removePiece(tile);
-            counter = 0;
-        } catch (MoveException e) {
-            if (counter < 3) {
-                tile.rotate(1);
-                makeMove(board, tile, index);
-                counter++;
-            } else {
-                counter = 0;
-                throw e;
-            }
+            return;
         }
+        throw new MoveException("you don't have that tile");
     }
 
     //Removes a tile from this player's inventory
