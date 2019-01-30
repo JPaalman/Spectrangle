@@ -38,7 +38,7 @@ public class Move {
     public String toString() {
         tile.rotate(rotation);
         String result = tile.toString() + index + ";";
-        tile.rotate(-rotation);
+        tile.rotate(3 - rotation);
         return result;
     }
 
