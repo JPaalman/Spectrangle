@@ -340,6 +340,12 @@ public class GUI implements View {
         piecePanel.add(new JLabel("Index on board:"));
         JTextField indexOnBoard = new JTextField(2);
         piecePanel.add(indexOnBoard);
+        piecePanel.add(Box.createHorizontalStrut(15));
+        piecePanel.add(new JLabel("Rotation 1 or 2 (0 for default)"));
+        JTextField rotationField = new JTextField(1);
+        rotationField.setText("0");
+        piecePanel.add(rotationField);
+
 
 
         movePieceButton.addActionListener(e -> {
@@ -347,12 +353,15 @@ public class GUI implements View {
             if(result == JOptionPane.OK_OPTION) {
                 int pieceNum = Integer.parseInt(pieceNumber.getText());
                 int i = Integer.parseInt(indexOnBoard.getText());
+                int rotation = Integer.parseInt(rotationField.getText());
                 if(!Board.isLegal(i)) {
                     JOptionPane.showMessageDialog(frame, "Invalid board index", "Ilegal board index", JOptionPane.ERROR_MESSAGE);
                 } else if(pieceNum > client.getGame().getPlayer(username).getInventory().size()) {
                     JOptionPane.showMessageDialog(frame, "Invalid piece number", "Ilegal piece", JOptionPane.ERROR_MESSAGE);
                 } else {
-                    connectedServer.writeMessage(client.move(client.getGame().getPlayer(username).getInventory().get(pieceNum - 1), i));
+                    Tile t = client.getGame().getPlayer(username).getInventory().get(pieceNum - 1);
+                    t.rotate(rotation);
+                    connectedServer.writeMessage(client.move(t, i));
                 }
             }
         });
