@@ -129,7 +129,7 @@ public abstract class Player extends Observable {
     //Returns a description of this player
     //@ pure
     public String toString() {
-        return "Name: " + getName() + " score: " + getScore() + "\n" + "Pieces: " + inventoryToString();
+        return "name: " + getName() + "\nscore: " + getScore() + "\n" + "tiles: " + inventory.toString() + "\n";
     }
 
     //empties the inventory
