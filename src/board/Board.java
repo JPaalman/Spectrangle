@@ -86,9 +86,13 @@ public class Board {
 
     public int place(Tile tile, int index) throws MoveException {
         if (first) {
-            first = false;
-            fields[index].place(tile);
-            return tile.getMultiplier();
+            if (!MULTIPLICITY_4.contains(index) && !MULTIPLICITY_3.contains(index) && !MULTIPLICITY_2.contains(index)) {
+                first = false;
+                fields[index].place(tile);
+                return tile.getMultiplier();
+            } else {
+                throw new MoveException("first move cannot be placed on a field with a multiplier");
+            }
         }
         int matchingSides = getMatchingSides(tile, index);
         if (matchingSides > 0) {
