@@ -6,9 +6,9 @@ import group92.spectrangle.board.Move;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SimpleStrategy {
+public class SimpleStrategy implements Strategy {
 
-    Move getMove(List<Move> moves) {
+    public Move getMove(List<Move> moves) {
         System.out.println("using SimpleStrategy");
         if (moves.size() == 0) {
             return null;
