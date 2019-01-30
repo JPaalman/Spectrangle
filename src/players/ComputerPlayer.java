@@ -43,9 +43,12 @@ public class ComputerPlayer extends Player {
                     possibleMoves.add(new Move(tile, index, i));
                 }
                 tile.rotate(1);
+                System.out.println("rotating" + i);
             }
         }
+        System.out.println("out of tile loop");
         Move result = strategy.getMove(possibleMoves);
+        System.out.println("we got move result");
         if (result != null) {
             return "move;" + result.toString();
         }

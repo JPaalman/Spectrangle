@@ -147,6 +147,8 @@ public class Client implements ClientProtocol {
             String username = splitMessage[1];
             if(username.equals(name) && player instanceof ComputerPlayer) {
                 System.out.println("bot's turn!");
+                System.out.println(player);
+                System.out.println(game.getBoard());
                 String move = ((ComputerPlayer) player).getMove(game.getBoard());
                 System.out.println("bot made this move: " + move);
                 connectedServer.writeMessage(move);
