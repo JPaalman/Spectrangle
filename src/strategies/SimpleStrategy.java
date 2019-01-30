@@ -9,6 +9,8 @@ import java.util.List;
 public class SimpleStrategy implements Strategy {
 
     public Move getMove(List<Move> moves) {
+        // get a list of moves with the highest available field multiplier
+        System.out.println("processing " + moves.size() + " moves");
         if (moves.size() == 0) {
             return null;
         }
@@ -38,6 +40,7 @@ public class SimpleStrategy implements Strategy {
             }
         }
 
+        // get the first move from temp, replace if a better move is found
         Move result = null;
         for (Move move : temp) {
             if (result == null || move.getTile().getMultiplier() > result.getTile().getMultiplier()) {
