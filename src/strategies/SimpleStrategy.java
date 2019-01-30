@@ -40,7 +40,7 @@ public class SimpleStrategy implements Strategy {
 
         Move result = null;
         for (Move move : temp) {
-            if (move == null || move.getTile().getMultiplier() > result.getTile().getMultiplier()) {
+            if (result == null || move.getTile().getMultiplier() > result.getTile().getMultiplier()) {
                 result = move;
             }
         }

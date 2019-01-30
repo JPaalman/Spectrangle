@@ -253,8 +253,12 @@ public class Server implements ServerProtocol {
                 int index = Integer.parseInt(splitMessage[5]);
                 Tile newTile = clientGame.getBag().take();
                 try {
-                    clientPlayer.makeMove(clientGame.getBoard(), tile, index); //TODO
-                    forwardToGame(move(clientPlayer, tile, index), client);
+                    if(clientGame.getBoard().isValidMove(tile, index)) {
+                        clientPlayer.makeMove(clientGame.getBoard(), tile, index);
+                        forwardToGame(move(clientPlayer, tile, index), client);
+                    } else {
+                        client.writeMessage(exception("Invalid move :("));
+                    }
 
                     if(newTile != null) { //give a new piece if the bag isn't empty
                         forwardToGame(give(clientPlayer, newTile), client);
