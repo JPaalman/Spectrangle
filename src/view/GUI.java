@@ -5,6 +5,7 @@ import group92.spectrangle.board.Tile;
 import group92.spectrangle.exceptions.IllegalNameException;
 import group92.spectrangle.network.Client;
 import group92.spectrangle.network.Server;
+import group92.spectrangle.players.ComputerPlayer;
 import group92.spectrangle.players.NetworkPlayer;
 import group92.spectrangle.players.Player;
 import group92.spectrangle.protocol.Protocol;
@@ -47,10 +48,15 @@ public class GUI implements View {
     private JTextArea inventoryArea;
     private TUI tui;
     private JTextArea boardArea;
+    private boolean bot;
 
     public static void main(String[] args) {
         GUI gui = new GUI(new Client());
         gui.start();
+    }
+
+    public boolean getBot() {
+        return bot;
     }
 
     public static GUI get() {
@@ -123,6 +129,7 @@ public class GUI implements View {
         } else {
             JOptionPane.showMessageDialog(frame, "It's " + name + "'s turn!");
         }
+        inventoryArea.append("\n\nIt's " + name + "'s turn");
     }
 
     //opens the GUI for the game list screen
@@ -280,6 +287,8 @@ public class GUI implements View {
     @Override
     public void setUsername() {
         try {
+            JCheckBox botCheckBox = (JCheckBox) logIn.getComponent(5);
+            bot = botCheckBox.isSelected();
             username = ((JTextField) logIn.getComponent(3)).getText();
             client.setName(username);
             if(serverBrowser == null) {

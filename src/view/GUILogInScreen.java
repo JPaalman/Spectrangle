@@ -10,6 +10,7 @@ public class GUILogInScreen {
     private JTextField usernameTextField;
     private JButton confirmButton;
     private JLabel usernameLabel;
+    private JCheckBox botCheckBox;
 
     public JPanel getPanel() {
         return mainPanel;
@@ -64,6 +65,13 @@ public class GUILogInScreen {
         gbc.gridy = 0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         mainPanel.add(confirmButton, gbc);
+        botCheckBox = new JCheckBox();
+        botCheckBox.setText("Bot");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 4;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.WEST;
+        mainPanel.add(botCheckBox, gbc);
     }
 
     /**

@@ -138,14 +138,11 @@ public class TUI implements View {
     }
 
     public void makeMove(Tile tile, int index) {
-        System.out.println("adding piece");
         values.remove(index);
         values.add(index, tile.getMultiplier());
         Color[] colors = tile.getColors();
         System.out.println(left.toString());
-        left.remove(index);
         left.add(index, Protocol.COLOR_STRING_MAP.get(colors[0]).charAt(0));
-        System.out.println(left.toString());
         vertical.remove(index);
         vertical.add(index, Protocol.COLOR_STRING_MAP.get(colors[1]).charAt(0));
         right.remove(index);

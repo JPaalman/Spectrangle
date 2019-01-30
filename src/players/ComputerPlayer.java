@@ -17,7 +17,7 @@ public class ComputerPlayer extends Player {
     //@ requires name != null && strategy != null && !name.contains(";");
     //@ ensures getName() == name;
     public ComputerPlayer(String name, Strategy strategy) throws IllegalNameException {
-        super(name + " [bot]");
+        super(name);
         this.strategy = strategy;
     }
 

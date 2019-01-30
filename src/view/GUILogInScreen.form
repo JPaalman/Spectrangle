@@ -48,6 +48,15 @@
           <text value="Confirm"/>
         </properties>
       </component>
+      <component id="86ddc" class="javax.swing.JCheckBox" binding="botCheckBox" default-binding="true">
+        <constraints>
+          <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <gridbag weightx="0.0" weighty="0.0"/>
+        </constraints>
+        <properties>
+          <text value="Bot"/>
+        </properties>
+      </component>
     </children>
   </grid>
 </form>
