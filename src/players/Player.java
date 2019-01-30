@@ -113,6 +113,7 @@ public abstract class Player extends Observable {
             if (counter < 3) {
                 tile.rotate(1);
                 makeMove(board, tile, index);
+                counter++;
             } else {
                 counter = 0;
                 throw e;
