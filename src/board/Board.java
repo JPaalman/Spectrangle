@@ -72,7 +72,6 @@ public class Board {
 
     public int[] getPossibleFields(Tile tile) {
         if (first) {
-            first = false;
             return new int[]{0};
         }
         ArrayList<Integer> possibleFields = new ArrayList<>();
