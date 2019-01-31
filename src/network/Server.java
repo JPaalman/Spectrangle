@@ -4,6 +4,7 @@ import group92.spectrangle.Game;
 import group92.spectrangle.board.Tile;
 import group92.spectrangle.exceptions.IllegalNameException;
 import group92.spectrangle.exceptions.MoveException;
+import group92.spectrangle.players.ClientPlayer;
 import group92.spectrangle.players.NetworkPlayer;
 import group92.spectrangle.players.Player;
 import group92.spectrangle.protocol.Protocol;
@@ -14,6 +15,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.lang.reflect.Array;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -121,6 +123,7 @@ public class Server implements ServerProtocol {
 
         String first = splitMessage[0];
 
+        outerLoop:
         switch (first) {
             case "scan":
                 //announce your server name
@@ -158,14 +161,15 @@ public class Server implements ServerProtocol {
                             if (g.getMaxPlayers() == (int) argChar && g.hasSpace()) {
                                 g.addPlayer(clientPlayer);
                                 client.setGame(g);
-                                if (g.getPlayers().size() == g.getMaxPlayers()) {
-                                    //TODO start
-                                }
                                 break;
                             }
                         }
                         if (foundGame) {
                             forwardToGame(join(clientPlayer), client);
+                            clientGame = client.getGame();
+                            if (clientGame.getPlayers().size() == clientGame.getMaxPlayers()) { //when the last player joins
+                                startGame(client);
+                            }
                         } else {
                             client.writeMessage(exception("There is no game with player count: " + arg));
                         }
@@ -182,6 +186,10 @@ public class Server implements ServerProtocol {
                         }
                         if (foundGame) {
                             forwardToGame(join(clientPlayer), client);
+                            clientGame = client.getGame();
+                            if (clientGame.getPlayers().size() == clientGame.getMaxPlayers()) { //when the last player joins
+                                startGame(client);
+                            }
                         } else {
                             client.writeMessage(exception("There is no game with username: " + arg));
                         }
@@ -199,6 +207,10 @@ public class Server implements ServerProtocol {
                     }
                     if (foundGame) {
                         forwardToGame(join(clientPlayer), client);
+                        clientGame = client.getGame();
+                        if (clientGame.getPlayers().size() == clientGame.getMaxPlayers()) { //when the last player joins
+                            startGame(client);
+                        }
                     } else {
                         client.writeMessage(exception("There is no game available"));
                     }
@@ -237,15 +249,7 @@ public class Server implements ServerProtocol {
                 } else {
                     //if a player wants to start the game, must be the player who created it
                     if (clientGame != null && client.getName() != null && clientGame.getName().equals(client.getName())) {
-                        clientGame.start();
-                        int i = 0;
-                        while (i != 4) {//notify the players of their pieces in order that they have been drawn
-                            for (Player p : clientGame.getPlayers()) {
-                                forwardToGame(give(p, p.getInventory().get(i)), client);
-                            }
-                            i++;
-                        }
-                        forwardToGame(turn(clientGame.turn()), client);
+                        startGame(client);
                     } else {
                         client.writeMessage(exception("You have no lobby of yourself"));
                     }
@@ -254,12 +258,20 @@ public class Server implements ServerProtocol {
                 break;
             case "move":
                 //if the client makes a move
+                if(!clientGame.getStarted()) {//if the game hasn't started yet
+                    forwardToGame(exception("This game has not yet started"), client);
+                }
                 if (clientGame.turn() == clientPlayer) {
                     int multiplier = Integer.parseInt(splitMessage[1]);
                     Color c1 = Protocol.STRING_COLOR_MAP.get(splitMessage[2]);
                     Color c2 = Protocol.STRING_COLOR_MAP.get(splitMessage[3]);
                     Color c3 = Protocol.STRING_COLOR_MAP.get(splitMessage[4]);
                     Tile tile = new Tile(multiplier, c1, c2, c3);
+
+                    if(!clientPlayer.getInventory().contains(tile)) {//if he does not have the piece
+                        client.writeMessage(exception("You do not have this piece"));
+                    }
+
                     int index = Integer.parseInt(splitMessage[5]);
                     Tile newTile = clientGame.getBag().take();
                     try {
@@ -285,6 +297,10 @@ public class Server implements ServerProtocol {
 
                 break;
             case "swap":
+                if(!clientGame.getStarted()) {//if the game hasn't started yet
+                    forwardToGame(exception("This game has not yet started"), client);
+                }
+
                 if (clientGame.turn() == clientPlayer) {
                     boolean swap = true;
 
@@ -303,6 +319,10 @@ public class Server implements ServerProtocol {
                         Color c3 = Protocol.STRING_COLOR_MAP.get(splitMessage[4]);
                         Tile oldTile = new Tile(multiplier, c1, c2, c3);
 
+                        if(!clientPlayer.getInventory().contains(oldTile)) {//if he does not have the piece
+                            client.writeMessage(exception("You do not have this piece"));
+                        }
+
                         Tile newTile = clientGame.getBag().take();
                         clientPlayer.swap(newTile, oldTile);
                         clientGame.getBag().put(oldTile);
@@ -316,6 +336,10 @@ public class Server implements ServerProtocol {
 
                 break;
             case "skip":
+                if(!clientGame.getStarted()) {//if the game hasn't started yet
+                    forwardToGame(exception("This game has not yet started"), client);
+                }
+
                 if (clientGame.turn() == clientPlayer) {
                     boolean skip = true;
                     for (Tile t : clientPlayer.getInventory()) {
@@ -330,9 +354,32 @@ public class Server implements ServerProtocol {
                     }
 
                     if (skip) {
-                        forwardToGame(skip(clientPlayer), client);
-                        clientGame.incrementTurn();
-                        forwardToGame(turn(clientGame.turn()), client);
+                        if(clientGame.getBag().isEmpty()) {//if the bag is empty and no players can make a move the game is over
+                            for(Player p : clientGame.getPlayers()) {
+                                if(!(p == clientPlayer)) {//we already checked the clientPlayer himself
+                                    for(Tile t : p.getInventory()) {
+                                        if(clientGame.getBoard().getPossibleFields(t).length != 0) {//if there is a possible move left, continue
+                                            forwardToGame(skip(clientPlayer), client);
+                                            clientGame.incrementTurn();
+                                            forwardToGame(turn(clientGame.turn()), client);
+                                            break outerLoop;
+                                        }
+                                    }
+                                    //if you get here the game is over
+                                    int highestScore = 0;
+                                    ArrayList<Player> winners = new ArrayList<>();
+                                    for(Player possibleWinner : clientGame.getPlayers()) {
+                                        if(possibleWinner.getScore() > highestScore) {
+                                            winners.clear();
+                                            winners.add(possibleWinner);
+                                        } else if(possibleWinner.getScore() == highestScore) {
+                                            winners.add(possibleWinner);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
                     }
                 } else {
                     client.writeMessage(exception("It is not your turn!"));
@@ -340,36 +387,12 @@ public class Server implements ServerProtocol {
 
                 break;
             case "leave": {
-                ArrayList<Player> players = clientGame.getPlayers();
-                players.remove(clientPlayer);
-
-                forwardToGame(end(players.toArray(new Player[players.size()])), client);
-
-                Game oldGame = clientGame;
-
-                for (ConnectedClient c : connectedClients) {
-                    if (c.getGame() == oldGame) {
-                        c.setGame(null);
-                    }
-                }
-
+                removePlayerFromGame(client);
                 break;
             }
             case "disconnect": {
-                //disconnects the client from the server, closes the socket and removes him from
-
-                ArrayList<Player> players = clientGame.getPlayers();
-                players.remove(clientPlayer);
-
-                forwardToGame(end(players.toArray(new Player[players.size()])), client);
-
-                Game oldGame = clientGame;
-
-                for (ConnectedClient c : connectedClients) {
-                    if (c.getGame() == oldGame) {
-                        c.setGame(null);
-                    }
-                }
+                //disconnects the client from the server, closes the socket and removes him from the game he is in
+                removePlayerFromGame(client);
 
                 client.disconnect();
                 connectedClients.remove(client);
@@ -382,6 +405,45 @@ public class Server implements ServerProtocol {
                 break;
         }
 
+    }
+
+    public void removePlayerFromGame(ConnectedClient client) {
+        Game clientGame = client.getGame();
+        Player clientPlayer = client.getPlayer();
+        if(!clientGame.getStarted()) {//if the game hasn't started yet
+            forwardToGame(leave(clientPlayer), client);
+            clientGame.removePlayer(clientPlayer);
+        } else {
+            ArrayList<Player> players = clientGame.getPlayers();
+            players.remove(clientPlayer);
+
+            forwardToGame(end(players.toArray(new Player[players.size()])), client);
+
+            Game oldGame = clientGame;
+
+            for (ConnectedClient c : connectedClients) {
+                if (c.getGame() == oldGame) {
+                    c.setGame(null);
+                }
+            }
+        }
+    }
+
+    public String leave(Player player) {
+        return Protocol.LEAVE + ";" + player.getName();
+    }
+
+    public void startGame(ConnectedClient client) {
+        Game clientGame = client.getGame();
+        clientGame.start();
+        int i = 0;
+        while (i != 4) {//notify the players of their pieces in order that they have been drawn
+            for (Player p : clientGame.getPlayers()) {
+                forwardToGame(give(p, p.getInventory().get(i)), client);
+            }
+            i++;
+        }
+        forwardToGame(turn(clientGame.turn()), client);
     }
 
     @Override

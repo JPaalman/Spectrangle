@@ -134,7 +134,13 @@ public class Client implements ClientProtocol {
                     Color c2 = Protocol.STRING_COLOR_MAP.get(splitMessage[i + 2]);
                     Color c3 = Protocol.STRING_COLOR_MAP.get(splitMessage[i + 3]);
                     Tile tile = new Tile(multiplier, c1, c2, c3);
+                    System.out.println(game);
+                    System.out.println(game.getPlayers());
                     if (game.getPlayer(username) == null) {
+                        Player newPlayer = new NetworkPlayer();
+                        newPlayer.setName(username);
+                        game.addPlayer(newPlayer);
+                        System.out.println("unknown user");
                         for (Player p : game.getPlayers()) {
                             if (p.getName() == null) {
                                 p.setName(username);
@@ -143,6 +149,10 @@ public class Client implements ClientProtocol {
                         }
                     } else {
                         game.getPlayer(username).addPiece(tile);
+                        System.out.println("t");
+                        if(game.getPlayer(username) == player) {
+                            System.out.println("test");
+                        }
                     }
                     gui.updateInventory(game.getPlayers());
                 }
@@ -241,6 +251,12 @@ public class Client implements ClientProtocol {
                     game.addPlayer(newPlayer);
                 }
                 break;
+            }
+
+            case "leave" : {
+                String username = splitMessage[1];
+                game.removePlayer(game.getPlayer(username));
+                gui.updateInventory(game.getPlayers());
             }
         }
     }

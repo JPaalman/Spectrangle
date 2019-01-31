@@ -51,6 +51,10 @@ public class Game {
         players.add(player);
     }
 
+    public void removePlayer(Player player) {
+        players.remove(players.indexOf(player));
+    }
+
     public void createClient(String name) throws IllegalNameException {
         Player player = new ClientPlayer(name);
         players.add(player);

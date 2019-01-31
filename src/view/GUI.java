@@ -49,6 +49,7 @@ public class GUI implements View {
     private TUI tui;
     private JTextArea boardArea;
     private boolean bot;
+    private GUIGame guiGame;
 
     public static void main(String[] args) {
         GUI gui = new GUI(new Client());
@@ -71,8 +72,11 @@ public class GUI implements View {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setSize(frame.getMaximumSize());
+        guiGame = new GUIGame();
+        inventoryArea = guiGame.getInventoryArea();
         loginScreen();
         frame.setVisible(true);
+
     }
 
     @Override
@@ -148,9 +152,14 @@ public class GUI implements View {
                     String selectedValue = (String) gameJList.getSelectedValue();
                     String[] splitValues = selectedValue.split("#");
                     connectedGamePlayerCount = Integer.valueOf(splitValues[3]);
-                    client.setGame(connectedGamePlayerCount);
-                    connectedServer.writeMessage(client.join(splitValues[1]));
+                    client.setGame(connectedGamePlayerCount);//TODO client receives turn before game is set
+                    try {
+                        Thread.sleep(10);//make sure the game is set before the server can start sending you messages
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
+                    }
                     gameWindow();
+                    connectedServer.writeMessage(client.join(splitValues[1]));
                 }
             }
         };
@@ -184,6 +193,7 @@ public class GUI implements View {
 
     //updates the inventory area to display the toString() of all players
     //@ requires players != null;
+    //@ requires inventoryArea != null;
     public void updateInventory(ArrayList<Player> players) {
         inventoryArea.selectAll();
         inventoryArea.replaceSelection("");
@@ -307,14 +317,12 @@ public class GUI implements View {
     //@ ensures gameBoard != null && messagesArea != null;
     @Override
     public void gameWindow() {
-        GUIGame guiGame = new GUIGame();
         gameBoard = guiGame.getPanel();
         boardArea = guiGame.getBoardArea();
         inputArea = guiGame.getInputArea();
         JButton sendMessageButton = guiGame.getSendButton();
         JButton skipTurnButton = guiGame.getSkipTurnButton();
         JButton swapPiece = guiGame.getSwapPieceButton();
-        inventoryArea = guiGame.getInventoryArea();
         messagesArea = guiGame.getMessagesArea();
         JButton forfeitButton = guiGame.getForfeitButton();
         JLabel usernameLabel = guiGame.getUsernameLabel();
