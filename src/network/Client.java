@@ -419,8 +419,21 @@ public class Client implements ClientProtocol {
                     String[] splitMessage = message.split(";");
                     client.readMessage(splitMessage, this);
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    System.out.println("Server disconnected");
+                    disconnect();
                 }
+            }
+        }
+
+        //disconnects from the bufferedreader, the printwriter, and the socket
+        //@ requires in != null && out != null && socket != null;
+        public void disconnect() {
+            try {
+                in.close();
+                out.close();
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
 

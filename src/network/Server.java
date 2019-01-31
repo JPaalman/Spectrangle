@@ -278,7 +278,7 @@ public class Server implements ServerProtocol {
                 boolean swap = true;
 
                 for (Tile t : clientPlayer.getInventory()) {
-                    if (clientGame.getBoard().getPossibleFields(t) != null) {
+                    if (clientGame.getBoard().getPossibleFields(t).length != 0) {
                         client.writeMessage(exception("Cannot swap!"));
                         swap = false;
                         break;
@@ -401,7 +401,7 @@ public class Server implements ServerProtocol {
 
     @Override
     public String swap(Player player, Tile tile, Tile returnedTile) {
-        return ServerProtocol.MOVE + ";" + player.getName() + ";" + tile.toString() + ";" + returnedTile.toString();
+        return ServerProtocol.SWAP + ";" + player.getName() + ";" + tile.toString() + ";" + returnedTile.toString();
     }
 
     @Override
