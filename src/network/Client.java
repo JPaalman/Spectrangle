@@ -107,127 +107,140 @@ public class Client implements ClientProtocol {
             return;
         }
         String first = splitMessage[0];
-        if(first.equals("announce")) {
-            //give this server a name
-            String serverName = splitMessage[1];
-            connectedServer.setName(serverName);
-            gui.addServer(connectedServer.getIP(), connectedServer.getSock(), serverName);
+        switch (first) {
+            case "announce":
+                //give this server a name
+                String serverName = splitMessage[1];
+                connectedServer.setName(serverName);
+                gui.addServer(connectedServer.getIP(), connectedServer.getSock(), serverName);
 
-        } else if(first.equals("respond")) {
-            connectedServer.setBot(gui.getBot()); //set if bot or not
-            for(int i = 1; (i + 2) < splitMessage.length; i = i + 3) {
-                String gameName = splitMessage[i];
-                String maxPlayers = splitMessage[i + 1];
-                String joinedPlayers = splitMessage[i + 2];
-                gui.addGameToList(gameName, maxPlayers, joinedPlayers);
-            }
+                break;
+            case "respond":
+                connectedServer.setBot(gui.getBot()); //set if bot or not
 
-        } else if(first.equals("give")) {
-            String username = splitMessage[1];
-            for(int i = 2; i < splitMessage.length; i = i + 4) {
-                int multiplier = Integer.parseInt(splitMessage[i]);
-                Color c1 = Protocol.STRING_COLOR_MAP.get(splitMessage[i + 1]);
-                Color c2 = Protocol.STRING_COLOR_MAP.get(splitMessage[i + 2]);
-                Color c3 = Protocol.STRING_COLOR_MAP.get(splitMessage[i + 3]);
-                Tile tile = new Tile(multiplier, c1, c2, c3);
-                if(game.getPlayer(username) == null) {
-                    for(Player p : game.getPlayers()) {
-                        if(p.getName() == null) {
-                            p.setName(username);
-                            p.addPiece(tile);
-                        }
-                    }
-                } else {
-                    game.getPlayer(username).addPiece(tile);
+                for (int i = 1; (i + 2) < splitMessage.length; i = i + 3) {
+                    String gameName = splitMessage[i];
+                    String maxPlayers = splitMessage[i + 1];
+                    String joinedPlayers = splitMessage[i + 2];
+                    gui.addGameToList(gameName, maxPlayers, joinedPlayers);
                 }
-                gui.updateInventory(game.getPlayers());
-            }
 
-            } else if(first.equals("turn")) {
-            String username = splitMessage[1];
-            if(username.equals(name) && player instanceof ComputerPlayer) {
-                String move = ((ComputerPlayer) player).getMove(game.getBoard());
-                System.out.println("bot made this move: " + move);
-                if(move.equals("skip")) {
-                    if(!game.getBag().isEmpty()) {
-                        connectedServer.writeMessage(swap(player.getInventory().get((int) Math.random() * player.getInventory().size())));
+                break;
+            case "give": {
+                String username = splitMessage[1];
+                for (int i = 2; i < splitMessage.length; i = i + 4) {
+                    int multiplier = Integer.parseInt(splitMessage[i]);
+                    Color c1 = Protocol.STRING_COLOR_MAP.get(splitMessage[i + 1]);
+                    Color c2 = Protocol.STRING_COLOR_MAP.get(splitMessage[i + 2]);
+                    Color c3 = Protocol.STRING_COLOR_MAP.get(splitMessage[i + 3]);
+                    Tile tile = new Tile(multiplier, c1, c2, c3);
+                    if (game.getPlayer(username) == null) {
+                        for (Player p : game.getPlayers()) {
+                            if (p.getName() == null) {
+                                p.setName(username);
+                                p.addPiece(tile);
+                            }
+                        }
+                    } else {
+                        game.getPlayer(username).addPiece(tile);
+                    }
+                    gui.updateInventory(game.getPlayers());
+                }
+
+                break;
+            }
+            case "turn": {
+                String username = splitMessage[1];
+                if (username.equals(name) && player instanceof ComputerPlayer) {
+                    String move = ((ComputerPlayer) player).getMove(game.getBoard());
+                    System.out.println("bot made this move: " + move);
+                    if (move.equals("skip")) {
+                        if (!game.getBag().isEmpty()) {
+                            connectedServer.writeMessage(swap(player.getInventory().get((int) Math.random() * player.getInventory().size())));
+                        } else {
+                            connectedServer.writeMessage(move);
+                        }
                     } else {
                         connectedServer.writeMessage(move);
                     }
-                } else {
-                    connectedServer.writeMessage(move);
                 }
-            } else {
-//                gui.notifyTurn(username);
+                gui.notifyTurn(username);
+                break;
             }
+            case "move": {
+                String username = splitMessage[1];
+                int multiplier = Integer.parseInt(splitMessage[2]);
+                Color c1 = Protocol.STRING_COLOR_MAP.get(splitMessage[3]);
+                Color c2 = Protocol.STRING_COLOR_MAP.get(splitMessage[4]);
+                Color c3 = Protocol.STRING_COLOR_MAP.get(splitMessage[5]);
+                int index = Integer.parseInt(splitMessage[6]);
 
-        } else if(first.equals("move")) {
-            String username = splitMessage[1];
-            int multiplier = Integer.parseInt(splitMessage[2]);
-            Color c1 = Protocol.STRING_COLOR_MAP.get(splitMessage[3]);
-            Color c2 = Protocol.STRING_COLOR_MAP.get(splitMessage[4]);
-            Color c3 = Protocol.STRING_COLOR_MAP.get(splitMessage[5]);
-            int index = Integer.parseInt(splitMessage[6]);
+                Tile tile = new Tile(multiplier, c1, c2, c3);
+                try {
+                    game.getPlayer(username).makeMove(game.getBoard(), tile, index);
+                } catch (MoveException e) {
+                    System.out.println("[Client] invalid move"); //should not happen
+                    e.printStackTrace();
+                }
+                gui.drawMove(tile, index);
 
-            Tile tile = new Tile(multiplier, c1, c2, c3);
-            try {
-                game.getPlayer(username).makeMove(game.getBoard(), tile, index);
-            } catch (MoveException e) {
-                System.out.println("[Client] invalid move"); //should not happen
-                e.printStackTrace();
+                break;
             }
-//            try {
-//                game.getBoard().place(tile, index);
-//            } catch (MoveException e) {
-//                e.printStackTrace();//should not happen, if it does server is implemented wrong
-//            }
-            gui.drawMove(tile, index);
+            case "swap": {
+                String username = splitMessage[1];
 
-        } else if(first.equals("swap")) {
-            String username = splitMessage[1];
+                int multiplier = Integer.parseInt(splitMessage[2]);
+                Color c1 = Protocol.STRING_COLOR_MAP.get(splitMessage[3]);
+                Color c2 = Protocol.STRING_COLOR_MAP.get(splitMessage[4]);
+                Color c3 = Protocol.STRING_COLOR_MAP.get(splitMessage[5]);
+                Tile oldTile = new Tile(multiplier, c1, c2, c3);
+                multiplier = Integer.parseInt(splitMessage[6]);
+                c1 = Protocol.STRING_COLOR_MAP.get(splitMessage[7]);
+                c2 = Protocol.STRING_COLOR_MAP.get(splitMessage[8]);
+                c3 = Protocol.STRING_COLOR_MAP.get(splitMessage[9]);
+                Tile newTile = new Tile(multiplier, c1, c2, c3);
+                Player player = game.getPlayer(username);
+                player.removePiece(oldTile);
+                player.addPiece(newTile);
+                gui.updateInventory(game.getPlayers());
 
-            int multiplier = Integer.parseInt(splitMessage[2]);
-            Color c1 = Protocol.STRING_COLOR_MAP.get(splitMessage[3]);
-            Color c2 = Protocol.STRING_COLOR_MAP.get(splitMessage[4]);
-            Color c3 = Protocol.STRING_COLOR_MAP.get(splitMessage[5]);
-            Tile oldTile = new Tile(multiplier, c1, c2, c3);
-            multiplier = Integer.parseInt(splitMessage[6]);
-            c1 = Protocol.STRING_COLOR_MAP.get(splitMessage[7]);
-            c2 = Protocol.STRING_COLOR_MAP.get(splitMessage[8]);
-            c3 = Protocol.STRING_COLOR_MAP.get(splitMessage[9]);
-            Tile newTile = new Tile(multiplier, c1, c2, c3);
-            Player player = game.getPlayer(username);
-            player.removePiece(oldTile);
-            player.addPiece(newTile);
-            gui.updateInventory(game.getPlayers());
-
-        }  else if(first.equals("skip")) {
-            String username = splitMessage[1];
-            gui.skipTurn(username);
-
-        } else if(first.equals("end")) {
-            String winners = splitMessage[1];
-            for(int i = 2; i < splitMessage.length; i++) {
-                winners+=  " and " + splitMessage[i];
+                break;
             }
-            gui.announceWinners(winners);
+            case "skip": {
+                String username = splitMessage[1];
+                gui.skipTurn(username);
 
-        } else if(first.equals("exception")) {
-            gui.exception(splitMessage[1]);
+                break;
+            }
+            case "end":
+                String winners = splitMessage[1];
+                for (int i = 2; i < splitMessage.length; i++) {
+                    winners += " and " + splitMessage[i];
+                }
+                gui.announceWinners(winners);
 
-        } else if(first.equals("message")) {
-            String username = splitMessage[1];
-            String message = splitMessage[2];
-            gui.addMessage(username, message);
+                break;
+            case "exception":
+                gui.exception(splitMessage[1]);
 
-        } else if(first.equals("join")) {
-            String username = splitMessage[1];
-            if(username.equals(name)) {
+                break;
+            case "message": {
+                String username = splitMessage[1];
+                String message = splitMessage[2];
+                gui.addMessage(username, message);
 
-            } else {
-                Player newPlayer = new NetworkPlayer();
-                newPlayer.setName(username);
-                game.addPlayer(newPlayer);
+                break;
+            }
+            case "join": {
+                String username = splitMessage[1];
+                if (username.equals(name)) {
+
+                } else {
+                    Player newPlayer = new NetworkPlayer();
+                    newPlayer.setName(username);
+                    game.addPlayer(newPlayer);
+                }
+                break;
             }
         }
     }
@@ -412,7 +425,7 @@ public class Client implements ClientProtocol {
         //@requires socket != null;
         @Override
         public void run() {
-            while(socket.isConnected()) {
+            while(!socket.isClosed()) {
                 try {
                     String message = in.readLine();
                     System.out.println("[Client] received message: " + message);

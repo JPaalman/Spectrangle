@@ -124,9 +124,9 @@ public class GUI implements View {
 
     //notify the client whose turn it is
     public void notifyTurn(String name) {
-        if(name.equals(username)) {
+        if(name.equals(username) && !(client.getPlayer() instanceof ComputerPlayer)) {
             JOptionPane.showMessageDialog(frame, "It's your turn!");
-        } else {
+        } else if(!(client.getPlayer() instanceof ComputerPlayer)) {
             JOptionPane.showMessageDialog(frame, "It's " + name + "'s turn!");
         }
         inventoryArea.append("\n\nIt's " + name + "'s turn");
@@ -419,7 +419,7 @@ public class GUI implements View {
         }
 
         tui = new TUI();
-        messagesArea.append(tui.HELP);
+        messagesArea.append(TUI.HELP);
 
         boardArea.append(tui.getBoard());
     }

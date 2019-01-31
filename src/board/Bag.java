@@ -73,10 +73,7 @@ public class Bag {
     }
 
     public boolean isEmpty() {
-        if(tiles.size() == 0) {
-            return true;
-        }
-        return false;
+        return tiles.size() == 0;
     }
 
 }

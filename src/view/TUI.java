@@ -13,8 +13,8 @@ public class TUI implements View {
     private static ArrayList<Integer> bonuses = new ArrayList<>(Arrays.asList(1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 2, 4, 1, 4, 2, 1, 1, 1, 1, 1, 4, 1, 1, 1, 1, 1, 3, 1, 1, 1, 2, 1, 1, 1, 3, 1));
     private static ArrayList<Integer> values = new ArrayList<>(Arrays.asList(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null));
     private static ArrayList<Character> vertical = new ArrayList<>(Arrays.asList(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null));
-    private static ArrayList<Character> left = new ArrayList<>(Arrays.asList(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null));
-    private static ArrayList<Character> right = new ArrayList<>(Arrays.asList(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null));
+    private static ArrayList<Character> left = vertical;
+    private static ArrayList<Character> right = vertical;
     public static final String HELP = "use ';' between commands\nhelp - for help\nstart - to start the game, needs at least 2 players\nmove <piece> <index> - to move a piece\nswap <piece> - to swap a piece\nskip - to skip\nleave - to leave\nmessage <message> - to send a message";
 
     public static void main(String[] args) {

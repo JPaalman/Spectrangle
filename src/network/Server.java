@@ -120,53 +120,77 @@ public class Server implements ServerProtocol {
         NetworkPlayer clientPlayer = client.getPlayer();
 
         String first = splitMessage[0];
-        if (first.equals("scan")) {
-            //announce your server name
-            client.writeMessage(announce(name));
 
-        } else if (first.equals("connect")) {
-            //save the name for this client, he is now officially connected
-            String username = splitMessage[1];
-            try {
-                client.setName(username);
-                client.writeMessage(respond(games.toArray(new Game[games.size()])));
-            } catch (IllegalNameException e) {
-                client.writeMessage(exception("Illegal name"));
+        switch (first) {
+            case "scan":
+                //announce your server name
+                client.writeMessage(announce(name));
 
-            }
+                break;
+            case "connect":
+                //save the name for this client, he is now officially connected
+                String username = splitMessage[1];
+                try {
+                    client.setName(username);
+                    client.writeMessage(respond(games.toArray(new Game[games.size()])));
+                } catch (IllegalNameException e) {
+                    client.writeMessage(exception("Illegal name"));
 
-        } else if (first.equals("join")) {
-            try {
-                client.setPlayer();
-                clientPlayer = client.getPlayer();
-            } catch (IllegalNameException e) {
-                client.writeMessage(exception("Illegal name"));
+                }
 
-            }
-            boolean foundGame = false;
-            //add the client to a game if possible, if given add him to a game with a specific max player count or specific name
-            if (splitMessage.length == 2) {
-                String arg = splitMessage[1];
-                if (arg.length() == 1) {
-                    //if a player count is given
-                    char argChar = arg.charAt(0);
-                    for (Game g : games) {
-                        if (g.getMaxPlayers() == (int) argChar && g.hasSpace()) {
-                            g.addPlayer(clientPlayer);
-                            client.setGame(g);
-                            break;
+                break;
+            case "join":
+                try {
+                    client.setPlayer();
+                    clientPlayer = client.getPlayer();
+                } catch (IllegalNameException e) {
+                    client.writeMessage(exception("Illegal name"));
+
+                }
+                boolean foundGame = false;
+                //add the client to a game if possible, if given add him to a game with a specific max player count or specific name
+                if (splitMessage.length == 2) {
+                    String arg = splitMessage[1];
+                    if (arg.length() == 1) {
+                        //if a player count is given
+                        char argChar = arg.charAt(0);
+                        for (Game g : games) {
+                            if (g.getMaxPlayers() == (int) argChar && g.hasSpace()) {
+                                g.addPlayer(clientPlayer);
+                                client.setGame(g);
+                                if (g.getPlayers().size() == g.getMaxPlayers()) {
+                                    //TODO start
+                                }
+                                break;
+                            }
                         }
-                    }
-                    if (foundGame) {
-                        forwardToGame(join(clientPlayer), client);
+                        if (foundGame) {
+                            forwardToGame(join(clientPlayer), client);
+                        } else {
+                            client.writeMessage(exception("There is no game with player count: " + arg));
+                        }
+
                     } else {
-                        client.writeMessage(exception("There is no game with player count: " + arg));
+                        //if a game name is given
+                        for (Game g : games) {
+                            if (g.getName().equals(arg) && g.hasSpace()) {
+                                g.addPlayer(clientPlayer);
+                                client.setGame(g);
+                                foundGame = true;
+                                break;
+                            }
+                        }
+                        if (foundGame) {
+                            forwardToGame(join(clientPlayer), client);
+                        } else {
+                            client.writeMessage(exception("There is no game with username: " + arg));
+                        }
                     }
 
                 } else {
-                    //if a game name is given
+                    //If the client wants to join any game
                     for (Game g : games) {
-                        if (g.getName().equals(arg) && g.hasSpace()) {
+                        if (g.hasSpace()) {
                             g.addPlayer(clientPlayer);
                             client.setGame(g);
                             foundGame = true;
@@ -176,192 +200,186 @@ public class Server implements ServerProtocol {
                     if (foundGame) {
                         forwardToGame(join(clientPlayer), client);
                     } else {
-                        client.writeMessage(exception("There is no game with username: " + arg));
+                        client.writeMessage(exception("There is no game available"));
                     }
                 }
 
-            } else {
-                //If the client wants to join any game
-                for (Game g : games) {
-                    if (g.hasSpace()) {
-                        g.addPlayer(clientPlayer);
-                        client.setGame(g);
-                        foundGame = true;
-                        break;
-                    }
-                }
-                if (foundGame) {
-                    forwardToGame(join(clientPlayer), client);
-                } else {
-                    client.writeMessage(exception("There is no game available"));
-                }
-            }
-
-        } else if (first.equals("create")) {
-            //If this player wants to create a game
-            int maxPlayers = Integer.parseInt(splitMessage[1]);
-            try {
-                client.setPlayer();
-                clientPlayer = client.getPlayer();
-            } catch (IllegalNameException e) {
-                System.out.println("[Server] Illegal name"); //should not happen
-                e.printStackTrace();
-            }
-
-            if (clientGame != null) {
-                client.writeMessage(exception("You are already in a game!"));
-            } else if (maxPlayers > 4 || maxPlayers < 2) {
-                client.writeMessage(exception("Max player count is invalid, must be between 2 and 4"));
-            } else if (client.getName() == null) {
-                client.writeMessage(exception("illegal name."));
-            } else {
-                Game game = new Game(maxPlayers);
-                games.add(game);
-                client.setGame(game);
-                game.addPlayer(clientPlayer);
-                forward(respond(games.toArray(new Game[games.size()])));
-            }
-
-        } else if (first.equals("start")) {
-            if (clientGame.getStarted()) {
-                client.writeMessage(exception("This game has already started"));
-            } else {
-                //if a player wants to start the game, must be the player who created it
-                if (clientGame != null && client.getName() != null && clientGame.getName().equals(client.getName())) {
-                    clientGame.start();
-                    int i = 0;
-                    while (i != 4) {//notify the players of their pieces in order that they have been drawn
-                        for (Player p : clientGame.getPlayers()) {
-                            forwardToGame(give(p, p.getInventory().get(i)), client);
-                        }
-                        i++;
-                    }
-                    forwardToGame(turn(clientGame.turn()), client);
-                } else {
-                    client.writeMessage(exception("You have no lobby of yourself"));
-                }
-            }
-
-        } else if (first.equals("move")) {
-            //if the client makes a move
-            if (clientGame.turn() == clientPlayer) {
-                int multiplier = Integer.parseInt(splitMessage[1]);
-                Color c1 = Protocol.STRING_COLOR_MAP.get(splitMessage[2]);
-                Color c2 = Protocol.STRING_COLOR_MAP.get(splitMessage[3]);
-                Color c3 = Protocol.STRING_COLOR_MAP.get(splitMessage[4]);
-                Tile tile = new Tile(multiplier, c1, c2, c3);
-                int index = Integer.parseInt(splitMessage[5]);
-                Tile newTile = clientGame.getBag().take();
+                break;
+            case "create":
+                //If this player wants to create a game
+                int maxPlayers = Integer.parseInt(splitMessage[1]);
                 try {
-                    if (clientGame.getBoard().isValidMove(tile, index)) {
-                        clientPlayer.makeMove(clientGame.getBoard(), tile, index);
-                        forwardToGame(move(clientPlayer, tile, index), client);
+                    client.setPlayer();
+                    clientPlayer = client.getPlayer();
+                } catch (IllegalNameException e) {
+                    System.out.println("[Server] Illegal name"); //should not happen
+                    e.printStackTrace();
+                }
+
+                if (clientGame != null) {
+                    client.writeMessage(exception("You are already in a game!"));
+                } else if (maxPlayers > 4 || maxPlayers < 2) {
+                    client.writeMessage(exception("Max player count is invalid, must be between 2 and 4"));
+                } else if (client.getName() == null) {
+                    client.writeMessage(exception("illegal name."));
+                } else {
+                    Game game = new Game(maxPlayers);
+                    games.add(game);
+                    client.setGame(game);
+                    game.addPlayer(clientPlayer);
+                    forward(respond(games.toArray(new Game[games.size()])));
+                }
+
+                break;
+            case "start":
+                if (clientGame.getStarted()) {
+                    client.writeMessage(exception("This game has already started"));
+                } else {
+                    //if a player wants to start the game, must be the player who created it
+                    if (clientGame != null && client.getName() != null && clientGame.getName().equals(client.getName())) {
+                        clientGame.start();
+                        int i = 0;
+                        while (i != 4) {//notify the players of their pieces in order that they have been drawn
+                            for (Player p : clientGame.getPlayers()) {
+                                forwardToGame(give(p, p.getInventory().get(i)), client);
+                            }
+                            i++;
+                        }
+                        forwardToGame(turn(clientGame.turn()), client);
                     } else {
-                        client.writeMessage(exception("Invalid move :("));
-                    }
-
-                    if (newTile != null) { //give a new piece if the bag isn't empty
-                        forwardToGame(give(clientPlayer, newTile), client);
-                        clientPlayer.addPiece(newTile);
-                    }
-                    clientGame.incrementTurn();
-                    forwardToGame(turn(clientGame.turn()), client);
-                } catch (MoveException e) {
-                    client.writeMessage(exception("illegal move"));
-                }
-            } else {
-                client.writeMessage(exception("It is not your turn!"));
-            }
-
-        } else if (first.equals("swap")) {
-            if (clientGame.turn() == clientPlayer) {
-                boolean swap = true;
-
-                for (Tile t : clientPlayer.getInventory()) {
-                    if (clientGame.getBoard().getPossibleFields(t).length != 0) {
-                        client.writeMessage(exception("Cannot swap!"));
-                        swap = false;
-                        break;
+                        client.writeMessage(exception("You have no lobby of yourself"));
                     }
                 }
 
-                if (swap) {
+                break;
+            case "move":
+                //if the client makes a move
+                if (clientGame.turn() == clientPlayer) {
                     int multiplier = Integer.parseInt(splitMessage[1]);
                     Color c1 = Protocol.STRING_COLOR_MAP.get(splitMessage[2]);
                     Color c2 = Protocol.STRING_COLOR_MAP.get(splitMessage[3]);
                     Color c3 = Protocol.STRING_COLOR_MAP.get(splitMessage[4]);
-                    Tile oldTile = new Tile(multiplier, c1, c2, c3);
-
+                    Tile tile = new Tile(multiplier, c1, c2, c3);
+                    int index = Integer.parseInt(splitMessage[5]);
                     Tile newTile = clientGame.getBag().take();
-                    clientPlayer.swap(newTile, oldTile);
-                    clientGame.getBag().put(oldTile);
-                    forwardToGame(swap(clientPlayer, oldTile, newTile), client);
-                    clientGame.incrementTurn();
-                    forwardToGame(turn(clientGame.turn()), client);
-                }
-            } else {
-                client.writeMessage(exception("It is not your turn!"));
-            }
+                    try {
+                        if (clientGame.getBoard().isValidMove(tile, index)) {
+                            clientPlayer.makeMove(clientGame.getBoard(), tile, index);
+                            forwardToGame(move(clientPlayer, tile, index), client);
+                        } else {
+                            client.writeMessage(exception("Invalid move :("));
+                        }
 
-        } else if (first.equals("skip")) {
-            if (clientGame.turn() == clientPlayer) {
-                boolean skip = true;
-                for (Tile t : clientPlayer.getInventory()) {
-                    for (int i = 0; i < 3; i++) {
+                        if (newTile != null) { //give a new piece if the bag isn't empty
+                            forwardToGame(give(clientPlayer, newTile), client);
+                            clientPlayer.addPiece(newTile);
+                        }
+                        clientGame.incrementTurn();
+                        forwardToGame(turn(clientGame.turn()), client);
+                    } catch (MoveException e) {
+                        client.writeMessage(exception("illegal move"));
+                    }
+                } else {
+                    client.writeMessage(exception("It is not your turn!"));
+                }
+
+                break;
+            case "swap":
+                if (clientGame.turn() == clientPlayer) {
+                    boolean swap = true;
+
+                    for (Tile t : clientPlayer.getInventory()) {
                         if (clientGame.getBoard().getPossibleFields(t).length != 0) {
-                            client.writeMessage(exception("Cannot skip!"));
-                            skip = false;
+                            client.writeMessage(exception("Cannot swap!"));
+                            swap = false;
                             break;
                         }
-                        t.rotate(1);
+                    }
+
+                    if (swap) {
+                        int multiplier = Integer.parseInt(splitMessage[1]);
+                        Color c1 = Protocol.STRING_COLOR_MAP.get(splitMessage[2]);
+                        Color c2 = Protocol.STRING_COLOR_MAP.get(splitMessage[3]);
+                        Color c3 = Protocol.STRING_COLOR_MAP.get(splitMessage[4]);
+                        Tile oldTile = new Tile(multiplier, c1, c2, c3);
+
+                        Tile newTile = clientGame.getBag().take();
+                        clientPlayer.swap(newTile, oldTile);
+                        clientGame.getBag().put(oldTile);
+                        forwardToGame(swap(clientPlayer, oldTile, newTile), client);
+                        clientGame.incrementTurn();
+                        forwardToGame(turn(clientGame.turn()), client);
+                    }
+                } else {
+                    client.writeMessage(exception("It is not your turn!"));
+                }
+
+                break;
+            case "skip":
+                if (clientGame.turn() == clientPlayer) {
+                    boolean skip = true;
+                    for (Tile t : clientPlayer.getInventory()) {
+                        for (int i = 0; i < 3; i++) {
+                            if (clientGame.getBoard().getPossibleFields(t).length != 0) {
+                                client.writeMessage(exception("Cannot skip!"));
+                                skip = false;
+                                break;
+                            }
+                            t.rotate(1);
+                        }
+                    }
+
+                    if (skip) {
+                        forwardToGame(skip(clientPlayer), client);
+                        clientGame.incrementTurn();
+                        forwardToGame(turn(clientGame.turn()), client);
+                    }
+                } else {
+                    client.writeMessage(exception("It is not your turn!"));
+                }
+
+                break;
+            case "leave": {
+                ArrayList<Player> players = clientGame.getPlayers();
+                players.remove(clientPlayer);
+
+                forwardToGame(end(players.toArray(new Player[players.size()])), client);
+
+                Game oldGame = clientGame;
+
+                for (ConnectedClient c : connectedClients) {
+                    if (c.getGame() == oldGame) {
+                        c.setGame(null);
                     }
                 }
 
-                if (skip) {
-                    forwardToGame(skip(clientPlayer), client);
-                    clientGame.incrementTurn();
-                    forwardToGame(turn(clientGame.turn()), client);
-                }
-            } else {
-                client.writeMessage(exception("It is not your turn!"));
+                break;
             }
+            case "disconnect": {
+                //disconnects the client from the server, closes the socket and removes him from
 
-        } else if (first.equals("leave")) {
-            ArrayList<Player> players = clientGame.getPlayers();
-            players.remove(clientPlayer);
+                ArrayList<Player> players = clientGame.getPlayers();
+                players.remove(clientPlayer);
 
-            forwardToGame(end(players.toArray(new Player[players.size()])), client);
+                forwardToGame(end(players.toArray(new Player[players.size()])), client);
 
-            Game oldGame = clientGame;
+                Game oldGame = clientGame;
 
-            for (ConnectedClient c : connectedClients) {
-                if (c.getGame() == oldGame) {
-                    c.setGame(null);
+                for (ConnectedClient c : connectedClients) {
+                    if (c.getGame() == oldGame) {
+                        c.setGame(null);
+                    }
                 }
+
+                client.disconnect();
+                connectedClients.remove(client);
+
+                break;
             }
-
-        } else if (first.equals("disconnect")) {
-            //disconnects the client from the server, closes the socket and removes him from
-
-            ArrayList<Player> players = clientGame.getPlayers();
-            players.remove(clientPlayer);
-
-            forwardToGame(end(players.toArray(new Player[players.size()])), client);
-
-            Game oldGame = clientGame;
-
-            for (ConnectedClient c : connectedClients) {
-                if (c.getGame() == oldGame) {
-                    c.setGame(null);
-                }
-            }
-
-            client.disconnect();
-            connectedClients.remove(client);
-
-        } else if (first.equals("message")) {
-            //send this message to all players in the same game
-            forwardToGame(message(clientPlayer, splitMessage[1]), client);
+            case "message":
+                //send this message to all players in the same game
+                forwardToGame(message(clientPlayer, splitMessage[1]), client);
+                break;
         }
 
     }
@@ -460,7 +478,7 @@ public class Server implements ServerProtocol {
         //assigns this client to a player
         //@ ensures !getName().contains(";") => player != null;
         public void setPlayer() throws IllegalNameException {
-            player = new NetworkPlayer(name, this);
+            player = new NetworkPlayer(name);
         }
 
         //gets the player object this client is assigned to
