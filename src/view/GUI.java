@@ -74,8 +74,12 @@ public class GUI implements View {
         frame.setSize(frame.getMaximumSize());
         guiGame = new GUIGame();
         inventoryArea = guiGame.getInventoryArea();
+        gameList = new GUIGameList().getPanel();
+        gameJList = (JList) gameList.getComponent(1);
+        gamesModel = (DefaultListModel) gameJList.getModel();
         loginScreen();
         frame.setVisible(true);
+
 
     }
 
@@ -139,11 +143,8 @@ public class GUI implements View {
     //opens the GUI for the game list screen
     @Override
     public void gameList() {
-        gameList = new GUIGameList().getPanel();
         frame.setContentPane(gameList);
         frame.revalidate();
-        gameJList = (JList) gameList.getComponent(1);
-        gamesModel = (DefaultListModel) gameJList.getModel();
 
         MouseListener mouseListener = new MouseAdapter() {
             @Override

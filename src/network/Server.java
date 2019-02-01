@@ -44,7 +44,7 @@ public class Server implements ServerProtocol {
     //@ ensures !name.contains(";") => name != null;
     //@ ensures connectedClients != null && games != null;
     public Server(String name) throws IllegalNameException {
-        if (!name.contains(";")) {
+        if (!name.contains(";") && name.length() > 2) {
             this.name = name;
         } else {
             throw new IllegalNameException(name + " illegal name");
@@ -135,6 +135,7 @@ public class Server implements ServerProtocol {
                 String username = splitMessage[1];
                 try {
                     client.setName(username);
+                    client.setLobby(true);
                     client.writeMessage(respond(games.toArray(new Game[games.size()])));
                 } catch (IllegalNameException e) {
                     client.writeMessage(exception("Illegal name"));
@@ -161,6 +162,8 @@ public class Server implements ServerProtocol {
                             if (g.getMaxPlayers() == (int) argChar && g.hasSpace()) {
                                 g.addPlayer(clientPlayer);
                                 client.setGame(g);
+                                client.setLobby(false);
+                                foundGame = true;
                                 break;
                             }
                         }
@@ -180,6 +183,7 @@ public class Server implements ServerProtocol {
                             if (g.getName().equals(arg) && g.hasSpace()) {
                                 g.addPlayer(clientPlayer);
                                 client.setGame(g);
+                                client.setLobby(false);
                                 foundGame = true;
                                 break;
                             }
@@ -201,6 +205,7 @@ public class Server implements ServerProtocol {
                         if (g.hasSpace()) {
                             g.addPlayer(clientPlayer);
                             client.setGame(g);
+                            client.setLobby(false);
                             foundGame = true;
                             break;
                         }
@@ -235,11 +240,16 @@ public class Server implements ServerProtocol {
                 } else if (client.getName() == null) {
                     client.writeMessage(exception("illegal name."));
                 } else {
+                    client.setLobby(false);
                     Game game = new Game(maxPlayers);
                     games.add(game);
                     client.setGame(game);
                     game.addPlayer(clientPlayer);
-                    forward(respond(games.toArray(new Game[games.size()])));
+                    for(ConnectedClient c : connectedClients) {
+                        if(c.getLobby()) {//send updated games list to all players in the lobby
+                            forward(respond(games.toArray(new Game[games.size()])));
+                        }
+                    }
                 }
 
                 break;
@@ -522,6 +532,16 @@ public class Server implements ServerProtocol {
         private String name;
         private Game game;
         private NetworkPlayer player;
+        private boolean lobby = false;
+
+        public void setLobby(boolean lobby) {
+            this.lobby = lobby;
+        }
+
+        public boolean getLobby() {
+            return lobby;
+
+        }
 
         //creates a connectedClient with a socket and a server
         //@ requires socket != null && server != null;
