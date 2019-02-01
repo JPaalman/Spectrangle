@@ -128,36 +128,31 @@ public class Client implements ClientProtocol {
                 break;
             case "give": {
                 String username = splitMessage[1];
+                Player p = null;
+
+                if(game.getPlayer(username) == null) { //if we don't know of this player yet create this player and add him to the game
+                    try {
+                        p = new NetworkPlayer(username);
+                        game.addPlayer(p);
+                    } catch (IllegalNameException e) {
+                        e.printStackTrace(); //should not happen
+                    }
+                } else {
+                    p = game.getPlayer(username);
+                }
+
                 for (int i = 2; i < splitMessage.length; i = i + 4) {
                     int multiplier = Integer.parseInt(splitMessage[i]);
                     Color c1 = Protocol.STRING_COLOR_MAP.get(splitMessage[i + 1]);
                     Color c2 = Protocol.STRING_COLOR_MAP.get(splitMessage[i + 2]);
                     Color c3 = Protocol.STRING_COLOR_MAP.get(splitMessage[i + 3]);
                     Tile tile = new Tile(multiplier, c1, c2, c3);
-                    System.out.println(game);
-                    System.out.println(game.getPlayers());
-                    if (game.getPlayer(username) == null) {
-                        Player newPlayer = new NetworkPlayer();
-                        newPlayer.setName(username);
-                        game.addPlayer(newPlayer);
-                        System.out.println("unknown user");
-                        for (Player p : game.getPlayers()) {
-                            if (p.getName() == null) {
-                                p.setName(username);
-                                p.addPiece(tile);
-                            }
-                        }
-                    } else {
-                        game.getPlayer(username).addPiece(tile);
-                        System.out.println("t");
-                        if(game.getPlayer(username) == player) {
-                            System.out.println("test");
-                        }
-                    }
-                    gui.updateInventory(game.getPlayers());
+                    p.addPiece(tile);
                 }
 
+                gui.updateInventory(game.getPlayers());
                 break;
+
             }
             case "turn": {
                 String username = splitMessage[1];
@@ -246,8 +241,12 @@ public class Client implements ClientProtocol {
                 if (username.equals(name)) {
 
                 } else {
-                    Player newPlayer = new NetworkPlayer();
-                    newPlayer.setName(username);
+                    Player newPlayer = null;
+                    try {
+                        newPlayer = new NetworkPlayer(username);
+                    } catch (IllegalNameException e) {
+                        e.printStackTrace();//should not happen
+                    }
                     game.addPlayer(newPlayer);
                 }
                 break;

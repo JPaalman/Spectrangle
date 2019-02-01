@@ -403,16 +403,6 @@ public class GUI implements View {
         inputArea.getInputMap().put(KeyStroke.getKeyStroke("ENTER"),
                 pressedEnter);
 
-//        PrintStream ps = new PrintStream(new OutputStream() {
-//            @Override
-//            public void write(int b) throws IOException {
-//                boardArea.append(String.valueOf((char)b));
-//                boardArea.setCaretPosition(boardArea.getDocument().getLength());
-//            }
-//        });
-//        System.setOut(ps);
-//        System.setErr(ps);
-
         frame.setContentPane(gameBoard);
         frame.revalidate();
 
@@ -422,9 +412,6 @@ public class GUI implements View {
 
         client.setGame(connectedGamePlayerCount);
         client.getGame().addPlayer(client.getPlayer());
-        for(int i = 1; i < connectedGamePlayerCount; i++) { //add all networkplayers to the game
-            client.getGame().addPlayer(new NetworkPlayer());
-        }
 
         tui = new TUI();
         messagesArea.append(TUI.HELP);

@@ -129,9 +129,7 @@ public class Game {
     //@ requires name != null;
     public Player getPlayer(String name) {
         for (Player p : players) {
-            if (p.getName() == null) {
-                break;
-            } else if (p.getName().equals(name)) {
+            if (p.getName() != null && p.getName().equals(name)) {
                 return p;
             }
         }

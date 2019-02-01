@@ -16,11 +16,11 @@ public abstract class Player extends Observable {
 
 
     //Constructor for creating a new player object
-    //@ requires name != null && !name.contains(";");
+    //@ requires name != null && !name.contains(";") && name.length() >=2;
     //@ ensures score != null && inventory != null;
     //@ ensures getName() == name;
     public Player(String name) throws IllegalNameException {
-        if (name != null && !name.contains(";")) {
+        if (name != null && !name.contains(";") && name.length() >= 2) {
             this.name = name;
         } else {
             throw new IllegalNameException("Illegal name");
@@ -123,8 +123,12 @@ public abstract class Player extends Observable {
         }
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setName(String name) throws IllegalNameException {
+        if (name != null && !name.contains(";") && name.length() >= 2) {
+            this.name = name;
+        } else {
+            throw new IllegalNameException("Illegal name");
+        }
     }
 
     public Tile swap(Tile in, Tile out) {
