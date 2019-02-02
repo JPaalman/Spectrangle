@@ -30,15 +30,15 @@ public class Client implements ClientProtocol {
     private ArrayList<ConnectedServer> connectedServers;
     private ConnectedServer joinedServer;
 
+    //starts this program from the client-side
     public static void main(String[] args) {
-        Client client = new Client();
-//        client.joinServer();
+        new Client();
     }
 
     //sets the game with the player count
-    //@ ensures game != null;
-    //@ ensures game.getMaxPlayerCount() <= 4 && game.getMaxPlayerCount() >= 2;
-    //@ ensures playerCount <=4 && playerCount >= 2 => game.getMaxPlayerCount() == playerCount;
+    //@ ensures this.game != null;
+    //@ ensures this.game.getMaxPlayerCount() <= 4 && this.game.getMaxPlayerCount() >= 2;
+    //@ ensures playerCount <=4 && playerCount >= 2 => this.game.getMaxPlayerCount() == playerCount;
     public void setGame(int playerCount) {
         if (playerCount > 4) {
             playerCount = 4;
@@ -49,20 +49,26 @@ public class Client implements ClientProtocol {
     }
 
     //returns the game object
-    //@ requires game != null;
+    //@ requires this.game != null;
+    //@ pure
     public Game getGame() {
         return game;
     }
 
+    //returns the player object
+    // @ requires this.player != null;
+    //@ pure
     public Player getPlayer() {
         return player;
     }
 
-    //creates a client with a name
+    //creates a client with a name, a gui, a list of connected servers
+    //@ ensures this.gui != null;
+    //@ ensures this.connectedServers != null;
     public Client() {
         gui = new GUI(this);
-
         connectedServers = new ArrayList<>();
+
         //This entire try catch block is to get the ipv4 address
         try {
             DatagramSocket socket2;
@@ -77,9 +83,13 @@ public class Client implements ClientProtocol {
     }
 
     //sets the name of this client and initializes a player object with this name
+    //@ requires name != null && name.length() > 2 && !name.contains(";");
+    //@ ensures this.name = name && this.player != null;
+    //@ ensures this.player.getName() = name;
+
     public void setName(String name) throws IllegalNameException {
         this.name = name;
-        if(gui.getBot()) {
+        if (gui.getBot()) {
             player = new ComputerPlayer(name);
         } else {
             player = new ClientPlayer(name);
@@ -87,17 +97,20 @@ public class Client implements ClientProtocol {
     }
 
     //returns the name of this client
+    //@ requires this.name != null;
+    //@ pure
     public String getName() {
         return name;
     }
 
     //tries to search for a server, if a connection gets made it gets added to the connectedServers list
+    //@ requires ipv4 != null;
     public void searchForServer() {
         searchForServer(ipv4);
     }
 
     //tries to search for a server, if a connection gets made it gets added to the connectedServers list
-
+    //@ requires address != null && connectedServers != null;
     public void searchForServer(String address) {
         ConnectedServer connectedServer = new ConnectedServer(this);
         if(connectedServer.joinServer(address)) {
@@ -106,7 +119,7 @@ public class Client implements ClientProtocol {
     }
 
     //reads a message and executes the corresponding action
-    //@ requires splitMessage != null;
+    //@ requires splitMessage != null && connectedServer != null;
     private void readMessage(String[] splitMessage, ConnectedServer connectedServer) {
         if(splitMessage == null) {
             return;
@@ -121,7 +134,7 @@ public class Client implements ClientProtocol {
 
                 break;
             case "respond":
-                connectedServer.setBot(gui.getBot()); //set if bot or not
+                //add games to the game list
 
                 for (int i = 1; (i + 2) < splitMessage.length; i = i + 3) {
                     String gameName = splitMessage[i];
@@ -132,6 +145,7 @@ public class Client implements ClientProtocol {
 
                 break;
             case "give": {
+                //give a piece to a player in your game
                 String username = splitMessage[1];
                 Player p = null;
 
@@ -160,6 +174,7 @@ public class Client implements ClientProtocol {
 
             }
             case "turn": {
+                //notify GUI whose turn it is
                 String username = splitMessage[1];
                 if (username.equals(name) && player instanceof ComputerPlayer) {
                     String move = ((ComputerPlayer) player).getMove(game.getBoard());
@@ -178,6 +193,7 @@ public class Client implements ClientProtocol {
                 break;
             }
             case "move": {
+                //make a move in your game
                 String username = splitMessage[1];
                 int multiplier = Integer.parseInt(splitMessage[2]);
                 Color c1 = Protocol.STRING_COLOR_MAP.get(splitMessage[3]);
@@ -197,6 +213,7 @@ public class Client implements ClientProtocol {
                 break;
             }
             case "swap": {
+                //swap pieces for a player in your game
                 String username = splitMessage[1];
 
                 int multiplier = Integer.parseInt(splitMessage[2]);
@@ -217,12 +234,14 @@ public class Client implements ClientProtocol {
                 break;
             }
             case "skip": {
+                //skip a turn of a player in your game
                 String username = splitMessage[1];
                 gui.skipTurn(username);
 
                 break;
             }
             case "end":
+                //the game you are currently in and show the winners
                 String winners = splitMessage[1];
                 for (int i = 2; i < splitMessage.length; i++) {
                     winners += " and " + splitMessage[i];
@@ -231,10 +250,12 @@ public class Client implements ClientProtocol {
 
                 break;
             case "exception":
+                //exception thrown by the server
                 gui.exception(splitMessage[1]);
 
                 break;
             case "message": {
+                //a message from a player in your game
                 String username = splitMessage[1];
                 String message = splitMessage[2];
                 gui.addMessage(username, message);
@@ -242,6 +263,7 @@ public class Client implements ClientProtocol {
                 break;
             }
             case "join": {
+                //someone joined the game you are in
                 String username = splitMessage[1];
                 if (username.equals(name)) {
 
@@ -258,12 +280,15 @@ public class Client implements ClientProtocol {
             }
 
             case "leave" : {
+                //someone left the game you are in
                 String username = splitMessage[1];
                 game.removePlayer(game.getPlayer(username));
                 gui.updateInventory(game.getPlayers());
             }
         }
     }
+
+    //--------- all commands for the protocol ---------
 
     @Override
     public String scan() {
@@ -335,6 +360,8 @@ public class Client implements ClientProtocol {
         return ClientProtocol.MESSAGE + ";" + message;
     }
 
+    //--------- end of commands for the protocol ---------
+
     //join a specific server
     //@ requires name != null && address != null && port != null;
     public void joinServer(String name, String address, String port) {
@@ -346,6 +373,8 @@ public class Client implements ClientProtocol {
         }
     }
 
+    //get the connected server with a specific name, address, and port
+    //@ requires name != null && address != null && port != null && connectedServers != null;
     public ConnectedServer getConnectedServer(String name, String address, String port) {
         for(ConnectedServer cs : connectedServers) {
             if(cs.getName().equals(name) && cs.getIP().equals(address) && cs.getSock().equals(port)) {
@@ -355,7 +384,7 @@ public class Client implements ClientProtocol {
         return null;
     }
 
-    //a server that this client is connected to, having this in a separate class allows for the client to connect to multiple servers
+    //a server that a client is connected to
     public class ConnectedServer implements Runnable {
         private Socket socket;
         private PrintWriter out;
@@ -365,37 +394,30 @@ public class Client implements ClientProtocol {
         private String ip;
         private String sock;
         private String name;
-        private boolean bot;
-
-
-        public void setBot(boolean bot) {
-            this.bot = bot;
-        }
-
-        public Boolean getBot() {
-            return bot;
-        }
 
         //creates a ConnectedServer object
         //@ requires client != null;
-        //@ ensures client == client;
+        //@ ensures this.client == client;
         public ConnectedServer(Client client) {
             this.client = client;
         }
 
         //returns the socket of the server
+        //@ requires this.sock != null;
         //@ pure
         public String getSock() {
             return sock;
         }
 
         //returns the ip of the server
+        //@ requires this.ip != null;
         //@ pure
         public String getIP() {
             return ip;
         }
 
         //returns the name of the server
+        //@ requires this.name != null;
         //@ pure
         public String getName() {
             return name;
@@ -403,12 +425,13 @@ public class Client implements ClientProtocol {
 
         //sets the name of this server
         //@ requires name != null;
-        //@ ensures name == name;
+        //@ ensures this.name == name;
         public void setName(String name) {
             this.name = name;
         }
 
         //creates a socket and connects to a server socket if one exists on the specified port
+        //@ requires address != null;
         public boolean joinServer(String address) {
             try {
                 hostAddress = InetAddress.getByName(address);
@@ -430,7 +453,8 @@ public class Client implements ClientProtocol {
         }
 
         //reads the bufferedreader of the serverSocket this client is connected to
-        //@requires socket != null;
+        //@ requires this.socket != null;
+        //@ requires this.client != null;
         @Override
         public void run() {
             while(!socket.isClosed()) {
@@ -447,7 +471,7 @@ public class Client implements ClientProtocol {
         }
 
         //disconnects from the bufferedreader, the printwriter, and the socket
-        //@ requires in != null && out != null && socket != null;
+        //@ requires this.in != null && this.out != null && this.socket != null;
         public void disconnect() {
             try {
                 in.close();
@@ -459,7 +483,7 @@ public class Client implements ClientProtocol {
         }
 
         //writes a message to the server
-        //@ requires message != null && out != null;
+        //@ requires message != null && this.out != null;
         public void writeMessage(String message) {
             out.println(message);
             out.flush();

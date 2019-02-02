@@ -4,7 +4,6 @@ import group92.spectrangle.Game;
 import group92.spectrangle.board.Tile;
 import group92.spectrangle.exceptions.IllegalNameException;
 import group92.spectrangle.exceptions.MoveException;
-import group92.spectrangle.players.ClientPlayer;
 import group92.spectrangle.players.NetworkPlayer;
 import group92.spectrangle.players.Player;
 import group92.spectrangle.protocol.Protocol;
@@ -15,7 +14,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.lang.reflect.Array;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -29,10 +27,10 @@ public class Server implements ServerProtocol {
     private ArrayList<Game> games;
     public final static int PORT = 2019;
 
-
+    //starts this program from the server-side with predefined address, port, and name
     public static void main(String[] args) {
         try {
-            Server server = new Server("bob");
+            Server server = new Server("RemiAndJaïr'sServer");
             server.create();
         } catch (IllegalNameException e) {
             System.out.println("Illegal server name");
@@ -41,7 +39,7 @@ public class Server implements ServerProtocol {
 
     //Constructor, initializes name and gets the ipv4 address
     //@ requires name != null;
-    //@ ensures !name.contains(";") => name != null;
+    //@ ensures !name.contains(";") && name.length() > 2 => this.name == name;
     //@ ensures connectedClients != null && games != null;
     public Server(String name) throws IllegalNameException {
         if (!name.contains(";") && name.length() > 2) {

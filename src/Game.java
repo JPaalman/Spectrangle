@@ -12,8 +12,6 @@ import group92.spectrangle.players.Player;
 import java.util.ArrayList;
 import java.util.Collections;
 
-//the controller of our Spectrangle application
-
 public class Game {
 
     public static void main(String[] args) {
