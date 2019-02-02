@@ -4,6 +4,7 @@ import group92.spectrangle.board.Board;
 import group92.spectrangle.board.Move;
 import group92.spectrangle.board.Tile;
 import group92.spectrangle.exceptions.IllegalNameException;
+import group92.spectrangle.protocol.Protocol;
 import group92.spectrangle.strategies.SimpleStrategy;
 import group92.spectrangle.strategies.Strategy;
 
@@ -45,10 +46,11 @@ public class ComputerPlayer extends Player {
                 tile.rotate(1);
             }
         }
-        Move result = strategy.getMove(possibleMoves);
-        if (result != null) {
-            return "move;" + result.toString();
+
+        if (possibleMoves.size() > 0) {
+            return Protocol.MOVE + ";" + strategy.getMove(possibleMoves).toString();
         }
+
         return "skip";
     }
 

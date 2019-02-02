@@ -106,25 +106,23 @@ public class Board {
     // returns an int with the amount of matching sides
     private int getMatchingSides(Tile tile, int index) {
         if (isLegal(index)) {
-            int result = 0;
+            int counter = 0, result = 0;
             int[] coordinates = getCoordinatesFromIndex(index);
             Field[] neighbouringFields = indicesToFields(getNeighbours(coordinates));
+
             for (int i = 0; i < neighbouringFields.length; i++) {
-                if (neighbouringFields[i] != null && neighbouringFields[i].getTile() != null && (tile.getColors()[i].equals(Color.WHITE) || tile.getColors()[i] == neighbouringFields[i].getTile().getColors()[2 - i])) {
-                    result++;
-                }
-            }
-            int counter = 0;
-            for (Field field : fields) {
-                if (field != null && field.getTile() != null) {
+                if (neighbouringFields[i] != null && neighbouringFields[i].getTile() != null) {
                     counter++;
+                    if ((tile.getColors()[i].equals(Color.WHITE) || tile.getColors()[i] == neighbouringFields[i].getTile().getColors()[2 - i])) {
+                        result++;
+                    }
                 }
             }
+
             if (result == counter) {
                 return result;
-            } else {
-                return 0;
             }
+            return 0;
         }
         throw new IndexOutOfBoundsException();
     }
