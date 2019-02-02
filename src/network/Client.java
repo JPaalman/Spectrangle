@@ -37,10 +37,15 @@ public class Client implements ClientProtocol {
 
     //sets the game with the player count
     //@ ensures game != null;
-    //@ requires playerCount <= 4 && playerCount >= 2;
+    //@ ensures game.getMaxPlayerCount() <= 4 && game.getMaxPlayerCount() >= 2;
+    //@ ensures playerCount <=4 && playerCount >= 2 => game.getMaxPlayerCount() == playerCount;
     public void setGame(int playerCount) {
+        if (playerCount > 4) {
+            playerCount = 4;
+        } else if (playerCount < 2) {
+            playerCount = 2;
+        }
         game = new Game(playerCount);
-        //TODO throw exception for invalid playercount
     }
 
     //returns the game object
@@ -418,18 +423,6 @@ public class Client implements ClientProtocol {
                 System.out.println("[Client] Connected to a server: " + socket.toString());
                 writeMessage(scan());
                 return true;
-                //TODO read terminal input if GUI doesn't work out
-//                while(true) {
-//                    String command = terminalInput.readLine().toLowerCase();
-//                    if(command.equals("q")) {
-//                        break;
-//                    }
-//                    out.println(command);
-//                    out.flush();
-//                }
-//                out.close();
-//                in.close();
-//                socket.close();
             } catch (IOException e) {
                 e.printStackTrace();
                 return false;

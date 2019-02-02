@@ -398,6 +398,7 @@ public class Server implements ServerProtocol {
                 break;
             case "leave": {
                 removePlayerFromGame(client);
+                client.setLobby(false);
                 break;
             }
             case "disconnect": {
