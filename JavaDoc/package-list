@@ -1,1 +1,9 @@
+group92.spectrangle
 group92.spectrangle.board
+group92.spectrangle.exceptions
+group92.spectrangle.network
+group92.spectrangle.players
+group92.spectrangle.protocol
+group92.spectrangle.strategies
+group92.spectrangle.tests
+group92.spectrangle.view
