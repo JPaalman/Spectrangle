@@ -9,7 +9,7 @@ public class Main {
     public static void main(String[] args) {
         if (args.length > 0) {
             try {
-                new Server(args[0]);
+                new Server(args[0]).create();
             } catch (IllegalNameException e) {
                 throw new RuntimeException("illegal server name");
             }
