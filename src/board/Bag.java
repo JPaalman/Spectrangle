@@ -37,7 +37,7 @@ public class Bag {
             new Tile(4, BLUE, PINK),
 
             new Tile(3, YELLOW, BLUE, PINK),
-            new Tile(3, RED, GREEN, YELLOW),
+            new Tile(3, RED, GREEN, YELLOW), new Tile(3, BLUE, GREEN, PINK),
             new Tile(3, GREEN, RED, BLUE),
 
             new Tile(2, YELLOW, PINK, RED),
