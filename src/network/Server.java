@@ -367,12 +367,13 @@ public class Server implements ServerProtocol {
 
                 if (clientGame.turn() == clientPlayer) {
                     boolean skip = true;
+                    tileLoop:
                     for (Tile t : clientPlayer.getInventory()) {
                         for (int i = 0; i < 3; i++) {
                             if (clientGame.getBoard().getPossibleFields(t).length != 0) {
                                 client.writeMessage(exception("Cannot skip!"));
                                 skip = false;
-                                break;
+                                break tileLoop;
                             }
                             t.rotate(1);
                         }

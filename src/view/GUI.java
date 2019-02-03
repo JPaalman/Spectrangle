@@ -198,13 +198,17 @@ public class GUI implements View {
     //@ requires tile != null && index != null && tui != null && boardArea != null;
     public void drawMove(Tile tile, int index) {
         tui.makeMove(tile, index);
-        boardArea.selectAll();
-        boardArea.replaceSelection("");
         String board = tui.getBoard();
         if (SwingUtilities.isEventDispatchThread()) {
+            boardArea.selectAll();
+            boardArea.replaceSelection("");
             boardArea.append(board);
         } else {
-            SwingUtilities.invokeLater(() -> boardArea.append(board));
+            SwingUtilities.invokeLater(() ->  {
+                boardArea.selectAll();
+                boardArea.replaceSelection("");
+                boardArea.append(board);
+            });
         }
     }
 
@@ -332,6 +336,8 @@ public class GUI implements View {
         JLabel usernameLabel = guiGame.getUsernameLabel();
         usernameLabel.setText(username);
         JButton movePieceButton = guiGame.getMovePieceButton();
+        JButton leaveButton = guiGame.getLeaveButton();
+        JButton hintButton = guiGame.getHintButton();
 
         boardArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 20));
         boardArea.setEditable(false);
@@ -382,6 +388,10 @@ public class GUI implements View {
             connectedServer.writeMessage(client.skip());
         });
 
+        hintButton.addActionListener(e -> {
+            giveHint(client.getHint());
+        });
+
         swapPiece.addActionListener(e -> {
             String[] options = {"1", "2", "3", "4", "5", "6"};
             String result = (String) JOptionPane.showInputDialog(frame, "Piece number:", "Swap piece", JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
@@ -421,6 +431,10 @@ public class GUI implements View {
         messagesArea.append(tui.HELP);
 
         boardArea.append(tui.getBoard());
+    }
+
+    private void giveHint(String hint) {
+        JOptionPane.showMessageDialog(frame, hint, "Hint", JOptionPane.INFORMATION_MESSAGE);
     }
 
     public void invalidMove() {

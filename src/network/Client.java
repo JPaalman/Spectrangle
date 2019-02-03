@@ -399,6 +399,27 @@ public class Client implements ClientProtocol {
         this.thinkingTime = thinkingTime;
     }
 
+    public String getHint() {
+        if(game != null && player.getInventory().size() != 0) {
+            for(Tile t : player.getInventory()) {
+                for (int i = 0; i < 3; i++) {
+                    int[] indexes = game.getBoard().getPossibleFields(t);
+                    if (indexes.length != 0) {
+                        return "You can move " + t.toString() + " to index " + indexes[0];
+                    }
+                    t.rotate(1);
+                }
+            }
+            if(game.getBag().isEmpty()) {
+                return "You can skip";
+            } else {
+                return "You can swap or skip";
+            }
+        } else {
+            return "There is no hint since the game hasn't started yet or you have no pieces";
+        }
+    }
+
     //a server that a client is connected to
     public class ConnectedServer implements Runnable {
         private Socket socket;
