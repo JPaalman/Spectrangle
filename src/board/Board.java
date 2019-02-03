@@ -19,6 +19,13 @@ public class Board {
     //@ pure
     //@ requires isLegal(index) == true;
     //@ ensures \result.length == 2;
+
+    /**
+     * convert an index to it's coordinates
+     *
+     * @param index
+     * @return an int[] containing the row and column
+     */
     public static int[] getCoordinatesFromIndex(int index) {
         assert isLegal(index);
         if (isLegal(index)) {
@@ -30,12 +37,24 @@ public class Board {
     }
 
     //@ pure
+
+    /**
+     * convert a set coordinates to it's index
+     * @param coordinates an int[] containing a row and column
+     * @return the corresponding index
+     */
     public static int getIndexFromCoordinates(int[] coordinates) {
         int row = coordinates[0];
         int column = coordinates[1];
         return getIndexFromCoordinates(row, column);
     }
 
+    /**
+     * convert a set coordinates to it's index
+     * @param row
+     * @param column
+     * @return the corresponding index
+     */
     //@ pure
     //@ ensures isLegal(row, column) ? isLegal(\result) : \result == -1;
     public static int getIndexFromCoordinates(int row, int column) {
@@ -45,12 +64,22 @@ public class Board {
         return -1;
     }
 
+    /**
+     * check if an index is legal (exists on the board)
+     * @param index
+     * @return true or false
+     */
     //@ pure
     //@ ensures \result == index >= 0 && index < 36;
     public static boolean isLegal(int index) {
         return index >= 0 && index < 36;
     }
 
+    /**
+     * check if an index is legal (exists on the board)
+     * @param coordinates an int[] containing a row and column
+     * @return true or false
+     */
     //@ pure
     public static boolean isLegal(int[] coordinates) {
         int row = coordinates[0];
@@ -58,6 +87,12 @@ public class Board {
         return isLegal(row, column);
     }
 
+    /**
+     * check if an index is legal (exists on the board)
+     * @param row
+     * @param column
+     * @return true or false
+     */
     //@ pure
     //@ ensures \result == row >= 0 && row <= 5 && column >= -row && column <= row;
     public static boolean isLegal(int row, int column) {
@@ -69,6 +104,9 @@ public class Board {
 
     private boolean first;
 
+    /**
+     * make a new board, with 36 empty fields
+     */
     //@ ensures first;
     public Board() {
         first = true;
@@ -86,6 +124,11 @@ public class Board {
         }
     }
 
+    /**
+     * get all indices where the given piece can be placed
+     * @param tile
+     * @return an int[] of indices where the given tile can be placed
+     */
     //@ pure
     //@ ensures \result != null;
     //@ requires tile != null;
@@ -100,6 +143,12 @@ public class Board {
         return Utils.IntegerListToArray(possibleFields);
     }
 
+    /**
+     * check if a move is legal
+     * @param tile
+     * @param index
+     * @return true or false
+     */
     //@ pure
     //@ ensures \result == first && !MULTIPLICITY_4.contains(index) && !MULTIPLICITY_3.contains(index) &&
     // !MULTIPLICITY_2.contains(index)) || (getMatchingSides(tile, index) > 0 && fields[index].getTile() == null);
@@ -107,6 +156,13 @@ public class Board {
         return (first && !MULTIPLICITY_4.contains(index) && !MULTIPLICITY_3.contains(index) && !MULTIPLICITY_2.contains(index)) || (getMatchingSides(tile, index) > 0 && fields[index].getTile() == null);
     }
 
+    /**
+     * place a tile on board
+     * @param tile
+     * @param index
+     * @return the score of the move
+     * @throws MoveException if an illegal move is made
+     */
     //@ requires isValidMove(tile, index);
     //@ ensures \result > 0
     public int place(Tile tile, int index) throws MoveException {
@@ -128,6 +184,12 @@ public class Board {
         }
     }
 
+    /**
+     * get the future amount of matching sides with the neighbouring fields, returns 0 if not all sides match
+     * @param tile
+     * @param index
+     * @return the amount of matching sides with the neighbouring pieces
+     */
     // returns an int with the amount of matching sides
     //@ pure
     //@ requires isLegal(index);
@@ -156,6 +218,11 @@ public class Board {
         throw new IndexOutOfBoundsException();
     }
 
+    /**
+     * Get the indices of the neighbouring fields
+     * @param coordinates an int[] containing a row and column
+     * @return an int[] of indices of neighbouring fields, contains -1 for neighbours that don't exist
+     */
     //@ pure
     private int[] getNeighbours(int[] coordinates) {
         int row = coordinates[0];
@@ -163,6 +230,12 @@ public class Board {
         return getNeighbours(row, column);
     }
 
+    /**
+     * Get the indices of the neighbouring fields
+     * @param row
+     * @param column
+     * @return an int[] of indices of neighbouring fields, contains -1 for neighbours that don't exist
+     */
     // returns an int[] of the indices of the surrounding fields, from left to right
     // resulting array could contain -1, if the field has less than 3 neighbours
     //@ requires isLegal(row, column);
@@ -194,7 +267,12 @@ public class Board {
         throw new IndexOutOfBoundsException();
     }
 
-    // returns 0 for upwards, 1 for downwards
+    /**
+     * get the rotation of a field on the board
+     * @param row
+     * @param column
+     * @return 0 for upwards, 1 for downwards
+     */
     //@ pure
     //@ requires isLegal(row, column);
     //@ ensures \result == (row + column) % 2;
@@ -206,6 +284,11 @@ public class Board {
         throw new IndexOutOfBoundsException();
     }
 
+    /**
+     * get the rotation of a field on the board
+     * @param coordinates an int[] containing a row and column
+     * @return 0 for upwards, 1 for downwards
+     */
     //@ pure
     private int getRotation(int[] coordinates) {
         int row = coordinates[0];
@@ -213,6 +296,11 @@ public class Board {
         return getRotation(row, column);
     }
 
+    /**
+     * convert an int[] of indices to a Field[] of matching fields
+     * @param indices an int[] of indices
+     * @return a Field[] with the corresponding fields
+     */
     // returned Field[] might have empty fields on illegal indices
     //@ pure
     //@ requires indices != null;

@@ -21,4 +21,28 @@ public class TileTest {
         assertNotEquals(tile1, tile4);
     }
 
+    @Test
+    public void testRotate() {
+        Tile tile1 = new Tile(6, RED, GREEN, BLUE);
+        Tile tile2 = new Tile(6, RED, GREEN, BLUE);
+        for (int i = 0; i < 3; i++) {
+            assertEquals(tile1.getColors()[i], tile2.getColors()[i]);
+        }
+        tile1.rotate(1);
+        for (int i = 0; i < 3; i++) {
+            assertNotEquals(tile1.getColors()[i], tile2.getColors()[i]);
+        }
+        tile1.rotate(2);
+        for (int i = 0; i < 3; i++) {
+            assertEquals(tile1.getColors()[i], tile2.getColors()[i]);
+        }
+    }
+
+    @Test
+    public void testToString() {
+        assertEquals(new Tile(6, BLUE).toString(), "6;b;b;b");
+        assertEquals(new Tile(6, RED).toString(), "6;r;r;r");
+        assertEquals(new Tile(6, BLUE, RED).toString(), "6;b;r;r");
+    }
+
 }
