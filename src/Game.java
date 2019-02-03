@@ -28,17 +28,22 @@ public class Game {
     }
 
     //adds a player to this game
+    //@ requires player != null;
+    //@ ensures players.contains(player);
     public void addPlayer(Player player) {
         players.add(player);
     }
 
     //removes a player from this game
+    //@ requires player != null && players.contains(player);
+    //@ ensures !players.contains(player);
     public void removePlayer(Player player) {
         players.remove(players.indexOf(player));
     }
 
     //distribute the first tiles, use this to determine who moves first based on the highest multiplier piece
     //if there is a draw then the bag resets and the players clear their inventory to redistribute pieces till there is a winner
+    //@ requires players != null && bag != null;
     public void distributeFirstTiles() {
         Tile highestTile = null;
         boolean draw = false;
@@ -96,12 +101,13 @@ public class Game {
     }
 
     //returns the name of the first player that is in this game
+    //@ pure
     public String getName() {
         return players.get(0).getName();
     }
 
     //get a player with a specific name
-    //@ requires name != null;
+    //@ requires name != null && players != null;
     public Player getPlayer(String name) {
         for (Player p : players) {
             if (p.getName() != null && p.getName().equals(name)) {
@@ -117,21 +123,27 @@ public class Game {
         return players;
     }
 
+    //returns whether the game has started or not
+    //@ pure
     public boolean getStarted() {
         return started;
     }
 
     //checks whether there is space for another player
+    //@ pure
     public boolean hasSpace() {
         return players.size() < maxPlayers;
     }
 
-    //Increment the turn number
+    //increment the turn number
+    //@ requires players != null && turnNumber != null;
+    //@ ensures turnNumber == \old(turnNumber) + 1 % players.size;
     public void incrementTurn() {
         turnNumber = (turnNumber + 1) % players.size();
     }
 
     //starts the game
+    //@ ensures turnNumber == 0 && started == true;
     public void start() {
         turnNumber = 0;
         distributeFirstTiles();
@@ -139,8 +151,9 @@ public class Game {
     }
 
     //return whose turn it is
+    //@ requires players != null && turnNumber != null;
+    //@ pure
     public Player turn() {//TODO separate method to increment
         return players.get(turnNumber);
     }
-
 }

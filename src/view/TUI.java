@@ -14,7 +14,7 @@ public class TUI {
     private ArrayList<Character> vertical = new ArrayList<>(Arrays.asList(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null));
     private ArrayList<Character> left = new ArrayList<>(Arrays.asList(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null));
     private ArrayList<Character> right = new ArrayList<>(Arrays.asList(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null));
-    public final String HELP = "use ';' between commands\nhelp - for help\nstart - to start the game, needs at least 2 players\nmove <piece> <index> - to move a piece\nswap <piece> - to swap a piece\nskip - to skip\nleave - to leave\nmessage <message> - to send a message";
+    public final String HELP = "use ';' between commands\nhelp - for help\nstart - to start the game, needs at least 2 players\nmove <piece> <index> <rotation> - to move a piece\nswap <piece> - to swap a piece\nskip - to skip\nleave - to leave\nmessage <message> - to send a message";
 
     /**
      * Method to print a board of Spectrangle, given the properties of the pieces that reside on it.
@@ -117,6 +117,8 @@ public class TUI {
         return indexed_values;
     }
 
+    //make a move on the board
+    //@ requires tile != null && index >=0 && index < 36 && values != null && vertical != null && left != null && right != null;
     public void makeMove(Tile tile, int index) {
         values.remove(index);
         values.add(index, tile.getMultiplier());
@@ -130,6 +132,7 @@ public class TUI {
     }
 
     //returns the board in String
+    //@ requires values != null && vertical != null && left != null && right != null;
     //@ pure
     public String getBoard() {
         return getBoardString(values, vertical, left, right);

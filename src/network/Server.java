@@ -136,13 +136,19 @@ public class Server implements ServerProtocol {
             case "connect":
                 //save the name for this client, he is now officially connected
                 String username = splitMessage[1];
+
+                for(ConnectedClient c : connectedClients) {
+                    if(c.getName() != null && c.getName().equals(username)) {
+                        client.writeMessage(exception("This name is already taken!"));
+                        break outerLoop;
+                    }
+                }
                 try {
                     client.setName(username);
                     client.setLobby(true);
                     client.writeMessage(respond(games.toArray(new Game[games.size()])));
                 } catch (IllegalNameException e) {
                     client.writeMessage(exception("Illegal name"));
-
                 }
 
                 break;
@@ -413,6 +419,14 @@ public class Server implements ServerProtocol {
                                         }
                                     }
                                     forwardToGame(end(winners.toArray(new Player[winners.size()])), client);
+                                    games.remove(clientGame);
+                                    Game oldGame = clientGame;
+
+                                    for (ConnectedClient c : connectedClients) {
+                                        if (c.getGame() == oldGame) {
+                                            c.setGame(null);
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -453,11 +467,13 @@ public class Server implements ServerProtocol {
         } else if(!clientGame.getStarted()) {//if the game hasn't started yet
             forwardToGame(leave(clientPlayer), client);
             clientGame.removePlayer(clientPlayer);
+            client.setGame(null);
         } else {
             ArrayList<Player> players = clientGame.getPlayers();
             players.remove(clientPlayer);
 
             forwardToGame(end(players.toArray(new Player[players.size()])), client);
+            games.remove(clientGame);
 
             Game oldGame = clientGame;
 
@@ -712,6 +728,10 @@ public class Server implements ServerProtocol {
                 String[] splitMessage = message.split(";");
                 server.readMessage(splitMessage, this);
             }
+            if(game != null) {
+                server.removePlayerFromGame(this);
+            }
+
             disconnect();
             server.removeClient(this);
         }
