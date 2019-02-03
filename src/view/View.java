@@ -2,7 +2,7 @@ package group92.spectrangle.view;
 
 import java.util.Observer;
 
-public interface View extends Observer {
+public interface View {
 
     void start();
 

@@ -14,7 +14,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Observable;
 
 public class GUI implements View {
 
@@ -593,34 +592,9 @@ public class GUI implements View {
         });
     }
 
-    @Override
-    public void update(Observable o, Object arg) {
-        // TODO implement Observer here
-    }
-
+    //clears the game list
+    //@ requires gameJList != null;
     public void clearGameList() {
         gameJList.removeAll();
-    }
-
-    public class systemOut extends PrintStream {
-        private OutputStream out;
-        private JTextArea textArea;
-
-        public systemOut(OutputStream out, JTextArea textArea) {
-            super(out);
-            this.out = out;
-            this.textArea = textArea;
-        }
-
-        @Override
-        public void write(int b) {
-            textArea.append(String.valueOf((char)b));
-            textArea.setCaretPosition(textArea.getDocument().getLength());
-            try {
-                out.write(b);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 }

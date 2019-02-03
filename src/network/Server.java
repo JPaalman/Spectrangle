@@ -427,6 +427,7 @@ public class Server implements ServerProtocol {
                                             c.setGame(null);
                                         }
                                     }
+                                    break outerLoop;
                                 }
                             }
                         }
