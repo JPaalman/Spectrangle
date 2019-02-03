@@ -6,7 +6,6 @@ import group92.spectrangle.exceptions.IllegalNameException;
 import group92.spectrangle.network.Client;
 import group92.spectrangle.network.Server;
 import group92.spectrangle.players.ComputerPlayer;
-import group92.spectrangle.players.NetworkPlayer;
 import group92.spectrangle.players.Player;
 import group92.spectrangle.protocol.Protocol;
 
@@ -19,11 +18,8 @@ import java.util.Observable;
 
 public class GUI implements View {
 
-    private static GUI GUI;
-
     public GUI(Client client) {
         this.client = client;
-        GUI = this;
     }
 
     private JFrame frame;
@@ -51,17 +47,8 @@ public class GUI implements View {
     private boolean bot;
     private GUIGame guiGame;
 
-    public static void main(String[] args) {
-        GUI gui = new GUI(new Client());
-        gui.start();
-    }
-
     public boolean getBot() {
         return bot;
-    }
-
-    public static GUI get() {
-        return GUI;
     }
 
     //initializes the frame and draws the login screen
@@ -211,7 +198,12 @@ public class GUI implements View {
         tui.makeMove(tile, index);
         boardArea.selectAll();
         boardArea.replaceSelection("");
-        boardArea.append(tui.getBoard());
+        String board = tui.getBoard();
+        if (SwingUtilities.isEventDispatchThread()) {
+            boardArea.append(board);
+        } else {
+            SwingUtilities.invokeLater(() -> boardArea.append(board));
+        }
     }
 
     //announces the winner(s) of the game

@@ -86,7 +86,6 @@ public class Client implements ClientProtocol {
     //@ requires name != null && name.length() > 2 && !name.contains(";");
     //@ ensures this.name = name && this.player != null;
     //@ ensures this.player.getName() = name;
-
     public void setName(String name) throws IllegalNameException {
         this.name = name;
         if (gui.getBot()) {

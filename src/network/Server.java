@@ -592,7 +592,7 @@ public class Server implements ServerProtocol {
                 out.close();
                 socket.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("socket already closed");
             }
         }
 
@@ -636,7 +636,8 @@ public class Server implements ServerProtocol {
                 System.out.println("[Server] received message: " + message);
                 return message;
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("reader closed");
+                disconnect();
             }
             return "error";
         }
@@ -690,7 +691,7 @@ public class Server implements ServerProtocol {
         //@ requires socket != null && server != null;
         @Override
         public void run() {
-            while (socket.isConnected()) {
+            while (!socket.isClosed()) {
                 String message = read();
                 String[] splitMessage = message.split(";");
                 server.readMessage(splitMessage, this);
