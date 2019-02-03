@@ -16,7 +16,11 @@ public class Board {
     public static final List<Integer> MULTIPLICITY_3 = Arrays.asList(2, 26, 35);
     public static final List<Integer> MULTIPLICITY_4 = Arrays.asList(11, 13, 20);
 
+    //@ pure
+    //@ requires isLegal(index) == true;
+    //@ ensures \result.length == 2;
     public static int[] getCoordinatesFromIndex(int index) {
+        assert isLegal(index);
         if (isLegal(index)) {
             int row = (int) Math.sqrt(index);
             int column = index - (int) Math.pow(row, 2) - row;
@@ -25,12 +29,15 @@ public class Board {
         throw new RuntimeException("index considered illegal");
     }
 
+    //@ pure
     public static int getIndexFromCoordinates(int[] coordinates) {
         int row = coordinates[0];
         int column = coordinates[1];
         return getIndexFromCoordinates(row, column);
     }
 
+    //@ pure
+    //@ ensures isLegal(row, column) ? isLegal(\result) : \result == -1;
     public static int getIndexFromCoordinates(int row, int column) {
         if (isLegal(row, column)) {
             return (int) Math.pow(row, 2) + row + column;
@@ -38,23 +45,31 @@ public class Board {
         return -1;
     }
 
+    //@ pure
+    //@ ensures \result == index >= 0 && index < 36;
     public static boolean isLegal(int index) {
         return index >= 0 && index < 36;
     }
 
+    //@ pure
     public static boolean isLegal(int[] coordinates) {
         int row = coordinates[0];
         int column = coordinates[1];
         return isLegal(row, column);
     }
 
+    //@ pure
+    //@ ensures \result == row >= 0 && row <= 5 && column >= -row && column <= row;
     public static boolean isLegal(int row, int column) {
         return row >= 0 && row <= 5 && column >= -row && column <= row;
     }
 
+    //@ private invariant fields != null;
     private Field[] fields;
+
     private boolean first;
 
+    //@ ensures first;
     public Board() {
         first = true;
         fields = new Field[36];
@@ -71,7 +86,11 @@ public class Board {
         }
     }
 
+    //@ pure
+    //@ ensures \result != null;
+    //@ requires tile != null;
     public int[] getPossibleFields(Tile tile) {
+        assert tile != null;
         ArrayList<Integer> possibleFields = new ArrayList<>();
         for (int i = 0; i < fields.length; i++) {
             if (isValidMove(tile, i)) {
@@ -81,11 +100,17 @@ public class Board {
         return Utils.IntegerListToArray(possibleFields);
     }
 
+    //@ pure
+    //@ ensures \result == first && !MULTIPLICITY_4.contains(index) && !MULTIPLICITY_3.contains(index) &&
+    // !MULTIPLICITY_2.contains(index)) || (getMatchingSides(tile, index) > 0 && fields[index].getTile() == null);
     public boolean isValidMove(Tile tile, int index) {
         return (first && !MULTIPLICITY_4.contains(index) && !MULTIPLICITY_3.contains(index) && !MULTIPLICITY_2.contains(index)) || (getMatchingSides(tile, index) > 0 && fields[index].getTile() == null);
     }
 
+    //@ requires isValidMove(tile, index);
+    //@ ensures \result > 0
     public int place(Tile tile, int index) throws MoveException {
+        assert isValidMove(tile, index);
         if (first) {
             if (!MULTIPLICITY_4.contains(index) && !MULTIPLICITY_3.contains(index) && !MULTIPLICITY_2.contains(index)) {
                 fields[index].place(tile);
@@ -104,7 +129,11 @@ public class Board {
     }
 
     // returns an int with the amount of matching sides
+    //@ pure
+    //@ requires isLegal(index);
+    //@ ensures \result == 0 || \result == counter && \result <= 3;
     private int getMatchingSides(Tile tile, int index) {
+        assert isLegal(index);
         if (isLegal(index)) {
             int counter = 0, result = 0;
             int[] coordinates = getCoordinatesFromIndex(index);
@@ -127,6 +156,7 @@ public class Board {
         throw new IndexOutOfBoundsException();
     }
 
+    //@ pure
     private int[] getNeighbours(int[] coordinates) {
         int row = coordinates[0];
         int column = coordinates[1];
@@ -135,7 +165,10 @@ public class Board {
 
     // returns an int[] of the indices of the surrounding fields, from left to right
     // resulting array could contain -1, if the field has less than 3 neighbours
+    //@ requires isLegal(row, column);
+    //@ ensures \result.length == 3;
     private int[] getNeighbours(int row, int column) {
+        assert isLegal(row, column);
         if (isLegal(row, column)) {
             int index;
             int[] neighbours = new int[3];
@@ -162,13 +195,18 @@ public class Board {
     }
 
     // returns 0 for upwards, 1 for downwards
+    //@ pure
+    //@ requires isLegal(row, column);
+    //@ ensures \result == (row + column) % 2;
     private int getRotation(int row, int column) {
+        assert isLegal(row, column);
         if (isLegal(row, column)) {
             return (row + column) % 2;
         }
         throw new IndexOutOfBoundsException();
     }
 
+    //@ pure
     private int getRotation(int[] coordinates) {
         int row = coordinates[0];
         int column = coordinates[1];
@@ -176,7 +214,11 @@ public class Board {
     }
 
     // returned Field[] might have empty fields on illegal indices
+    //@ pure
+    //@ requires indices != null;
+    //@ ensures indices.length == \result.length;
     private Field[] indicesToFields(int[] indices) {
+        assert indices != null;
         Field[] fields = new Field[indices.length];
         for (int i = 0; i < fields.length; i++) {
             if (isLegal(indices[i])) {

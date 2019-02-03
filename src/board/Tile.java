@@ -40,6 +40,9 @@ public class Tile {
     }
 
     public void rotate(int rotation) {
+        while (rotation < 0) {
+            rotation += 3;
+        }
         Color[] result = new Color[3];
         for (int i = 0; i < 3; i++) {
             result[i] = colors[(i + rotation) % 3];
@@ -52,7 +55,7 @@ public class Tile {
             Tile tile = (Tile) obj;
             List<Color> tileColors = Arrays.asList(tile.colors);
             List<Color> myColors = Arrays.asList(colors);
-            return myColors.containsAll(tileColors) && tileColors.containsAll(myColors);
+            return tile.multiplier == multiplier && myColors.containsAll(tileColors) && tileColors.containsAll(myColors);
         }
         return false;
     }
