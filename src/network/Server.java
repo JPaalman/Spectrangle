@@ -268,6 +268,7 @@ public class Server implements ServerProtocol {
                 //if the client makes a move
                 if(!clientGame.getStarted()) {//if the game hasn't started yet
                     forwardToGame(exception("This game has not yet started"), client);
+                    break;
                 }
                 if (clientGame.turn() == clientPlayer) {
                     int multiplier = Integer.parseInt(splitMessage[1]);
@@ -278,6 +279,7 @@ public class Server implements ServerProtocol {
 
                     if(!clientPlayer.getInventory().contains(tile)) {//if he does not have the piece
                         client.writeMessage(exception("You do not have this piece"));
+                        break;
                     }
 
                     int index = Integer.parseInt(splitMessage[5]);
@@ -288,6 +290,7 @@ public class Server implements ServerProtocol {
                             forwardToGame(move(clientPlayer, tile, index), client);
                         } else {
                             client.writeMessage(exception("Invalid move :("));
+                            break;
                         }
 
                         if (newTile != null) { //give a new piece if the bag isn't empty
@@ -298,6 +301,7 @@ public class Server implements ServerProtocol {
                         forwardToGame(turn(clientGame.turn()), client);
                     } catch (MoveException e) {
                         client.writeMessage(exception("illegal move"));
+                        break;
                     }
                 } else {
                     client.writeMessage(exception("It is not your turn!"));
@@ -307,6 +311,7 @@ public class Server implements ServerProtocol {
             case "swap":
                 if(!clientGame.getStarted()) {//if the game hasn't started yet
                     forwardToGame(exception("This game has not yet started"), client);
+                    break;
                 }
 
                 if (clientGame.turn() == clientPlayer) {
@@ -329,10 +334,12 @@ public class Server implements ServerProtocol {
 
                         if(!clientPlayer.getInventory().contains(oldTile)) {//if he does not have the piece
                             client.writeMessage(exception("You do not have this piece"));
+                            break;
                         }
 
                         if(clientGame.getBag().isEmpty()) {
                             client.writeMessage(exception("Cannot swap the bag is empty"));
+                            break;
                         }
 
                         Tile newTile = clientGame.getBag().take();
@@ -350,6 +357,7 @@ public class Server implements ServerProtocol {
             case "skip":
                 if(!clientGame.getStarted()) {//if the game hasn't started yet
                     client.writeMessage(exception("This game has not yet started"));
+                    break;
                 }
 
                 if (clientGame.turn() == clientPlayer) {
