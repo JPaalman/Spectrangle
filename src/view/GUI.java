@@ -294,6 +294,15 @@ public class GUI implements View {
         try {
             JCheckBox botCheckBox = (JCheckBox) logIn.getComponent(5);
             bot = botCheckBox.isSelected();
+            if(bot) {
+                try {
+                    int thinkingTime = Integer.parseInt((String) JOptionPane.showInputDialog(frame, "Please enter the AI thinking time in seconds", "Thinking time", JOptionPane.INFORMATION_MESSAGE, null, null, 0));
+                    client.setThinkintTime(thinkingTime);
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(frame, "Set thinking time to 0", "Illegal input", JOptionPane.ERROR_MESSAGE);
+                    client.setThinkintTime(0);
+                }
+            }
             username = ((JTextField) logIn.getComponent(3)).getText();
             client.setName(username);
             if(serverBrowser == null) {

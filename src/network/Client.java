@@ -20,6 +20,7 @@ import java.io.PrintWriter;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 public class Client implements ClientProtocol {
     private String name;
@@ -30,6 +31,7 @@ public class Client implements ClientProtocol {
     private ArrayList<ConnectedServer> connectedServers;
     private ConnectedServer joinedServer;
     private static final int PORT = 2019;
+    private int thinkingTime;
 
     //starts this program from the client-side
     public static void main(String[] args) {
@@ -181,6 +183,11 @@ public class Client implements ClientProtocol {
                 //notify GUI whose turn it is
                 String username = splitMessage[1];
                 if (username.equals(name) && player instanceof ComputerPlayer) {
+                    try {
+                        TimeUnit.SECONDS.sleep(thinkingTime);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     String move = ((ComputerPlayer) player).getMove(game.getBoard());
                     if (move.equals("skip")) {
                         if (!game.getBag().isEmpty()) {
@@ -386,6 +393,10 @@ public class Client implements ClientProtocol {
             }
         }
         return null;
+    }
+
+    public void setThinkintTime(int thinkingTime) {
+        this.thinkingTime = thinkingTime;
     }
 
     //a server that a client is connected to

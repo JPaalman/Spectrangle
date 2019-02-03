@@ -8,9 +8,20 @@ public class GUIGame {
     private JButton forfeitButton;
     private JPanel mainPanel;
     private JTextArea boardArea;
+    private JTextArea inputArea;
+    private JTextArea inventoryArea;
+    private JTextArea messagesArea;
+    private JButton sendButton;
+    private JButton skipTurnButton;
+    private JButton swapPieceButton;
+    private JPanel inputPanel;
+    private JLabel usernameLabel;
+    private JButton movePieceButton;
+    private JButton leaveButton;
+    private JButton hintButton;
 
-    public JPanel getOptions() {
-        return options;
+    public JButton getHintButton() {
+        return hintButton;
     }
 
     public JButton getForfeitButton() {
@@ -45,28 +56,17 @@ public class GUIGame {
         return swapPieceButton;
     }
 
-    public JPanel getInputPanel() {
-        return inputPanel;
-    }
-
     public JLabel getUsernameLabel() {
         return usernameLabel;
     }
-
-    private JTextArea inputArea;
-    private JTextArea inventoryArea;
-    private JTextArea messagesArea;
-    private JButton sendButton;
-    private JButton skipTurnButton;
-    private JButton swapPieceButton;
-    private JPanel inputPanel;
-    private JLabel usernameLabel;
 
     public JButton getMovePieceButton() {
         return movePieceButton;
     }
 
-    private JButton movePieceButton;
+    public JButton getLeaveButton() {
+        return leaveButton;
+    }
 
     public JPanel getPanel() {
         return mainPanel;
@@ -107,6 +107,12 @@ public class GUIGame {
         movePieceButton = new JButton();
         movePieceButton.setText("Move piece");
         options.add(movePieceButton);
+        leaveButton = new JButton();
+        leaveButton.setText("Leave");
+        options.add(leaveButton);
+        hintButton = new JButton();
+        hintButton.setText("Hint");
+        options.add(hintButton);
         inputPanel = new JPanel();
         inputPanel.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
         mainPanel.add(inputPanel, new com.intellij.uiDesigner.core.GridConstraints(2, 0, 1, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
