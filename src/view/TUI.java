@@ -8,7 +8,7 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class TUI implements View {
+public class TUI {
     private ArrayList<Integer> bonuses = new ArrayList<>(Arrays.asList(1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 2, 4, 1, 4, 2, 1, 1, 1, 1, 1, 4, 1, 1, 1, 1, 1, 3, 1, 1, 1, 2, 1, 1, 1, 3, 1));
     private ArrayList<Integer> values = new ArrayList<>(Arrays.asList(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null));
     private ArrayList<Character> vertical = new ArrayList<>(Arrays.asList(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null));
@@ -117,10 +117,6 @@ public class TUI implements View {
         return indexed_values;
     }
 
-    @Override
-    public void start() {
-    }
-
     public void makeMove(Tile tile, int index) {
         values.remove(index);
         values.add(index, tile.getMultiplier());
@@ -133,53 +129,10 @@ public class TUI implements View {
         right.add(index, Protocol.COLOR_STRING_MAP.get(colors[2]).charAt(0));
     }
 
+    //returns the board in String
+    //@ pure
     public String getBoard() {
         return getBoardString(values, vertical, left, right);
-    }
-
-    @Override
-    public void serverList() {
-
-    }
-
-    @Override
-    public void gameList() {
-
-    }
-
-    @Override
-    public void addServer(String address, String port, String name) {
-
-    }
-
-    @Override
-    public void setUsername() {
-
-    }
-
-    @Override
-    public void gameWindow() {
-
-    }
-
-    @Override
-    public void createServer() {
-
-    }
-
-    @Override
-    public void refresh() {
-
-    }
-
-    @Override
-    public void loginScreen() {
-
-    }
-
-    @Override
-    public void update(Observable o, Object arg) {
-
     }
 }
 

@@ -52,7 +52,7 @@ public class GUI implements View {
     }
 
     //initializes the frame and draws the login screen
-    //@ ensures frame != null && frame.isVisible() == true;
+    //@ ensures frame != null && frame.isVisible() == true && guiGame != null && inventoryArea != null && gameList != null && gameJlist != null && gamesModel != null;
     @Override
     public void start() {
         frame = new JFrame("Spectrangle");
@@ -73,7 +73,7 @@ public class GUI implements View {
     @Override
     //shows the server list GUI
     //@ requires frame != null;
-    //@ ensures serverBrowser != null;
+    //@ ensures serverBrowser != null && model != null && serverJList != null;
     public void serverList() {
         serverBrowser = new GUIServerBrowser().getMainPanel();
         frame.setContentPane(serverBrowser);
@@ -118,6 +118,7 @@ public class GUI implements View {
     }
 
     //notify the client whose turn it is
+    //@ requires name != null && username != null && client != null && frame != null && inventoryArea != null;
     public void notifyTurn(String name) {
         if(name.equals(username) && !(client.getPlayer() instanceof ComputerPlayer)) {
             JOptionPane.showMessageDialog(frame, "It's your turn!");
@@ -128,6 +129,7 @@ public class GUI implements View {
     }
 
     //opens the GUI for the game list screen
+    //@ requires frame != null && gameList != null && gameJList != null;
     @Override
     public void gameList() {
         frame.setContentPane(gameList);
@@ -168,6 +170,7 @@ public class GUI implements View {
     }
 
     //creates a game on the connected server
+    //@ requires connectedServer != null && client != null;
     private void createGame() {
         String[] options = { "2", "3", "4" };
         String result = (String) JOptionPane.showInputDialog(frame, "Please enter the max player amount (must be between 2-4", "Create game", JOptionPane.QUESTION_MESSAGE, null, options, options[2]);
@@ -180,8 +183,7 @@ public class GUI implements View {
     }
 
     //updates the inventory area to display the toString() of all players
-    //@ requires players != null;
-    //@ requires inventoryArea != null;
+    //@ requires players != null && inventoryArea != null;
     public void updateInventory(ArrayList<Player> players) {
         inventoryArea.selectAll();
         inventoryArea.replaceSelection("");
@@ -193,7 +195,7 @@ public class GUI implements View {
     }
 
     //updates the board to include the move
-    //@ requires tile != null && index != null;
+    //@ requires tile != null && index != null && tui != null && boardArea != null;
     public void drawMove(Tile tile, int index) {
         tui.makeMove(tile, index);
         boardArea.selectAll();
@@ -207,17 +209,19 @@ public class GUI implements View {
     }
 
     //announces the winner(s) of the game
-    //@ requires winners != null;
+    //@ requires winners != null && frame != null;
     public void announceWinners(String winners) {
         JOptionPane.showMessageDialog(frame, winners + " won the game!");
     }
 
     //notifies the user of an exception
-    //@ requires message != null;
+    //@ requires message != null && frame != null;
     public void exception(String message) {
         JOptionPane.showMessageDialog(frame, message, "exception", JOptionPane.ERROR_MESSAGE);
     }
 
+    //notifies the player if someone skipped a turn
+    //@ requires username != null && this.username != null && client != null;
     public void skipTurn(String username) {
         if(username.equals(this.username) && !(client.getPlayer() instanceof ComputerPlayer)) {
             JOptionPane.showMessageDialog(frame, "You skipped your turn!");
@@ -235,13 +239,14 @@ public class GUI implements View {
     }
 
     //leaves a server
+    //@ requires connectedServer != null && client != null && frame != null && serverBrowser != null;
     private void leave() {
         connectedServer.writeMessage(client.leave());
         frame.setContentPane(serverBrowser);
     }
 
     //adds a game to the game list
-    //@ requires name != null && maxPlayers != null && gameJList != null;
+    //@ requires name != null && maxPlayers != null && gameJList != null && gamesModel != null;
     public void addGameToList(String name, String maxPlayers, String playeramount) {
         String gameInformation = "Game name: #" + name + "# max players: #" + maxPlayers + "# current amount of players: #" + playeramount;
         for(int i = 0; i < gamesModel.getSize(); i++) {
@@ -255,7 +260,7 @@ public class GUI implements View {
     }
 
     //Adds a server manually to the server list
-    //@ requires frame != null;
+    //@ requires frame != null && client != null;
     public void addServerManually() {
         JTextField address = new JTextField();
         address.setText("255.255.255.255");

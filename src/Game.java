@@ -3,10 +3,6 @@ package group92.spectrangle;
 import group92.spectrangle.board.Bag;
 import group92.spectrangle.board.Board;
 import group92.spectrangle.board.Tile;
-import group92.spectrangle.exceptions.IllegalNameException;
-import group92.spectrangle.network.Client;
-import group92.spectrangle.network.Server;
-import group92.spectrangle.players.ClientPlayer;
 import group92.spectrangle.players.Player;
 
 import java.util.ArrayList;
@@ -14,19 +10,6 @@ import java.util.Collections;
 
 public class Game {
 
-    public static void main(String[] args) {
-        if (args.length > 0) {
-            try {
-                new Server(args[0]).create();
-            } catch (IllegalNameException e) {
-                throw new RuntimeException("YEET");
-            }
-        } else {
-            new Client();
-        }
-    }
-
-    private final String USAGE = "Usage: <server | client> + <name>";
     private Bag bag;
     private Board board;
     private int maxPlayers;
@@ -34,7 +17,7 @@ public class Game {
     private boolean started = false;
     private int turnNumber;
 
-    //initialize a game with a max players count
+    //initialize this game with a max players count
     //@ requires maxPlayers <= 4 && maxPlayers >= 2;
     //@ ensures maxPlayers != null && players != null && board != null && bag != null;
     public Game(int maxPlayers) {
@@ -44,18 +27,14 @@ public class Game {
         bag = new Bag();
     }
 
-    //adds a player to a game
+    //adds a player to this game
     public void addPlayer(Player player) {
         players.add(player);
     }
 
+    //removes a player from this game
     public void removePlayer(Player player) {
         players.remove(players.indexOf(player));
-    }
-
-    public void createClient(String name) throws IllegalNameException {
-        Player player = new ClientPlayer(name);
-        players.add(player);
     }
 
     //distribute the first tiles, use this to determine who moves first based on the highest multiplier piece
@@ -98,15 +77,13 @@ public class Game {
         }
     }
 
-    public void errorMessage(String error) {
-        System.out.println(error + "\n" + USAGE);
-    }
-
+    //returns the bag
     //@ pure
     public Bag getBag() {
         return bag;
     }
 
+    //returns the board
     //@ pure
     public Board getBoard() {
         return board;
@@ -143,10 +120,6 @@ public class Game {
     public boolean getStarted() {
         return started;
     }
-
-    //    public void start() {
-    //        GUIServerBrowser.launch(GUIServerBrowser.class);
-    //    }
 
     //checks whether there is space for another player
     public boolean hasSpace() {
