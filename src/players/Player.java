@@ -43,6 +43,7 @@ public abstract class Player extends Observable {
             inventory.add(tile);
             return true;
         } else {
+            System.out.println("did not add piece");
             return false;
         }
     }

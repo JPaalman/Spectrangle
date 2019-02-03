@@ -57,6 +57,10 @@ public class Bag {
         tiles.addAll(Arrays.asList(TILES));
     }
 
+    public ArrayList<Tile> getTiles() {
+        return tiles;
+    }
+
     public void put(Tile tile) {
         tiles.add(tile);
     }
@@ -67,6 +71,9 @@ public class Bag {
     }
 
     public Tile take() {
+        if(isEmpty()) {
+            return null;
+        }
         Tile out = tiles.get((int) (Math.random() * tiles.size()));
         tiles.remove(out);
         return out;
@@ -74,6 +81,14 @@ public class Bag {
 
     public boolean isEmpty() {
         return tiles.size() == 0;
+    }
+
+    public void removePiece(Tile tile) {
+        tiles.remove(tile);
+    }
+
+    public void addPiece(Tile tile) {
+        tiles.add(tile);
     }
 
 }

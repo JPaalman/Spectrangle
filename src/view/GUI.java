@@ -212,7 +212,6 @@ public class GUI implements View {
         boardArea.selectAll();
         boardArea.replaceSelection("");
         boardArea.append(tui.getBoard());
-        //TODO
     }
 
     //announces the winner(s) of the game
@@ -228,9 +227,9 @@ public class GUI implements View {
     }
 
     public void skipTurn(String username) {
-        if(username.equals(this.username)) {
+        if(username.equals(this.username) && !(client.getPlayer() instanceof ComputerPlayer)) {
             JOptionPane.showMessageDialog(frame, "You skipped your turn!");
-        } else {
+        } else if (!(client.getPlayer() instanceof ComputerPlayer)) {
             JOptionPane.showMessageDialog(frame, username + " skipped his turn");
 
         }
@@ -415,7 +414,7 @@ public class GUI implements View {
         client.getGame().addPlayer(client.getPlayer());
 
         tui = new TUI();
-        messagesArea.append(TUI.HELP);
+        messagesArea.append(tui.HELP);
 
         boardArea.append(tui.getBoard());
     }
@@ -444,7 +443,7 @@ public class GUI implements View {
         String firstArg = splitCommand[0];
         switch(firstArg) {
             case "help" :
-                messagesArea.append("\n" + TUI.HELP);
+                messagesArea.append("\n" + tui.HELP);
                 break;
             case Protocol.MESSAGE :
                 connectedServer.writeMessage(client.message(splitCommand[1]));
@@ -501,10 +500,6 @@ public class GUI implements View {
     //Forfeit a game
     private void forfeit() {
         connectedServer.writeMessage(client.leave());
-//        PrintStream ps = new PrintStream(new FileOutputStream(FileDescriptor.out));
-//        System.setOut(ps);
-//        System.setOut(ps);
-//        System.out.println("[Client] Back to the old console");
         frame.setContentPane(gameList);
     }
 

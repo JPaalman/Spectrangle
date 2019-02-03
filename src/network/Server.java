@@ -331,6 +331,10 @@ public class Server implements ServerProtocol {
                             client.writeMessage(exception("You do not have this piece"));
                         }
 
+                        if(clientGame.getBag().isEmpty()) {
+                            client.writeMessage(exception("Cannot swap the bag is empty"));
+                        }
+
                         Tile newTile = clientGame.getBag().take();
                         clientPlayer.swap(newTile, oldTile);
                         clientGame.getBag().put(oldTile);
@@ -345,7 +349,7 @@ public class Server implements ServerProtocol {
                 break;
             case "skip":
                 if(!clientGame.getStarted()) {//if the game hasn't started yet
-                    forwardToGame(exception("This game has not yet started"), client);
+                    client.writeMessage(exception("This game has not yet started"));
                 }
 
                 if (clientGame.turn() == clientPlayer) {
@@ -373,6 +377,16 @@ public class Server implements ServerProtocol {
                                             break outerLoop;
                                         }
                                     }
+
+                                    for(Tile t : clientGame.getBag().getTiles()) {
+                                        if(clientGame.getBoard().getPossibleFields(t).length != 0) {
+                                            forwardToGame(skip(clientPlayer), client);
+                                            clientGame.incrementTurn();
+                                            forwardToGame(turn(clientGame.turn()), client);
+                                            break outerLoop;
+                                        }
+                                    }
+
                                     //if you get here the game is over
                                     int highestScore = 0;
                                     ArrayList<Player> winners = new ArrayList<>();
@@ -384,6 +398,7 @@ public class Server implements ServerProtocol {
                                             winners.add(possibleWinner);
                                         }
                                     }
+                                    forwardToGame(end(winners.toArray(new Player[winners.size()])), client);
                                 }
                             }
                         }
@@ -679,9 +694,6 @@ public class Server implements ServerProtocol {
                 String message = read();
                 String[] splitMessage = message.split(";");
                 server.readMessage(splitMessage, this);
-                long time = 0;
-                System.out.println("LÖÖP" + (System.currentTimeMillis() - time));
-                time = System.currentTimeMillis();
             }
             disconnect();
             server.removeClient(this);

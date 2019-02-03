@@ -10,27 +10,12 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class TUI implements View {
-    private static ArrayList<Integer> bonuses = new ArrayList<>(Arrays.asList(1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 2, 4, 1, 4, 2, 1, 1, 1, 1, 1, 4, 1, 1, 1, 1, 1, 3, 1, 1, 1, 2, 1, 1, 1, 3, 1));
-    private static ArrayList<Integer> values = new ArrayList<>(Arrays.asList(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null));
-    private static ArrayList<Character> vertical = new ArrayList<>(Arrays.asList(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null));
-    private static ArrayList<Character> left = vertical;
-    private static ArrayList<Character> right = vertical;
-    public static final String HELP = "use ';' between commands\nhelp - for help\nstart - to start the game, needs at least 2 players\nmove <piece> <index> - to move a piece\nswap <piece> - to swap a piece\nskip - to skip\nleave - to leave\nmessage <message> - to send a message";
-
-    public static void main(String[] args) {
-        // This is an example of how to use the function below.
-        System.out.println(getBoardString(values, vertical, left, right));
-    }
-
-    public void TUI() {
-        //TODO
-//        ArrayList<Character> test = new ArrayList<>(bonuses.);
-//        bonuses = new ArrayList<>();
-//        values = new ArrayList<>();
-//        vertical = new ArrayList<>();
-//        left = new ArrayList<>();
-//        right = new ArrayList<>();
-    }
+    private ArrayList<Integer> bonuses = new ArrayList<>(Arrays.asList(1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 2, 4, 1, 4, 2, 1, 1, 1, 1, 1, 4, 1, 1, 1, 1, 1, 3, 1, 1, 1, 2, 1, 1, 1, 3, 1));
+    private ArrayList<Integer> values = new ArrayList<>(Arrays.asList(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null));
+    private ArrayList<Character> vertical = new ArrayList<>(Arrays.asList(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null));
+    private ArrayList<Character> left = new ArrayList<>(Arrays.asList(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null));
+    private ArrayList<Character> right = new ArrayList<>(Arrays.asList(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null));
+    public final String HELP = "use ';' between commands\nhelp - for help\nstart - to start the game, needs at least 2 players\nmove <piece> <index> - to move a piece\nswap <piece> - to swap a piece\nskip - to skip\nleave - to leave\nmessage <message> - to send a message";
 
     /**
      * Method to print a board of Spectrangle, given the properties of the pieces that reside on it.
@@ -69,7 +54,7 @@ public class TUI implements View {
      *                 on it, the value is a character representing the color of the right side of the piece.
      * @return A string representing the state of the board as given.
      */
-    public static String getBoardString(List<Integer> values, List<Character> vertical, List<Character> left, List<Character> right) {
+    public String getBoardString(List<Integer> values, List<Character> vertical, List<Character> left, List<Character> right) {
         // All lists should have exactly 36 items.
         if (!Stream.of(values, vertical, left, right).parallel().map(List::size).allMatch(n -> n == 36)) {
             throw new IllegalArgumentException("Input lists should all have 36 items, one for each field on the board.");
@@ -125,7 +110,7 @@ public class TUI implements View {
         return template;
     }
 
-    private static <K> Map<Integer, K> listToMap(List<K> inputList) {
+    private <K> Map<Integer, K> listToMap(List<K> inputList) {
         Map<Integer, K> indexed_values = new HashMap<>();
         for (int i = 0; i < values.size(); i++) {
             indexed_values.put(i, inputList.get(i));

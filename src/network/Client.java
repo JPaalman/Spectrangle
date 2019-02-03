@@ -167,8 +167,8 @@ public class Client implements ClientProtocol {
                     Color c3 = Protocol.STRING_COLOR_MAP.get(splitMessage[i + 3]);
                     Tile tile = new Tile(multiplier, c1, c2, c3);
                     p.addPiece(tile);
+                    game.getBag().removePiece(tile);
                 }
-
                 gui.updateInventory(game.getPlayers());
                 break;
 
@@ -178,7 +178,6 @@ public class Client implements ClientProtocol {
                 String username = splitMessage[1];
                 if (username.equals(name) && player instanceof ComputerPlayer) {
                     String move = ((ComputerPlayer) player).getMove(game.getBoard());
-                    System.out.println("bot made this move: " + move);
                     if (move.equals("skip")) {
                         if (!game.getBag().isEmpty()) {
                             connectedServer.writeMessage(swap(player.getInventory().get((int) Math.random() * player.getInventory().size())));
@@ -200,16 +199,15 @@ public class Client implements ClientProtocol {
                 Color c2 = Protocol.STRING_COLOR_MAP.get(splitMessage[4]);
                 Color c3 = Protocol.STRING_COLOR_MAP.get(splitMessage[5]);
                 int index = Integer.parseInt(splitMessage[6]);
-
                 Tile tile = new Tile(multiplier, c1, c2, c3);
                 try {
                     game.getPlayer(username).makeMove(game.getBoard(), tile, index);
+                    gui.updateInventory(game.getPlayers());
                 } catch (MoveException e) {
                     System.out.println("[Client] invalid move"); //should not happen
                     e.printStackTrace();
                 }
                 gui.drawMove(tile, index);
-
                 break;
             }
             case "swap": {
@@ -228,6 +226,8 @@ public class Client implements ClientProtocol {
                 Tile newTile = new Tile(multiplier, c1, c2, c3);
                 Player player = game.getPlayer(username);
                 player.removePiece(oldTile);
+                game.getBag().removePiece(newTile);
+                game.getBag().addPiece(oldTile);
                 player.addPiece(newTile);
                 gui.updateInventory(game.getPlayers());
 
