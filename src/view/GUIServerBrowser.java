@@ -5,13 +5,13 @@ import java.awt.*;
 
 public class GUIServerBrowser {
     private JButton changeUsernameButton;
-    private JButton addServerManuallyButton;
+    private JButton searchForServerOnButton1;
     private JList serverList;
     private JLabel usernameField;
     private JPanel optionPanel;
     private JPanel mainPanel;
     private JButton createServerButton;
-    private JButton refreshButton;
+    private JButton searchForServerOnButton;
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("Spectrangle");
@@ -51,15 +51,15 @@ public class GUIServerBrowser {
         changeUsernameButton = new JButton();
         changeUsernameButton.setText("Change username");
         optionPanel.add(changeUsernameButton);
-        addServerManuallyButton = new JButton();
-        addServerManuallyButton.setText("Add server manually");
-        optionPanel.add(addServerManuallyButton);
+        searchForServerOnButton1 = new JButton();
+        searchForServerOnButton1.setText("Search for server on custom port and address");
+        optionPanel.add(searchForServerOnButton1);
         createServerButton = new JButton();
         createServerButton.setText("Create Server");
         optionPanel.add(createServerButton);
-        refreshButton = new JButton();
-        refreshButton.setText("Refresh");
-        optionPanel.add(refreshButton);
+        searchForServerOnButton = new JButton();
+        searchForServerOnButton.setText("Search for server on port 2019");
+        optionPanel.add(searchForServerOnButton);
         serverList = new JList();
         final DefaultListModel defaultListModel1 = new DefaultListModel();
         serverList.setModel(defaultListModel1);

@@ -3,7 +3,7 @@
   <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="527" height="400"/>
+      <xy x="20" y="20" width="767" height="400"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -27,10 +27,10 @@
               <text value="Change username"/>
             </properties>
           </component>
-          <component id="728a0" class="javax.swing.JButton" binding="addServerManuallyButton" default-binding="true">
+          <component id="728a0" class="javax.swing.JButton" binding="searchForServerOnButton1" default-binding="true">
             <constraints/>
             <properties>
-              <text value="Add server manually"/>
+              <text value="Search for server on custom port and address"/>
             </properties>
           </component>
           <component id="4c7b5" class="javax.swing.JButton" binding="createServerButton" default-binding="true">
@@ -39,10 +39,10 @@
               <text value="Create Server"/>
             </properties>
           </component>
-          <component id="9f10b" class="javax.swing.JButton" binding="refreshButton" default-binding="true">
+          <component id="9f10b" class="javax.swing.JButton" binding="searchForServerOnButton" default-binding="true">
             <constraints/>
             <properties>
-              <text value="Refresh"/>
+              <text value="Search for server on port 2019"/>
             </properties>
           </component>
         </children>

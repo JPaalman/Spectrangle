@@ -68,20 +68,25 @@ public class Server implements ServerProtocol {
         }
     }
 
-    //Creates the server
+    //creates the server with a standard port
     public void create() {
         try {
-            socket = new ServerSocket(PORT);
-            ConnectionHandler connectionHandler = new ConnectionHandler(socket, this);
-            Thread t = new Thread(connectionHandler);
-            t.start();
+            create(PORT);
         } catch (IOException e) {
             System.out.println("[Server] could not open server socket");
-            e.printStackTrace();
         }
     }
 
-    //Adds a connected client to the connected clients list and starts a thread that listens for incoming messages
+    //creates the server with a custom port
+    public void create(int port) throws IOException {
+        socket = new ServerSocket(port);
+        System.out.println("[Server] Opened a server " + socket.toString());
+        ConnectionHandler connectionHandler = new ConnectionHandler(socket, this);
+        Thread t = new Thread(connectionHandler);
+        t.start();
+    }
+
+    //adds a connected client to the connected clients list and starts a thread that listens for incoming messages
     //@ requires clientSocket != null;
     //@ ensures connectedClients.contains(clientSocket);
     public void addClient(Socket clientSocket) {
@@ -424,10 +429,10 @@ public class Server implements ServerProtocol {
             }
             case "disconnect": {
                 //disconnects the client from the server, closes the socket and removes him from the game he is in
-                removePlayerFromGame(client);
-
-                client.disconnect();
-                connectedClients.remove(client);
+                if(clientGame != null) {
+                    removePlayerFromGame(client);
+                }
+                client.setLobby(false);
 
                 break;
             }
@@ -442,7 +447,9 @@ public class Server implements ServerProtocol {
     public void removePlayerFromGame(ConnectedClient client) {
         Game clientGame = client.getGame();
         Player clientPlayer = client.getPlayer();
-        if(!clientGame.getStarted()) {//if the game hasn't started yet
+        if(clientGame == null) {
+            client.writeMessage(exception("you are not in a game"));
+        } else if(!clientGame.getStarted()) {//if the game hasn't started yet
             forwardToGame(leave(clientPlayer), client);
             clientGame.removePlayer(clientPlayer);
         } else {

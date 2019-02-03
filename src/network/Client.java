@@ -29,6 +29,7 @@ public class Client implements ClientProtocol {
     private String ipv4 = "";
     private ArrayList<ConnectedServer> connectedServers;
     private ConnectedServer joinedServer;
+    private static final int PORT = 2019;
 
     //starts this program from the client-side
     public static void main(String[] args) {
@@ -60,6 +61,10 @@ public class Client implements ClientProtocol {
     //@ pure
     public Player getPlayer() {
         return player;
+    }
+
+    public String getIpv4() {
+        return ipv4;
     }
 
     //creates a client with a name, a gui, a list of connected servers
@@ -105,14 +110,14 @@ public class Client implements ClientProtocol {
     //tries to search for a server, if a connection gets made it gets added to the connectedServers list
     //@ requires ipv4 != null;
     public void searchForServer() {
-        searchForServer(ipv4);
+        searchForServer(ipv4, PORT);
     }
 
     //tries to search for a server, if a connection gets made it gets added to the connectedServers list
     //@ requires address != null && connectedServers != null;
-    public void searchForServer(String address) {
+    public void searchForServer(String address, int port) {
         ConnectedServer connectedServer = new ConnectedServer(this);
-        if(connectedServer.joinServer(address)) {
+        if(connectedServer.joinServer(address, port)) {
             connectedServers.add(connectedServer);
         }
     }
@@ -431,22 +436,21 @@ public class Client implements ClientProtocol {
 
         //creates a socket and connects to a server socket if one exists on the specified port
         //@ requires address != null;
-        public boolean joinServer(String address) {
+        public boolean joinServer(String address, int port) {
             try {
                 hostAddress = InetAddress.getByName(address);
-                socket = new Socket(hostAddress, Server.PORT);
+                socket = new Socket(hostAddress, port);
                 ip = socket.getInetAddress().toString();
-                sock = String.valueOf(Server.PORT);
+                sock = String.valueOf(port);
                 out = new PrintWriter(socket.getOutputStream(), true);
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
                 Thread t = new Thread(this);
                 t.start();
-                BufferedReader terminalInput = new BufferedReader(new InputStreamReader(System.in));
                 System.out.println("[Client] Connected to a server: " + socket.toString());
                 writeMessage(scan());
                 return true;
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("Unable to connect");
                 return false;
             }
         }

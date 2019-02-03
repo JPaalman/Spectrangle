@@ -24,7 +24,7 @@
           <component id="c5bdc" class="javax.swing.JButton" binding="leaveButton">
             <constraints/>
             <properties>
-              <text value="Leave"/>
+              <text value="Disconnect"/>
             </properties>
           </component>
           <component id="14f40" class="javax.swing.JButton" binding="refreshButton" default-binding="true">

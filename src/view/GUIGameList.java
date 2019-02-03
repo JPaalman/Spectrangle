@@ -40,7 +40,7 @@ public class GUIGameList {
         usernameLabel.setText("Label");
         optionPanel.add(usernameLabel);
         leaveButton = new JButton();
-        leaveButton.setText("Leave");
+        leaveButton.setText("Disconnect");
         optionPanel.add(leaveButton);
         refreshButton = new JButton();
         refreshButton.setText("Refresh");

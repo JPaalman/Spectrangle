@@ -241,7 +241,7 @@ public class GUI implements View {
     //leaves a server
     //@ requires connectedServer != null && client != null && frame != null && serverBrowser != null;
     private void leave() {
-        connectedServer.writeMessage(client.leave());
+        connectedServer.writeMessage(client.disconnect());
         frame.setContentPane(serverBrowser);
     }
 
@@ -263,7 +263,7 @@ public class GUI implements View {
     //@ requires frame != null && client != null;
     public void addServerManually() {
         JTextField address = new JTextField();
-        address.setText("255.255.255.255");
+        address.setText(client.getIpv4());
         JTextField port = new JTextField();
         port.setText("2019");
 
@@ -275,9 +275,7 @@ public class GUI implements View {
         serverPanel.add(port);
         int result = JOptionPane.showConfirmDialog(frame, serverPanel, "Please enter the address and the port", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
-            client.searchForServer(address.getText());
-        } else if (result == JOptionPane.CANCEL_OPTION) {
-
+            client.searchForServer(address.getText(), Integer.parseInt(port.getText()));
         }
     }
 
@@ -504,17 +502,36 @@ public class GUI implements View {
     //@ ensures !JOptionPane.showInputDialog("Please enter a server name").contains(";") => server != null;
     @Override
     public void createServer() {
-        String result = JOptionPane.showInputDialog("Please enter a server name");
-        if(server == null) {
-            try {
-                server = new Server(result);
-                server.create();
-            } catch (IllegalNameException e) {
-                JOptionPane.showMessageDialog(frame, "Invalid server name, please do not use ';' in the server name.", "Ilegal server name", JOptionPane.ERROR_MESSAGE);
-            }
-        } else {
-            JOptionPane.showMessageDialog(frame, "You already have a server open", "Server already open", JOptionPane.ERROR_MESSAGE);
 
+        JTextField serverName = new JTextField();
+        serverName.setText("DefaultServerName");
+        JTextField port = new JTextField();
+        port.setText("2019");
+
+        JPanel serverPanel = new JPanel();
+        serverPanel.add(new JLabel("Server name: "));
+        serverPanel.add(serverName);
+        serverPanel.add(Box.createHorizontalStrut(15));
+        serverPanel.add(new JLabel("Port:"));
+        serverPanel.add(port);
+        int result = JOptionPane.showConfirmDialog(frame, serverPanel, "Create a server", JOptionPane.OK_CANCEL_OPTION);
+        if (result == JOptionPane.OK_OPTION) {
+            boolean success = false;
+            try {
+                server = new Server(serverName.getText());
+                success = true;
+            } catch (IllegalNameException e) {
+                JOptionPane.showMessageDialog(frame, "Invalid server name", "Invalid name", JOptionPane.ERROR_MESSAGE);
+            }
+            try {
+                if(success) {
+                    server.create(Integer.parseInt(port.getText()));
+                    client.searchForServer(client.getIpv4(), Integer.parseInt(port.getText()));
+                }
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(frame, "Unable to create a server on port " + port.getText(), "IOException", JOptionPane.ERROR_MESSAGE);
+
+            }
         }
     }
 
