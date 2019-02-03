@@ -14,10 +14,11 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Observable;
 
 public class GUI implements View {
 
+    //@ requires client != null;
+    //@ ensures this.client == client;
     public GUI(Client client) {
         this.client = client;
     }
@@ -47,6 +48,8 @@ public class GUI implements View {
     private boolean bot;
     private GUIGame guiGame;
 
+    //returns the bot boolean which specifies whether the client is a bot or not
+    //@ pure
     public boolean getBot() {
         return bot;
     }
@@ -407,6 +410,10 @@ public class GUI implements View {
             executeCommand();
         });
 
+        leaveButton.addActionListener(e -> {
+            forfeit();
+        });
+
         //an action for when someone presses enter in the inputArea
         Action pressedEnter = new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
@@ -433,26 +440,34 @@ public class GUI implements View {
         boardArea.append(tui.getBoard());
     }
 
+    //displays a hint to the user
+    //@ requires hint != null && frame != null;
     private void giveHint(String hint) {
         JOptionPane.showMessageDialog(frame, hint, "Hint", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    //displays the invalid move error message
+    //@ requires frame != null;
     public void invalidMove() {
         JOptionPane.showMessageDialog(frame, "Invalid move", "Invalid move", JOptionPane.ERROR_MESSAGE);
     }
 
+    //displays the invalid skip error message
+    //@ requires frame != null;
     public void invalidSkip() {
         JOptionPane.showMessageDialog(frame, "Invalid skip", "Invalid skip", JOptionPane.ERROR_MESSAGE);
 
     }
 
+    //displays the invalid swap error message
+    //@ requires frame != null;
     public void invalidSwap() {
         JOptionPane.showMessageDialog(frame, "Invalid skip", "Invalid skip", JOptionPane.ERROR_MESSAGE);
 
     }
 
     //executes a command
-    //@ requires command != null;
+    //@ requires inputArea != null;
     public void executeCommand() {
         String command = inputArea.getText();
         inputArea.selectAll();
@@ -470,12 +485,11 @@ public class GUI implements View {
                 connectedServer.writeMessage(client.start());
                 break;
             case Protocol.MOVE :
-                int multiplier = Integer.parseInt(splitCommand[1]);
-                Color c1 = Protocol.STRING_COLOR_MAP.get(splitCommand[2]);
-                Color c2 = Protocol.STRING_COLOR_MAP.get(splitCommand[3]);
-                Color c3 = Protocol.STRING_COLOR_MAP.get(splitCommand[4]);
-                int index = Integer.parseInt(splitCommand[5]);
-                Tile tile = new Tile(multiplier, c1, c2, c3);
+                int pieceNumber = Integer.parseInt(splitCommand[1]);
+                int index = Integer.parseInt(splitCommand[2]);
+                int rotation = Integer.parseInt(splitCommand[3]);
+                Tile tile = client.getPlayer().getInventory().get(pieceNumber - 1);
+                tile.rotate(rotation);
                 if(client.getGame().getBoard().isValidMove(tile, index)) {
                     connectedServer.writeMessage(client.move(tile, index));
                 } else {
@@ -483,11 +497,8 @@ public class GUI implements View {
                 }
                 break;
             case Protocol.SWAP :
-                multiplier = Integer.parseInt(splitCommand[1]);
-                c1 = Protocol.STRING_COLOR_MAP.get(splitCommand[2]);
-                c2 = Protocol.STRING_COLOR_MAP.get(splitCommand[3]);
-                c3 = Protocol.STRING_COLOR_MAP.get(splitCommand[4]);
-                tile = new Tile(multiplier, c1, c2, c3);
+                pieceNumber = Integer.parseInt(splitCommand[1]);
+                tile = client.getPlayer().getInventory().get(pieceNumber - 1);
                 for(Tile t : client.getPlayer().getInventory()) {
                     if(client.getGame().getBoard().getPossibleFields(t).length != 0) {
                         invalidSwap();
@@ -515,9 +526,12 @@ public class GUI implements View {
         messagesArea.setCaretPosition(messagesArea.getDocument().getLength());
     }
 
-    //Forfeit a game
+    //forfeit a game
+    //@ requires client != null && connectedServer != null && frame != null && gameList != null;
     private void forfeit() {
-        connectedServer.writeMessage(client.leave());
+        if(client.getGame() != null) {
+            connectedServer.writeMessage(client.leave());
+        }
         frame.setContentPane(gameList);
     }
 
@@ -562,6 +576,7 @@ public class GUI implements View {
     //@ ensures client != null;
     @Override
     public void refresh() {
+        serverJList.removeAll();
         client.searchForServer();
     }
 
@@ -577,30 +592,9 @@ public class GUI implements View {
         });
     }
 
-    @Override
-    public void update(Observable o, Object arg) {
-        // TODO implement Observer here
-    }
-
-    public class systemOut extends PrintStream {
-        private OutputStream out;
-        private JTextArea textArea;
-
-        public systemOut(OutputStream out, JTextArea textArea) {
-            super(out);
-            this.out = out;
-            this.textArea = textArea;
-        }
-
-        @Override
-        public void write(int b) {
-            textArea.append(String.valueOf((char)b));
-            textArea.setCaretPosition(textArea.getDocument().getLength());
-            try {
-                out.write(b);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+    //clears the game list
+    //@ requires gameJList != null;
+    public void clearGameList() {
+        gameJList.removeAll();
     }
 }

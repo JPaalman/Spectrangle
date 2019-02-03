@@ -142,6 +142,7 @@ public class Client implements ClientProtocol {
             case "respond":
                 //add games to the game list
 
+                gui.clearGameList();
                 for (int i = 1; (i + 2) < splitMessage.length; i = i + 3) {
                     String gameName = splitMessage[i];
                     String maxPlayers = splitMessage[i + 1];
@@ -258,6 +259,12 @@ public class Client implements ClientProtocol {
                     winners += " and " + splitMessage[i];
                 }
                 gui.announceWinners(winners);
+                game = null;
+                try {
+                    setName(name);
+                } catch (IllegalNameException e) {
+                    e.printStackTrace(); // should not happen
+                }
 
                 break;
             case "exception":
